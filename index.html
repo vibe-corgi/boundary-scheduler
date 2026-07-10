@@ -219,6 +219,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .sync-badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:700;background:#e8f5e9;color:#2e7d32;}
 .sync-badge.saving{background:#fff3e0;color:#e65100;}
 .sync-badge.err{background:#ffebee;color:#c62828;}
+.sync-badge.unsaved{background:#fce4ec;color:#c62828;}
+.hbtn.save-btn{background:#2563eb;}
 .user-info{display:flex;align-items:center;gap:7px;margin-left:auto;}
 .user-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;}
 .btn-logout{font-size:11px;color:#aaa;background:none;border:1px solid #eee;border-radius:8px;padding:3px 8px;cursor:pointer;font-family:inherit;}
@@ -318,6 +320,9 @@ function ar(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 // ── Firebase 인증 & 저장 ───────────────────────────────────
 var currentUser = null;
 var saveTimer = null;
+var autoSaveInterval = null;
+var suppressSnapshot = false;
+var hasPendingChanges = false;
 var unsubscribe = null;
 
 function loginGoogle() {
@@ -345,6 +350,7 @@ window.addEventListener('load', function() {
       currentUser = user;
       document.getElementById('loginScreen').style.display = 'none';
       startFirestore();
+      startAutoSave();
     } else {
       currentUser = null;
       document.getElementById('loginScreen').style.display = 'flex';
@@ -389,7 +395,7 @@ function startFirestore() {
       } else {
         initDefaultProject();
       }
-      render();
+      if (!suppressSnapshot) { render(); }
       setSyncBadge('saved');
     }, function(err) {
       setSyncBadge('err');
@@ -401,22 +407,34 @@ function initDefaultProject() {
   if (!S.tabs.length) { S.tabs=['나의 목표']; S.projects={'나의 목표':newProj()}; }
 }
 
+function saveNow() {
+  if (!currentUser || !db) return;
+  hasPendingChanges = false;
+  setSyncBadge('saving');
+  suppressSnapshot = true;
+  db.collection('users').doc(currentUser.uid).set({
+    tabs: S.tabs,
+    projectsJSON: JSON.stringify(S.projects),
+    activeTab: S.activeTab,
+    updatedAt: new Date().toISOString()
+  }).then(function() {
+    suppressSnapshot = false;
+    setSyncBadge('saved');
+    try { localStorage.setItem('fb_cache_'+currentUser.uid, JSON.stringify({tabs:S.tabs,projects:S.projects,activeTab:S.activeTab})); } catch(e) {}
+  }).catch(function(e) { suppressSnapshot = false; setSyncBadge('err'); console.error('저장 오류:', e.message); });
+}
+
 function save() {
   if (!currentUser || !db) return;
-  setSyncBadge('saving');
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(function() {
-    // projects를 JSON 문자열로 저장 → Firestore "Nested arrays not supported" 에러 해결
-    db.collection('users').doc(currentUser.uid).set({
-      tabs: S.tabs,
-      projectsJSON: JSON.stringify(S.projects),
-      activeTab: S.activeTab,
-      updatedAt: new Date().toISOString()
-    }).then(function() {
-      setSyncBadge('saved');
-      try { localStorage.setItem('fb_cache_'+currentUser.uid, JSON.stringify({tabs:S.tabs,projects:S.projects,activeTab:S.activeTab})); } catch(e) {}
-    }).catch(function(e) { setSyncBadge('err'); console.error('저장 오류:', e.message); });
-  }, 800);
+  hasPendingChanges = true;
+  setSyncBadge('unsaved');
+}
+
+function startAutoSave() {
+  if (autoSaveInterval) clearInterval(autoSaveInterval);
+  autoSaveInterval = setInterval(function() {
+    if (hasPendingChanges) saveNow();
+  }, 30000);
 }
 
 function setSyncBadge(status) {
@@ -424,7 +442,8 @@ function setSyncBadge(status) {
   if (!el) return;
   if (status==='saving') { el.textContent='저장 중...'; el.className='sync-badge saving'; }
   else if (status==='err') { el.textContent='⚠️ 오류'; el.className='sync-badge err'; }
-  else { el.textContent='✓ 동기화됨'; el.className='sync-badge'; }
+  else if (status==='unsaved') { el.textContent='● 미저장'; el.className='sync-badge unsaved'; }
+  else { el.textContent='✓ 저장됨'; el.className='sync-badge'; }
 }
 
 // ── 렌더 ───────────────────────────────────────────────────
@@ -439,6 +458,7 @@ function render(){
     out+='<span style="font-size:12px;font-weight:700;color:#555;">'+((currentUser.displayName||'').split(' ')[0])+'</span>';
     out+='<button class="btn-logout" onclick="logout()">로그아웃</button>';
   }
+  out+='<button class="hbtn save-btn" onclick="saveNow()">💾 저장</button>';
   out+='<button class="hbtn notion" onclick="exportNotion()">📋 Notion</button>';
   out+='<button class="hbtn snap" onclick="snapWeek()">📸 주간캡처</button>';
   out+='<button class="hbtn cap" onclick="captureAll()">🖼️ 전체캡처</button>';
@@ -1019,7 +1039,10 @@ function importXLSX(input){
   reader.readAsBinaryString(file);
 }
 // 키보드 단축키
-document.addEventListener('keydown',function(e){if(e.key!=='Enter')return;var pairs=[['mAdd',doAdd],['mRen',doRen],['mTodo',doAddTodo],['mTodoEdit',doEditTodo],['mEvEdit',doEditEv]];for(var i=0;i<pairs.length;i++){if(document.getElementById(pairs[i][0]).style.display!=='none'){pairs[i][1]();return;}}});
+document.addEventListener('keydown',function(e){
+  if(e.key==='s'&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveNow();return;}
+  if(e.key!=='Enter')return;var pairs=[['mAdd',doAdd],['mRen',doRen],['mTodo',doAddTodo],['mTodoEdit',doEditTodo],['mEvEdit',doEditEv]];for(var i=0;i<pairs.length;i++){if(document.getElementById(pairs[i][0]).style.display!=='none'){pairs[i][1]();return;}}
+});
 // 오버레이 닫기
 ['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport'].forEach(function(id){document.getElementById(id).addEventListener('click',function(e){if(e.target===this)hide(id);});});
 // Firebase 로그인 후 자동으로 render() 호출됨
