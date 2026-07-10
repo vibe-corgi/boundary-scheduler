@@ -487,8 +487,8 @@ function render(){
   out+='<line x1="400" y1="20" x2="400" y2="108" stroke="#1a1a2e" stroke-width="3"/>';
   out+='<path d="M0 95 Q200 5 400 95" fill="none" stroke="#FF2D78" stroke-width="2.5" stroke-dasharray="3 8" stroke-linecap="round"/>';
   out+='</svg>';
-  out+='<div style="position:absolute;left:0;bottom:0;transform:translate(-50%,50%);width:11px;height:11px;border-radius:50%;background:#FF2D78;"></div>';
-  out+='<div style="position:absolute;right:0;bottom:0;transform:translate(50%,50%);width:11px;height:11px;border-radius:50%;background:#FF2D78;"></div>';
+  out+='<div style="position:absolute;left:0;top:95.45%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#FF2D78;"></div>';
+  out+='<div style="position:absolute;right:0;top:95.45%;transform:translate(50%,-50%);width:11px;height:11px;border-radius:50%;background:#FF2D78;"></div>';
   out+='<div class="d-together">함께 해결 = 일</div></div>';
   out+='<div class="d-start" onclick="openDiag(\'start\')"><span class="d-lbl">📍 시작</span><br/><span style="font-size:10px;color:#aaa;">전략</span>'+(p.startNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'<div class="d-hint">+ 메모</div>')+'</div>';
   out+='<div class="d-end" onclick="openDiag(\'end\')"><span class="d-lbl">🎯 끝</span><br/><span style="font-size:10px;color:#aaa;">성과</span>'+(p.endNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'<div class="d-hint">+ 메모</div>')+'</div>';
