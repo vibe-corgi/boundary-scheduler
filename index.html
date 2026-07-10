@@ -834,7 +834,7 @@ function snapWeek(){
   for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+it.text+'</span></div>';});body+='</div>';}
   body+='</div></div>';
   body+='<div class="card"><div class="ct">📓 오늘의 기록 ('+tdk+')</div>';
-  if(dailyKS)body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+dailyKS+'</div>';
+  body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+(dailyKS||'<span style="color:#ddd">없음</span>')+'</div>';
   body+='<div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px;">📝 기록</div>';
   body+='<div style="font-size:12px;white-space:pre-wrap;line-height:1.7;">'+(todayMemo||'<span style="color:#ddd">없음</span>')+'</div></div>';
   body+='<div class="card"><div class="ct">🔄 PDCA ('+fmd(ps2)+'~'+fmd(pe2)+')</div><div class="pg">';
@@ -908,7 +908,7 @@ function captureAll(){
 
   // 오늘의 기록
   body+='<div class="card"><div class="ct">📓 오늘의 기록 ('+tdk+')</div>';
-  if(dailyKS)body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+dailyKS+'</div>';
+  body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+(dailyKS||'<span style="color:#ddd">없음</span>')+'</div>';
   body+='<div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px;">📝 기록</div>';
   body+='<div style="font-size:12px;white-space:pre-wrap;line-height:1.7;">'+(todayMemo||'<span style="color:#ddd">없음</span>')+'</div></div>';
 
@@ -1057,11 +1057,11 @@ function exportXLSX(){
   // ── 시트5: 일별 기록 (Key Scene + 오늘의 기록) ──────────
   var dailyKSAll=p.dailyKeyScenes||{};
   var dailyMemoAll=p.dailyMemos||{};
-  var allDailyKeys=Array.from(new Set(
+  var allDailyKeys=sortDates(Array.from(new Set(
     Object.keys(dailyKSAll).concat(
       Object.keys(dailyMemoAll).map(function(k){return k.replace('daily-','');})
     )
-  )).sort();
+  )));
   var s4b=[['날짜','✨ 오늘의 Key Scene','📝 오늘의 기록']];
   if(allDailyKeys.length===0){s4b.push(['(없음)','','']);}
   else{allDailyKeys.forEach(function(dk){s4b.push([dk,dailyKSAll[dk]||'',dailyMemoAll['daily-'+dk]||'']);});}
