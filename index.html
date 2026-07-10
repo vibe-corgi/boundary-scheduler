@@ -976,6 +976,11 @@ function exportXLSX(){
 
   // ── 시트1: 요약 ──────────────────────────────────────────
   var pg=progCalc(p.startDate,p.endDate);
+  var curKsKey=S.calY+'-'+(S.calM+1);
+  var curKs=(p.calKeyScenes&&p.calKeyScenes[curKsKey])||{left:'',right:''};
+  var curTdk=S.todoDate||todayKey();
+  var curDailyKS=((p.dailyKeyScenes||{})[curTdk])||'';
+  var curDailyMemo=(p.dailyMemos&&p.dailyMemos['daily-'+curTdk])||'';
   var sumData=[
     ['프로젝트', S.tabs[S.activeTab]||'', ST.keyPink],
     ['연간목표 연도', p.goalYear||'', ST.keyPink],
@@ -984,8 +989,8 @@ function exportXLSX(){
     ['문제', p.problem||'', ST.keyGray],
     ['숫자언어', p.numLang||'', ST.keyGray],
     ['고객언어', p.cusLang||'', ST.keyGray],
-    ['시작 메모', p.startNote||'', ST.keyGray],
-    ['끝 메모', p.endNote||'', ST.keyGray],
+    ['📍 시작 메모 (전략)', p.startNote||'', ST.keyGray],
+    ['🎯 끝 메모 (성과)', p.endNote||'', ST.keyGray],
     ['아이디어 태그', (p.tryTags||[]).join(', '), ST.keyGray],
     [null,null,null],
     ['3개월 바운더리 목표', p.bGoal||'', ST.keyPink],
@@ -997,6 +1002,12 @@ function exportXLSX(){
     ['원칙1', (p.principles||[])[0]||'', ST.keyGray],
     ['원칙2', (p.principles||[])[1]||'', ST.keyGray],
     ['원칙3', (p.principles||[])[2]||'', ST.keyGray],
+    [null,null,null],
+    ['📅 이번 달 끝점 ('+curKsKey+')', curKs.left||'', ST.keyPink],
+    ['✨ 이번 달 Key Scene ('+curKsKey+')', curKs.right||'', ST.keyPink],
+    [null,null,null],
+    ['✨ 오늘의 Key Scene ('+curTdk+')', curDailyKS||'', ST.keyGray],
+    ['📓 오늘의 기록 ('+curTdk+')', curDailyMemo||'', ST.keyGray],
     [null,null,null],
     ['내보내기 날짜', nowStr, ST.keyGray]
   ];
@@ -1017,14 +1028,15 @@ function exportXLSX(){
   sc(ws2,0,0,'날짜',ST.hdrPink);sc(ws2,0,1,'우선순위',ST.hdrPink);sc(ws2,0,2,'일정 내용',ST.hdrPink);
   XLSX.utils.book_append_sheet(wb,addSheet(ws2,[{wch:13},{wch:12},{wch:50}]),'📅 캘린더 일정');
 
-  // ── 시트3: 월간 메모 ────────────────────────────────────
-  var s3=[['연월','메모 내용']];
-  var memoKeys=Object.keys(memos).sort();
-  if(memoKeys.length===0){s3.push(['(없음)','']);}
-  else{memoKeys.forEach(function(mk){s3.push([mk,memos[mk]||'']);});}
+  // ── 시트3: 월간 기록 (끝점 + Key Scene + 메모) ──────────
+  var calKsAll=p.calKeyScenes||{};
+  var allMonthKeys=Array.from(new Set(Object.keys(calKsAll).concat(Object.keys(memos)))).sort();
+  var s3=[['연월','🎯 끝점 (원하는 모습)','✨ Key Scene (핵심 장면)','📝 월별 메모']];
+  if(allMonthKeys.length===0){s3.push(['(없음)','','','']);}
+  else{allMonthKeys.forEach(function(mk){var ks2=(calKsAll[mk])||{left:'',right:''};s3.push([mk,ks2.left||'',ks2.right||'',memos[mk]||'']);});}
   var ws3=XLSX.utils.aoa_to_sheet(s3);
-  sc(ws3,0,0,'연월',ST.hdrPink);sc(ws3,0,1,'메모 내용',ST.hdrPink);
-  XLSX.utils.book_append_sheet(wb,addSheet(ws3,[{wch:13},{wch:65}]),'📝 월간 메모');
+  sc(ws3,0,0,'연월',ST.hdrPink);sc(ws3,0,1,'🎯 끝점',ST.hdrPink);sc(ws3,0,2,'✨ Key Scene',ST.hdrPink);sc(ws3,0,3,'📝 월별 메모',ST.hdrPink);
+  XLSX.utils.book_append_sheet(wb,addSheet(ws3,[{wch:13},{wch:35},{wch:35},{wch:45}]),'📝 월간 기록');
 
   // ── 시트4: 할일 기록 ────────────────────────────────────
   var s4=[['날짜','에너지 구분','할일 내용','완료여부']];
@@ -1041,6 +1053,22 @@ function exportXLSX(){
     if(ws4[dateAddr])ws4[dateAddr].s=ST.datePink;
   }
   XLSX.utils.book_append_sheet(wb,addSheet(ws4,[{wch:13},{wch:16},{wch:45},{wch:10}]),'✅ 할일 기록');
+
+  // ── 시트5: 일별 기록 (Key Scene + 오늘의 기록) ──────────
+  var dailyKSAll=p.dailyKeyScenes||{};
+  var dailyMemoAll=p.dailyMemos||{};
+  var allDailyKeys=Array.from(new Set(
+    Object.keys(dailyKSAll).concat(
+      Object.keys(dailyMemoAll).map(function(k){return k.replace('daily-','');})
+    )
+  )).sort();
+  var s4b=[['날짜','✨ 오늘의 Key Scene','📝 오늘의 기록']];
+  if(allDailyKeys.length===0){s4b.push(['(없음)','','']);}
+  else{allDailyKeys.forEach(function(dk){s4b.push([dk,dailyKSAll[dk]||'',dailyMemoAll['daily-'+dk]||'']);});}
+  var ws4b=XLSX.utils.aoa_to_sheet(s4b);
+  sc(ws4b,0,0,'날짜',ST.hdrPink);sc(ws4b,0,1,'✨ 오늘의 Key Scene',ST.hdrPink);sc(ws4b,0,2,'📝 오늘의 기록',ST.hdrPink);
+  for(var ri=1;ri<s4b.length;ri++){var da=XLSX.utils.encode_cell({r:ri,c:0});if(ws4b[da])ws4b[da].s=ST.datePink;}
+  XLSX.utils.book_append_sheet(wb,addSheet(ws4b,[{wch:13},{wch:45},{wch:60}]),'📓 일별 기록');
 
   // ── 시트5: 주간 성과 목표 ───────────────────────────────
   var s5=[['주차','기간','성과 목표']];
