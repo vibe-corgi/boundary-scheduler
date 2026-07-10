@@ -481,15 +481,15 @@ function render(){
   out+='<div class="card"><div class="diag-top">일은? 시작과 끝이 있다.</div>';
   out+='<div class="prob-row"><span class="prob-lbl">문제:</span><input class="line-inp" placeholder="해결하고 싶은 문제를 입력하세요" value="'+esc(p.problem)+'" oninput="setF(\'problem\',this.value)"/></div>';
   out+='<div class="diag-wrap"><div class="diag-axes">';
-  out+='<svg style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 400 110" preserveAspectRatio="none">';
+  out+='<svg style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;" viewBox="0 0 400 110" preserveAspectRatio="none">';
   out+='<line x1="0" y1="105" x2="400" y2="105" stroke="#1a1a2e" stroke-width="3"/>';
   out+='<line x1="0" y1="20" x2="0" y2="108" stroke="#1a1a2e" stroke-width="3"/>';
   out+='<line x1="400" y1="20" x2="400" y2="108" stroke="#1a1a2e" stroke-width="3"/>';
   out+='<path d="M0 95 Q200 5 400 95" fill="none" stroke="#FF2D78" stroke-width="2.5" stroke-dasharray="3 8" stroke-linecap="round"/>';
-  out+='<circle cx="0" cy="105" r="5" fill="#FF2D78"/><circle cx="400" cy="105" r="5" fill="#FF2D78"/>';
+  out+='<circle cx="0" cy="105" r="6" fill="#FF2D78" vector-effect="non-scaling-stroke"/><circle cx="400" cy="105" r="6" fill="#FF2D78" vector-effect="non-scaling-stroke"/>';
   out+='</svg><div class="d-together">함께 해결 = 일</div></div>';
-  out+='<div class="d-start" onclick="openDiag(\'start\')"><span class="d-lbl">📍 시작</span><br/><span style="font-size:10px;color:#aaa;">전략</span>'+(p.startNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'')+'<div class="d-hint">'+(p.startNote?'✏️ 수정':'+ 메모')+'</div></div>';
-  out+='<div class="d-end" onclick="openDiag(\'end\')"><span class="d-lbl">🎯 끝</span><br/><span style="font-size:10px;color:#aaa;">성과</span>'+(p.endNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'')+'<div class="d-hint">'+(p.endNote?'✏️ 수정':'+ 메모')+'</div></div>';
+  out+='<div class="d-start" onclick="openDiag(\'start\')"><span class="d-lbl">📍 시작</span><br/><span style="font-size:10px;color:#aaa;">전략</span>'+(p.startNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'<div class="d-hint">+ 메모</div>')+'</div>';
+  out+='<div class="d-end" onclick="openDiag(\'end\')"><span class="d-lbl">🎯 끝</span><br/><span style="font-size:10px;color:#aaa;">성과</span>'+(p.endNote?'<div style="font-size:9px;color:#FF2D78;margin-top:1px;">📝 메모있음</div>':'<div class="d-hint">+ 메모</div>')+'</div>';
   out+='</div>';
   out+='<div class="meta-row"><div class="meta-item"><label>숫자언어 :</label><textarea class="meta-ta" placeholder="목표 수치 입력" oninput="setF(\'numLang\',this.value);ar(this)">'+esc(p.numLang)+'</textarea></div>';
   out+='<div class="meta-item"><label>고객언어 :</label><textarea class="meta-ta" placeholder="고객 변화 입력" oninput="setF(\'cusLang\',this.value);ar(this)">'+esc(p.cusLang)+'</textarea></div></div>';
@@ -531,7 +531,7 @@ function render(){
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 달 끝에 내가 원하는 모습</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea></div>';
   out+='<div style="background:#f0f4ff;border-radius:12px;padding:12px;">';
-  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이달의 핵심 장면 상상</div>';
+  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이달의 핵심 장면</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 달 가장 빛날 나의 장면을 상상해보세요..." oninput="setKeyScene(\'right\',this)" data-ks="'+ksKey+'">'+esc(ks.right)+'</textarea></div>';
   out+='</div>';
   out+='<div class="cal-top"><button class="cal-nav" onclick="prevCal()">◀</button><span class="cal-lbl">'+S.calY+'년 '+(S.calM+1)+'월</span><button class="cal-nav" onclick="nextCal()">▶</button></div>';
@@ -539,12 +539,13 @@ function render(){
   for(var i=0;i<7;i++){var dc2=i===5?'#4a9eff':i===6?'#FF2D78':'#aaa';out+='<div class="cal-hdr" style="color:'+dc2+'">'+DAYS[i]+'</div>';}
   for(var i=0;i<cells.length;i++){
     var d=cells[i],ck=S.calY+'-'+(S.calM+1)+'-'+d.day;
-    var evs=(d.cur&&p.events&&p.events[ck])?p.events[ck].slice().sort(function(a,b){return a.p-b.p;}):[];
+    var evsSrc=(d.cur&&p.events&&p.events[ck])?p.events[ck]:[];
+    var evs=evsSrc.map(function(ev,oi){return{ev:ev,oi:oi};}).sort(function(a,b){return a.ev.p-b.ev.p;});
     var isT=d.cur&&d.day===today.getDate()&&S.calY===today.getFullYear()&&S.calM===today.getMonth();
     var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
     out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
     out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
-    if(d.cur){for(var j=0;j<evs.length;j++){var tx=evs[j].text.length>6?evs[j].text.slice(0,6)+'…':evs[j].text;out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+j+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+j+')">'+['①','②','③'][evs[j].p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
+    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')">'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
   out+='</div>';
@@ -588,8 +589,8 @@ function render(){
   out+='<div class="card-top"><span class="ctitle">📓 오늘의 기록</span>';
   out+='<span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
   out+='<div style="margin-bottom:12px;">';
-  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ 오늘의 키씬 — 오늘 하루 가장 빛날 나의 장면</div>';
-  out+='<input class="week-inp" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." value="'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)" style="border-color:#e9d5ff;"/>';
+  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ 오늘의 Key Scene — 오늘 하루 가장 빛날 나의 장면</div>';
+  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." style="min-height:60px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
   out+='</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
   out+='</div>';
