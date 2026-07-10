@@ -220,6 +220,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .sync-badge.saving{background:#fff3e0;color:#e65100;}
 .sync-badge.err{background:#ffebee;color:#c62828;}
 .sync-badge.unsaved{background:#fce4ec;color:#c62828;}
+.cal-cell.drag-over{background:#f3e8ff!important;outline:2px dashed #7C3AED;}
+.cal-ev[draggable]{cursor:grab;}
 .hbtn.save-btn{background:#2563eb;}
 .user-info{display:flex;align-items:center;gap:7px;margin-left:auto;}
 .user-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;}
@@ -322,6 +324,7 @@ var currentUser = null;
 var saveTimer = null;
 var autoSaveInterval = null;
 var suppressSnapshot = false;
+var calDragKey = '', calDragIdx = -1;
 var hasPendingChanges = false;
 var unsubscribe = null;
 
@@ -539,12 +542,14 @@ function render(){
     var evs=(d.cur&&p.events&&p.events[ck])?p.events[ck].slice().sort(function(a,b){return a.p-b.p;}):[];
     var isT=d.cur&&d.day===today.getDate()&&S.calY===today.getFullYear()&&S.calM===today.getMonth();
     var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
-    out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
+    out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
     out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
-    if(d.cur){for(var j=0;j<evs.length;j++){var tx=evs[j].text.length>6?evs[j].text.slice(0,6)+'…':evs[j].text;out+='<div class="cal-ev" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+j+')">'+['①','②','③'][evs[j].p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
+    if(d.cur){for(var j=0;j<evs.length;j++){var tx=evs[j].text.length>6?evs[j].text.slice(0,6)+'…':evs[j].text;out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+j+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+j+')">'+['①','②','③'][evs[j].p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
   out+='</div>';
+  var todayEvKey=S.calY+'-'+(S.calM+1)+'-'+today.getDate();
+  out+='<div class="todo-add-row" style="margin:12px 0 4px;"><input class="todo-qi" id="evQuickInp" placeholder="+ 오늘('+today.getDate()+'일) 일정 빠르게 추가 (Enter)" onkeydown="quickAddEv(event,\''+todayEvKey+'\')"/></div>';
   var memoKey=S.calY+'-'+(S.calM+1);
   out+='<div class="cal-memo-box"><div class="cal-memo-lbl">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
   out+='<textarea class="cal-memo-ta" placeholder="이번 달에 대한 생각, 느낌, 계획 등을 자유롭게..." oninput="setCalMemo(this)" data-mk="'+memoKey+'">'+esc((p.calMemos||{})[memoKey]||'')+'</textarea></div></div>';
@@ -582,6 +587,10 @@ function render(){
   out+='<div class="card">';
   out+='<div class="card-top"><span class="ctitle">📓 오늘의 기록</span>';
   out+='<span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
+  out+='<div style="margin-bottom:12px;">';
+  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ 오늘의 키씬 — 오늘 하루 가장 빛날 나의 장면</div>';
+  out+='<input class="week-inp" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." value="'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)" style="border-color:#e9d5ff;"/>';
+  out+='</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
   out+='</div>';
   // 주간 성과 목표
@@ -651,6 +660,12 @@ function togglePlan(pk,i,v){getPlanItems(pk)[i].done=v;save();render();}
 function delPlan(pk,i){getPlanItems(pk).splice(i,1);save();render();}
 function setDailyMemo(el){var p=cp();p.dailyMemos=p.dailyMemos||{};p.dailyMemos[el.dataset.dmk]=el.value;ar(el);save();}
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
+function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
+function quickAddEv(e,ck){if(e.key!=='Enter')return;var inp=document.getElementById('evQuickInp'),t=inp.value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[ck])p.events[ck]=[];p.events[ck].push({text:t,p:1});inp.value='';save();render();setTimeout(function(){var el=document.getElementById('evQuickInp');if(el)el.focus();},50);}
+function calDragStart(ck,i,e){calDragKey=ck;calDragIdx=i;e.dataTransfer.effectAllowed='move';}
+function calDragEnd(){document.querySelectorAll('.cal-cell.drag-over').forEach(function(el){el.classList.remove('drag-over');});}
+function calDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drag-over');}
+function calDrop(ck,e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!calDragKey||calDragIdx<0||calDragKey===ck){calDragKey='';calDragIdx=-1;return;}var p=cp();p.events=p.events||{};var item=p.events[calDragKey].splice(calDragIdx,1)[0];if(!p.events[calDragKey].length)delete p.events[calDragKey];if(!p.events[ck])p.events[ck]=[];p.events[ck].push(item);calDragKey='';calDragIdx=-1;save();render();}
 function prevCal(){if(S.calM===0){S.calY--;S.calM=11;}else S.calM--;render();}
 function nextCal(){if(S.calM===11){S.calY++;S.calM=0;}else S.calM++;render();}
 function prevWk(){if(S.wkM===0){S.wkY--;S.wkM=11;}else S.wkM--;save();render();}
