@@ -174,8 +174,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .pdca-sub{font-size:10px;color:#bbb;margin-bottom:7px;line-height:1.5;}
 .pdca-ta{width:100%;border:none;outline:none;font-size:12px;color:var(--dk);font-family:inherit;background:transparent;resize:none;min-height:65px;line-height:1.6;overflow:hidden;}
 .pdca-ta::placeholder{color:#ddd;}
-.plan-item{display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05);}
+.plan-item{display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05);cursor:grab;}
 .plan-item:last-child{border-bottom:none;}
+.plan-item.plan-dragging{opacity:.4;}
+.plan-edit-inp{flex:1;border:none;border-bottom:1.5px solid #1565C0;outline:none;font-size:12px;font-family:inherit;background:transparent;color:var(--dk);padding:1px 2px;}
 .plan-inp::placeholder{color:#AACCE8;}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px;}
 .modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;box-shadow:0 16px 50px rgba(0,0,0,.18);}
@@ -325,6 +327,8 @@ var saveTimer = null;
 var autoSaveInterval = null;
 var suppressSnapshot = false;
 var calDragKey = '', calDragIdx = -1;
+var planDragPk = '', planDragIdx = -1;
+var planEditPk = '', planEditIdx = -1;
 var hasPendingChanges = false;
 var unsubscribe = null;
 
@@ -623,10 +627,15 @@ function render(){
   out+='<div id="planList">';
   for(var pi=0;pi<planItems.length;pi++){
     var pitem=planItems[pi];
-    out+='<div class="plan-item">';
-    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
-    out+='<span class="todo-txt'+(pitem.done?' done':'')+'">'+esc(pitem.text)+'</span>';
-    out+='<button class="todo-del" onclick="delPlan(\''+pk2+'\','+pi+')">×</button>';
+    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
+    out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event)">';
+    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    if(isEditing){
+      out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';
+    } else {
+      out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';
+    }
+    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
     out+='</div>';
   }
   out+='</div>';
@@ -658,6 +667,12 @@ function updateWG(el){var p=cp();p.weekGoals=p.weekGoals||{};p.weekGoals[el.data
 function updatePdca(el){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[el.dataset.pk])p.pdca[el.dataset.pk]={plan:'',doIt:'',check:'',act:''};p.pdca[el.dataset.pk][el.dataset.fk]=el.value;save();}
 function setKeyScene(side,el){var p=cp();p.calKeyScenes=p.calKeyScenes||{};var ksKey=el.dataset.ks;if(!p.calKeyScenes[ksKey])p.calKeyScenes[ksKey]={left:'',right:''};p.calKeyScenes[ksKey][side]=el.value;ar(el);save();}
 function getPlanItems(pk){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};if(typeof p.pdca[pk].plan==='string'){var s=p.pdca[pk].plan;p.pdca[pk].plan=s?s.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[]; }return p.pdca[pk].plan;}
+function openPlanEdit(pk,i){planEditPk=pk;planEditIdx=i;render();setTimeout(function(){var el=document.getElementById('planEditInp');if(el){el.focus();el.select();}},30);}
+function savePlanEdit(pk,i,val){var t=val.trim();if(t)getPlanItems(pk)[i].text=t;planEditPk='';planEditIdx=-1;save();render();}
+function planDragStart(pk,i,e){planDragPk=pk;planDragIdx=i;e.dataTransfer.effectAllowed='move';}
+function planDragEnd(){planDragPk='';planDragIdx=-1;render();}
+function planDragOver(e,pk,i){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function planDrop(pk,i,e){e.preventDefault();if(!planDragPk||planDragIdx<0||planDragIdx===i)return;var items=getPlanItems(pk);var item=items.splice(planDragIdx,1)[0];var ni=planDragIdx<i?i-1:i;items.splice(ni,0,item);planDragPk='';planDragIdx=-1;save();render();}
 function addPlan(pk,el){var t=el.value.trim();if(!t)return;getPlanItems(pk).push({text:t,done:false});el.value='';save();render();setTimeout(function(){var inp=document.getElementById('planInp_'+pk);if(inp)inp.focus();},50);}
 function togglePlan(pk,i,v){getPlanItems(pk)[i].done=v;save();render();}
 function delPlan(pk,i){getPlanItems(pk).splice(i,1);save();render();}
