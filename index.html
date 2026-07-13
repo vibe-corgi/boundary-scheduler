@@ -294,8 +294,26 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div class="overlay" id="mDel" style="display:none"><div class="modal"><h3>🗑 프로젝트 삭제</h3><div class="modal-sub">"<span class="del-nm" id="delNm"></span>" 을 삭제할까요?</div><div class="act-row"><button class="btn-cancel" onclick="hide('mDel')">취소</button><button class="btn-red" onclick="doDel()">삭제</button></div></div></div>
 <div class="overlay" id="mTodo" style="display:none"><div class="modal"><h3>✅ 할 일 추가</h3><input class="m-inp" id="iTodo" placeholder="할 일 입력"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn sel" id="tp0" onclick="setTP(0)">🔥 80%</button><button class="pbtn" id="tp1" onclick="setTP(1)">⚡ 20%</button><button class="pbtn" id="tp2" onclick="setTP(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(선택 — 완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoGoalSel"><option value="">연결 안함</option></select><div class="act-row"><button class="btn-cancel" onclick="hide('mTodo')">취소</button><button class="btn-ok" onclick="doAddTodo()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mGoal" style="display:none"><div class="modal"><h3>🎯 대목표 추가</h3><div class="modal-sub">달성하고 싶은 큰 목표를 입력하세요. 세부 지표는 아래에서 추가해요.</div><input class="m-inp" id="iGoalName" placeholder="대목표 이름 (예: 마라톤 완주, SNS 성장, 독서 습관)"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoal')">취소</button><button class="btn-ok" onclick="doAddGoal()">추가 ✓</button></div></div></div>
-<div class="overlay" id="mMetric" style="display:none"><div class="modal"><h3>📊 세부 지표 추가</h3><div class="modal-sub">할일 완료 시 자동으로 카운트되는 숫자 지표예요</div><div style="font-size:11px;font-weight:700;color:var(--pk);margin-bottom:8px;">대목표: <span id="mMetricGoalNm" style="color:#555;font-weight:600;"></span></div><input class="m-inp" id="iMetricName" placeholder="지표 이름 (예: 달리기, SNS 게시물, 책)"/><div style="display:flex;gap:8px;"><input class="m-inp" id="iMetricUnit" placeholder="단위 (회, 개, 권)" style="flex:1;"/><input class="m-inp" type="number" id="iMetricQTarget" placeholder="3개월 목표 수량" style="flex:1;"/></div><div style="font-size:11px;color:#aaa;margin:-8px 0 12px;line-height:1.5;">월 목표·주 목표는 분기 목표에서 자동 계산돼요.<br/>달력에서 월별로 직접 조정할 수 있어요.</div><div class="act-row"><button class="btn-cancel" onclick="hide('mMetric')">취소</button><button class="btn-ok" onclick="doAddMetric()">추가 ✓</button></div></div></div>
-<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mMetric" style="display:none"><div class="modal"><h3>📊 세부 지표 추가</h3>
+<div style="font-size:11px;font-weight:700;color:var(--pk);margin-bottom:10px;">🎯 대목표: <span id="mMetricGoalNm" style="color:#555;font-weight:600;"></span></div>
+<div style="background:#f8f9ff;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#666;line-height:1.7;">
+  <b>세부 지표</b>는 할일 완료 시 자동으로 카운트돼요.<br/>
+  예) <b>달리기</b> (회) → 3개월 목표 65회<br/>
+  → 월 목표는 달력에서 월별로 직접 설정 가능<br/>
+  → 주 목표는 주간 섹션에서 직접 설정 가능
+</div>
+<input class="m-inp" id="iMetricName" placeholder="지표 이름 (예: 달리기, 명상, 블로그 발행)"/>
+<div style="display:flex;gap:8px;">
+  <input class="m-inp" id="iMetricUnit" placeholder="단위 (회, 일, 권, 개)" style="flex:1;"/>
+  <input class="m-inp" type="number" id="iMetricQTarget" placeholder="3개월 목표수" style="flex:1;"/>
+</div>
+<div id="mMetricAdded" style="font-size:11px;color:var(--pk);min-height:16px;margin-bottom:8px;"></div>
+<div class="act-row">
+  <button class="btn-cancel" onclick="hide('mMetric')">닫기</button>
+  <button class="btn-cancel" style="border-color:var(--pk);color:var(--pk);" onclick="doAddMetric(true)">추가하고 계속 +</button>
+  <button class="btn-ok" onclick="doAddMetric(false)">추가 ✓</button>
+</div></div></div>
+<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMove" style="display:none"><div class="modal"><h3>↔ 카테고리 이동</h3><div style="font-size:13px;font-weight:600;color:var(--dk);margin-bottom:14px;" id="moveTxt"></div><button class="mv-btn" id="mcb0" onclick="doMove(0)">🔥 80% 에너지</button><button class="mv-btn" id="mcb1" onclick="doMove(1)">⚡ 20% 에너지</button><button class="mv-btn" id="mcb2" onclick="doMove(2)">🌿 가지치기</button><button class="btn-cancel" style="width:100%;margin-top:4px;" onclick="hide('mMove')">취소</button></div></div>
 <div class="overlay" id="mEv" style="display:none">
   <div class="modal" style="max-width:420px;">
@@ -745,11 +763,15 @@ function render(){
         var m3=ch3[ci3];
         var wDone=countGoalInDates(m3.id,wdKeys);
         var autoWTgt=m3.quarterTarget?Math.round(m3.quarterTarget/12):0;
-        var wPct=autoWTgt>0?Math.min(100,Math.round(wDone/autoWTgt*100)):0;
+        var curWIso=isoWeek(curWk.s),curWKey='iso-'+curWIso.year+'-w'+curWIso.week;
+        var wTgt=(m3.weekTargets&&m3.weekTargets[curWKey]!=null)?m3.weekTargets[curWKey]:autoWTgt;
+        var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
         out+='<div class="goal-week-row">';
-        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(m3.name)+'</span>';
+        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">'+esc(m3.name)+'</span>';
         out+='<div class="goal-bar-bg" style="flex:1;"><div class="goal-bar-fill" style="width:'+wPct+'%;"></div></div>';
-        out+='<span class="goal-bar-cnt">'+wDone+(autoWTgt?'/'+autoWTgt:'')+esc(m3.unit||'')+'</span>';
+        out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">주목표</span>';
+        out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" onchange="setWeekTarget(this)"/>';
+        out+='<span class="goal-bar-cnt">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span>';
         out+='</div>';
       }
     }
@@ -877,8 +899,8 @@ function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)r
 function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[0].push({text:t,done:false});el.value='';save();render();}
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
-function openEditTodo(c,i){editC=c;editI=i;document.getElementById('iTodoEdit').value=getTodos()[c][i].text;show('mTodoEdit');setTimeout(function(){document.getElementById('iTodoEdit').select();},50);}
-function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;getTodos()[editC][editI].text=t;hide('mTodoEdit');save();render();}
+function openEditTodo(c,i){editC=c;editI=i;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;var p=cp(),allG=p.goals||[];var topG=allG.filter(function(g){return !g.parentId;});var sel=document.getElementById('todoEditGoalSel');sel.innerHTML='<option value="">연결 안함</option>';for(var ti=0;ti<topG.length;ti++){var tg=topG[ti];var ch=allG.filter(function(g){return g.parentId===tg.id;});if(!ch.length)continue;sel.innerHTML+='<optgroup label="🎯 '+tg.name+'">';for(var ci=0;ci<ch.length;ci++){sel.innerHTML+='<option value="'+ch[ci].id+'"'+(item.goalId===ch[ci].id?' selected':'')+'>'+ch[ci].name+(ch[ci].unit?' ('+ch[ci].unit+'/ 회)':'')+'</option>';}sel.innerHTML+='</optgroup>';}show('mTodoEdit');setTimeout(function(){document.getElementById('iTodoEdit').select();},50);}
+function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var item=getTodos()[editC][editI];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;hide('mTodoEdit');save();render();}
 function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.getElementById('moveTxt').textContent='"'+item.text+'"';for(var n=0;n<3;n++){var b=document.getElementById('mcb'+n);b.className='mv-btn'+(n===c?' cur':'');b.textContent=CAT[n]+(n===c?' (현재)':'');}show('mMove');}
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 // 드래그
@@ -895,8 +917,9 @@ function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();
 function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();render();}
 var _metricParentId='';
 function openMetric(goalId){_metricParentId=goalId;var p=cp();var tg=(p.goals||[]).filter(function(g){return g.id===goalId;})[0];document.getElementById('mMetricGoalNm').textContent=tg?tg.name:'';document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';show('mMetric');setTimeout(function(){document.getElementById('iMetricName').focus();},50);}
-function doAddMetric(){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,parentId:_metricParentId,monthTargets:{}});hide('mMetric');save();render();}
+function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();render();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
 function delMetric(id){if(!confirm('이 지표를 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id;});save();render();}
+function setWeekTarget(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.mid){g=allG[i];break;}}if(!g)return;g.weekTargets=g.weekTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.weekTargets[el.dataset.wk];else g.weekTargets[el.dataset.wk]=v;save();}
 function setMonthTarget(el){var p=cp();var allG=p.goals||[];var g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthTargets=g.monthTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.monthTargets[el.dataset.mk];else g.monthTargets[el.dataset.mk]=v;save();}
 function dragStart(e,c,i){dragC=c;dragI=i;e.dataTransfer.effectAllowed='move';setTimeout(function(){e.target.classList.add('dragging');},0);}
 function dragOverItem(e,c,t){if(dragC<0)return;var el=e.currentTarget,rect=el.getBoundingClientRect();el.style.borderTop=e.clientY<rect.top+rect.height/2?'2px solid var(--pk)':'';el.style.borderBottom=e.clientY>=rect.top+rect.height/2?'2px solid var(--pk)':'';}
