@@ -491,10 +491,13 @@ function saveNow() {
   }).catch(function(e) { suppressSnapshot = false; setSyncBadge('err'); console.error('저장 오류:', e.message); });
 }
 
+var _autoSaveTimer = null;
 function save() {
   if (!currentUser || !db) return;
   hasPendingChanges = true;
   setSyncBadge('unsaved');
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(function(){ saveNow(); }, 3000);
 }
 
 function startAutoSave() {
