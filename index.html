@@ -305,8 +305,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <input class="m-inp" id="iMetricName" placeholder="지표 이름 (예: 달리기, 명상, 블로그 발행)"/>
 <div style="display:flex;gap:8px;">
   <input class="m-inp" id="iMetricUnit" placeholder="단위 (회, 일, 권, 개)" style="flex:1;"/>
-  <input class="m-inp" type="number" id="iMetricQTarget" placeholder="3개월 목표수" style="flex:1;"/>
+  <input class="m-inp" type="number" id="iMetricQTarget" placeholder="3개월 횟수 목표" style="flex:1;"/>
 </div>
+<input class="m-inp" id="iMetricMemo" placeholder="메모 (예: 총 300km, 12권 완독, 매일 30분)" style="font-size:12px;color:#888;"/>
 <div id="mMetricAdded" style="font-size:11px;color:var(--pk);min-height:16px;margin-bottom:8px;"></div>
 <div class="act-row">
   <button class="btn-cancel" onclick="hide('mMetric')">닫기</button>
@@ -315,7 +316,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </div></div></div>
 <div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn" id="tpe0" onclick="setTPE(0)">🔥 80%</button><button class="pbtn" id="tpe1" onclick="setTPE(1)">⚡ 20%</button><button class="pbtn" id="tpe2" onclick="setTPE(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mGoalEdit" style="display:none"><div class="modal"><h3>✏️ 대목표 수정</h3><input class="m-inp" id="iGoalEditName" placeholder="대목표 이름"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoalEdit')">취소</button><button class="btn-ok" onclick="doEditGoal()">저장 ✓</button></div></div></div>
-<div class="overlay" id="mMetricEdit" style="display:none"><div class="modal"><h3>✏️ 세부 지표 수정</h3><input class="m-inp" id="iMetricEditName" placeholder="지표 이름"/><div style="display:flex;gap:8px;"><input class="m-inp" id="iMetricEditUnit" placeholder="단위 (회, 일, 권)" style="flex:1;"/><input class="m-inp" type="number" id="iMetricEditQTarget" placeholder="3개월 목표수" style="flex:1;"/></div><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricEdit')">취소</button><button class="btn-ok" onclick="doEditMetric()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mMetricEdit" style="display:none"><div class="modal"><h3>✏️ 세부 지표 수정</h3><input class="m-inp" id="iMetricEditName" placeholder="지표 이름"/><div style="display:flex;gap:8px;"><input class="m-inp" id="iMetricEditUnit" placeholder="단위 (회, 일, 권)" style="flex:1;"/><input class="m-inp" type="number" id="iMetricEditQTarget" placeholder="3개월 횟수 목표" style="flex:1;"/></div><input class="m-inp" id="iMetricEditMemo" placeholder="메모 (예: 총 300km, 12권 완독, 매일 30분)" style="font-size:12px;color:#888;"/><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricEdit')">취소</button><button class="btn-ok" onclick="doEditMetric()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMove" style="display:none"><div class="modal"><h3>↔ 카테고리 이동</h3><div style="font-size:13px;font-weight:600;color:var(--dk);margin-bottom:14px;" id="moveTxt"></div><button class="mv-btn" id="mcb0" onclick="doMove(0)">🔥 80% 에너지</button><button class="mv-btn" id="mcb1" onclick="doMove(1)">⚡ 20% 에너지</button><button class="mv-btn" id="mcb2" onclick="doMove(2)">🌿 가지치기</button><button class="btn-cancel" style="width:100%;margin-top:4px;" onclick="hide('mMove')">취소</button></div></div>
 <div class="overlay" id="mEv" style="display:none">
   <div class="modal" style="max-width:420px;">
@@ -619,6 +620,9 @@ function render(){
           out+='<button class="goal-del-sm" style="color:rgba(255,255,255,.3);font-size:11px;" onclick="openEditMetric(\''+m.id+'\')">✏️</button>';
           out+='<button class="goal-del-sm" style="color:rgba(255,255,255,.2);" onclick="delMetric(\''+m.id+'\')">×</button>';
           out+='</div>';
+          if(m.memo){
+            out+='<div style="font-size:10px;color:rgba(255,255,255,.3);padding:0 0 4px 80px;font-style:italic;">'+esc(m.memo)+'</div>';
+          }
           if(mBreakStr){
             out+='<div style="font-size:10px;color:rgba(255,255,255,.28);padding:0 0 8px 80px;">'+esc(mBreakStr)+'</div>';
           }
@@ -677,6 +681,9 @@ function render(){
         out+='<span class="goal-bar-cnt">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span>';
         out+='<span class="goal-bar-pct">'+mPct+'%</span>';
         out+='</div>';
+        if(m2.memo){
+          out+='<div style="font-size:10px;color:#bbb;padding:0 0 4px 80px;font-style:italic;">'+esc(m2.memo)+'</div>';
+        }
       }
     }
     out+='</div>';
@@ -777,6 +784,9 @@ function render(){
         out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" onchange="setWeekTarget(this)"/>';
         out+='<span class="goal-bar-cnt">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span>';
         out+='</div>';
+        if(m3.memo){
+          out+='<div style="font-size:10px;color:#bbb;padding:0 0 4px 60px;font-style:italic;">'+esc(m3.memo)+'</div>';
+        }
       }
     }
     out+='</div>';
@@ -923,13 +933,13 @@ function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();
 function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();render();}
 var _metricParentId='';
 function openMetric(goalId){_metricParentId=goalId;var p=cp();var tg=(p.goals||[]).filter(function(g){return g.id===goalId;})[0];document.getElementById('mMetricGoalNm').textContent=tg?tg.name:'';document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';show('mMetric');setTimeout(function(){document.getElementById('iMetricName').focus();},50);}
-function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();render();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
+function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var memo=document.getElementById('iMetricMemo').value.trim();var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,memo:memo,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();render();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('iMetricMemo').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
 function delMetric(id){if(!confirm('이 지표를 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id;});save();render();}
 var _editGoalId='',_editMetricId='';
 function openEditGoal(id){_editGoalId=id;var p=cp(),g=(p.goals||[]).filter(function(x){return x.id===id;})[0];if(!g)return;document.getElementById('iGoalEditName').value=g.name;show('mGoalEdit');setTimeout(function(){document.getElementById('iGoalEditName').select();},50);}
 function doEditGoal(){var name=document.getElementById('iGoalEditName').value.trim();if(!name)return;var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editGoalId){allG[i].name=name;break;}}hide('mGoalEdit');save();render();}
-function openEditMetric(id){_editMetricId=id;var p=cp(),g=(p.goals||[]).filter(function(x){return x.id===id;})[0];if(!g)return;document.getElementById('iMetricEditName').value=g.name;document.getElementById('iMetricEditUnit').value=g.unit||'';document.getElementById('iMetricEditQTarget').value=g.quarterTarget||'';show('mMetricEdit');setTimeout(function(){document.getElementById('iMetricEditName').select();},50);}
-function doEditMetric(){var name=document.getElementById('iMetricEditName').value.trim();if(!name)return;var unit=document.getElementById('iMetricEditUnit').value.trim();var qt=parseInt(document.getElementById('iMetricEditQTarget').value)||0;var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editMetricId){allG[i].name=name;allG[i].unit=unit;allG[i].quarterTarget=qt;break;}}hide('mMetricEdit');save();render();}
+function openEditMetric(id){_editMetricId=id;var p=cp(),g=(p.goals||[]).filter(function(x){return x.id===id;})[0];if(!g)return;document.getElementById('iMetricEditName').value=g.name;document.getElementById('iMetricEditUnit').value=g.unit||'';document.getElementById('iMetricEditQTarget').value=g.quarterTarget||'';document.getElementById('iMetricEditMemo').value=g.memo||'';show('mMetricEdit');setTimeout(function(){document.getElementById('iMetricEditName').select();},50);}
+function doEditMetric(){var name=document.getElementById('iMetricEditName').value.trim();if(!name)return;var unit=document.getElementById('iMetricEditUnit').value.trim();var qt=parseInt(document.getElementById('iMetricEditQTarget').value)||0;var memo=document.getElementById('iMetricEditMemo').value.trim();var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editMetricId){allG[i].name=name;allG[i].unit=unit;allG[i].quarterTarget=qt;allG[i].memo=memo;break;}}hide('mMetricEdit');save();render();}
 function setWeekTarget(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.mid){g=allG[i];break;}}if(!g)return;g.weekTargets=g.weekTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.weekTargets[el.dataset.wk];else g.weekTargets[el.dataset.wk]=v;save();}
 function setMonthTarget(el){var p=cp();var allG=p.goals||[];var g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthTargets=g.monthTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.monthTargets[el.dataset.mk];else g.monthTargets[el.dataset.mk]=v;save();}
 function dragStart(e,c,i){dragC=c;dragI=i;e.dataTransfer.effectAllowed='move';setTimeout(function(){e.target.classList.add('dragging');},0);}
