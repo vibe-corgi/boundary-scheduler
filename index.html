@@ -1638,8 +1638,7 @@ function renderMobile() {
         var item = items[t], done = item.done;
         var badge = '';
         if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
-        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'">';
-        content += '<span class="mb-drag-handle" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
+        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">';
         content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
         content += '<span class="mb-todo-txt'+(done?' done':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
         content += '<button class="mb-edit-btn" onclick="mbEditTodo('+c+','+t+')">✏️</button>';
@@ -1741,8 +1740,7 @@ function renderMobile() {
     content += '<div class="mb-pdca-label">📋 PLAN</div>';
     for (var pi = 0; pi < planItems.length; pi++) {
       var pitem = planItems[pi];
-      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'">';
-      content += '<span class="mb-drag-handle" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
+      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
       content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
@@ -1886,9 +1884,10 @@ function mbSetupDragListeners() {
 }
 
 function mbDS(e, type, cat, idx, pk) {
+  // 버튼·체크박스·입력창 터치는 드래그 무시
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
   mbSetupDragListeners();
-  var handle = e.currentTarget;
-  var itemEl = handle.parentElement;
+  var itemEl = e.currentTarget;
   var touch = e.touches[0];
   _mbDrag = {
     type: type, cat: cat, fromIdx: idx, targetIdx: idx, pk: pk,
