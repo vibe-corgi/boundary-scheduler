@@ -1591,7 +1591,9 @@ function showTip(e,txt){var t=document.getElementById('tipBox');t.textContent=tx
 function moveTip(e){var t=document.getElementById('tipBox');t.style.left=e.clientX+'px';t.style.top=e.clientY+'px';}
 function hideTip(){var t=document.getElementById('tipBox');t.style.display='none';}
 // ── 모바일 뷰 ──────────────────────────────────────────────
-var isMobile = location.search.indexOf('view=mobile') >= 0;
+var isMobile = location.search.indexOf('view=mobile') >= 0
+  || window.navigator.standalone === true
+  || window.matchMedia('(display-mode: standalone)').matches;
 var mbTab = 0; // 0=할일 1=기록 2=성과 3=PDCA
 
 function renderMobile() {

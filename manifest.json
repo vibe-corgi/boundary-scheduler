@@ -2,7 +2,7 @@
   "name": "바운더리 일정관리",
   "short_name": "바운더리",
   "description": "목표를 경계로 삼아, 오늘을 빛나게 — you just shine",
-  "start_url": "/boundary-scheduler/",
+  "start_url": "/boundary-scheduler/?view=mobile",
   "display": "standalone",
   "background_color": "#0E0C18",
   "theme_color": "#FF3E8A",
