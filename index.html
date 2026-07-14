@@ -309,6 +309,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mb-todo-badge{font-size:10px;color:var(--pk);background:#fff0f5;border-radius:4px;padding:1px 5px;margin-left:4px;white-space:nowrap;}
 .mb-carry-btn{background:none;border:none;color:#ddd;font-size:15px;cursor:pointer;padding:0;}
 .mb-carry-btn:active{color:var(--pk);}
+.mb-del-btn{background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+.mb-del-btn:active{color:#f44;}
+.mb-edit-btn{background:none;border:none;color:#ccc;font-size:13px;cursor:pointer;padding:0 3px;flex-shrink:0;}
+.mb-edit-btn:active{color:var(--pk);}
+.mb-drag-handle{color:#ccc;font-size:18px;cursor:grab;flex-shrink:0;padding:0 4px 0 0;line-height:1;user-select:none;touch-action:none;}
+.mb-drag-handle:active{color:#999;}
+.mb-edit-inp{flex:1;min-width:0;background:rgba(255,62,138,.05);border:1.5px solid var(--pk);border-radius:7px;padding:5px 9px;font-size:14px;font-family:inherit;color:var(--dk);outline:none;}
+.mb-drag-over-top{border-top:2.5px solid var(--pk)!important;}
+.mb-drag-faded{opacity:.25!important;}
 .mb-qi{width:100%;border:none;border-bottom:1.5px solid #eee;outline:none;padding:10px 0;font-size:14px;font-family:inherit;color:var(--dk);background:transparent;margin-top:8px;}
 .mb-qi:focus{border-bottom-color:var(--pk);}
 .mb-ta{width:100%;border:1.5px solid #eee;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;color:var(--dk);resize:none;outline:none;min-height:80px;line-height:1.6;box-sizing:border-box;}
@@ -1628,9 +1637,11 @@ function renderMobile() {
         var item = items[t], done = item.done;
         var badge = '';
         if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
-        content += '<div class="mb-todo-item">';
+        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'">';
+        content += '<span class="mb-drag-handle" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
         content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
-        content += '<span class="mb-todo-txt'+(done?' done':'')+'">'+esc(item.text)+badge+'</span>';
+        content += '<span class="mb-todo-txt'+(done?' done':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+        content += '<button class="mb-edit-btn" onclick="mbEditTodo('+c+','+t+')">✏️</button>';
         content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
         content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
         content += '</div>';
@@ -1727,9 +1738,11 @@ function renderMobile() {
     content += '<div class="mb-pdca-label">📋 PLAN</div>';
     for (var pi = 0; pi < planItems.length; pi++) {
       var pitem = planItems[pi];
-      content += '<div class="mb-plan-item">';
+      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'">';
+      content += '<span class="mb-drag-handle" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
-      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'">'+esc(pitem.text)+'</span>';
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
       content += '<button class="mb-carry-btn" onclick="carryPlan(\''+pk2+'\','+pi+');renderMobile()">→</button>';
       content += '</div>';
     }
@@ -1761,6 +1774,140 @@ function renderMobile() {
 
   el.innerHTML = topbar + '<div class="mb-content">' + content + '</div>' + bottomnav;
 }
+// ── 모바일 편집 ──────────────────────────────────────────────
+function mbEditTodo(c, i) {
+  var el = document.getElementById('mbt-'+c+'-'+i);
+  if (!el || el.querySelector('.mb-edit-inp')) return;
+  var span = el.querySelector('.mb-todo-txt');
+  if (!span) return;
+  var cur = span.dataset.raw || span.textContent.replace(/📊.*/,'').trim();
+  var inp = document.createElement('input');
+  inp.className = 'mb-edit-inp';
+  inp.value = cur;
+  inp.autocomplete = 'off';
+  inp.onblur = function() {
+    var v = inp.value.trim();
+    if (v) { getTodos()[c][i].text = v; save(); }
+    renderMobile();
+  };
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') inp.blur();
+    if (e.key === 'Escape') { inp.value = cur; inp.blur(); }
+  };
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+}
+
+function mbEditPlan(pk, i) {
+  var el = document.getElementById('mbp-'+i);
+  if (!el || el.querySelector('.mb-edit-inp')) return;
+  var span = el.querySelector('.mb-plan-txt');
+  if (!span) return;
+  var cur = span.dataset.raw || span.textContent.trim();
+  var inp = document.createElement('input');
+  inp.className = 'mb-edit-inp';
+  inp.value = cur;
+  inp.autocomplete = 'off';
+  inp.onblur = function() {
+    var v = inp.value.trim();
+    if (v) { getPlanItems(pk)[i].text = v; save(); }
+    renderMobile();
+  };
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') inp.blur();
+    if (e.key === 'Escape') { inp.value = cur; inp.blur(); }
+  };
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+}
+
+// ── 모바일 드래그 정렬 ─────────────────────────────────────────
+var _mbDrag = null;
+var _mbListenersAdded = false;
+
+function mbSetupDragListeners() {
+  if (_mbListenersAdded) return;
+  _mbListenersAdded = true;
+  document.addEventListener('touchmove', function(e) {
+    if (!_mbDrag || !_mbDrag.active) return;
+    e.preventDefault();
+    var touch = e.touches[0];
+    // move ghost
+    _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
+    // find best drop index
+    var sel = _mbDrag.type === 'todo'
+      ? '[data-drag-cat="'+_mbDrag.cat+'"]'
+      : '[data-drag-plan]';
+    var els = Array.prototype.slice.call(document.querySelectorAll(sel));
+    var best = _mbDrag.fromIdx;
+    for (var i = 0; i < els.length; i++) {
+      var r = els[i].getBoundingClientRect();
+      if (touch.clientY > r.top + r.height * 0.5) best = parseInt(els[i].dataset.dragIdx);
+    }
+    _mbDrag.targetIdx = best;
+    // visual feedback
+    els.forEach(function(el) {
+      var idx = parseInt(el.dataset.dragIdx);
+      el.classList.toggle('mb-drag-faded', idx === _mbDrag.fromIdx);
+      el.classList.toggle('mb-drag-over-top', idx === best + 1 && best !== _mbDrag.fromIdx);
+    });
+  }, { passive: false });
+
+  document.addEventListener('touchend', function() {
+    if (!_mbDrag) return;
+    clearTimeout(_mbDrag.timer);
+    if (!_mbDrag.active) { _mbDrag = null; return; }
+    var from = _mbDrag.fromIdx, to = _mbDrag.targetIdx;
+    if (_mbDrag.ghost && _mbDrag.ghost.parentNode) _mbDrag.ghost.parentNode.removeChild(_mbDrag.ghost);
+    // remove visual classes
+    document.querySelectorAll('.mb-drag-faded,.mb-drag-over-top').forEach(function(el) {
+      el.classList.remove('mb-drag-faded','mb-drag-over-top');
+      el.style.opacity = '';
+    });
+    if (from !== to) {
+      if (_mbDrag.type === 'todo') {
+        var arr = getTodos()[_mbDrag.cat];
+        var item = arr.splice(from, 1)[0];
+        arr.splice(to > from ? to : to, 0, item);
+        save();
+      } else {
+        var arr2 = getPlanItems(_mbDrag.pk);
+        var item2 = arr2.splice(from, 1)[0];
+        arr2.splice(to > from ? to : to, 0, item2);
+        save();
+      }
+    }
+    _mbDrag = null;
+    renderMobile();
+  });
+}
+
+function mbDS(e, type, cat, idx, pk) {
+  mbSetupDragListeners();
+  var handle = e.currentTarget;
+  var itemEl = handle.parentElement;
+  var touch = e.touches[0];
+  _mbDrag = {
+    type: type, cat: cat, fromIdx: idx, targetIdx: idx, pk: pk,
+    startY: touch.clientY, active: false, ghost: null, srcEl: itemEl,
+    timer: setTimeout(function() {
+      // activate
+      _mbDrag.active = true;
+      navigator.vibrate && navigator.vibrate(40);
+      var r = itemEl.getBoundingClientRect();
+      var ghost = itemEl.cloneNode(true);
+      ghost.style.cssText = 'position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;'
+        +'z-index:99999;pointer-events:none;transform:scale(1.04);'
+        +'box-shadow:0 10px 32px rgba(0,0,0,.35);border-radius:10px;background:#fff;'
+        +'opacity:.9;transition:transform .12s;';
+      document.body.appendChild(ghost);
+      _mbDrag.ghost = ghost;
+      _mbDrag.ghostOffY = _mbDrag.startY - r.top;
+      itemEl.style.opacity = '0.25';
+    }, 420)
+  };
+}
+
 function showSaveToast(){var t=document.getElementById('saveToast');if(!t)return;t.style.opacity='1';t.style.transform='translateY(0)';clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(20px)';},1800);}
 document.addEventListener('keydown',function(e){
   if(e.key==='s'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();saveNow();showSaveToast();return;}
