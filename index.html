@@ -669,7 +669,7 @@ function render(){
   var mKey2=S.calY+'-'+(S.calM+1);
   var metrics=goals.filter(function(g){return g.parentId;});
   if(topGoals.length){
-    out+='<div style="background:#ffd6e7;border-radius:12px;padding:12px 14px;margin-bottom:14px;">';
+    out+='<div style="background:#fff0f5;border-radius:12px;padding:12px 14px;margin-bottom:14px;">';
     out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:10px;">📊 이달의 목표 달성</div>';
     for(var gi=0;gi<topGoals.length;gi++){
       var tg2=topGoals[gi];
@@ -793,7 +793,7 @@ function render(){
         var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
         out+='<div class="goal-week-row">';
         out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m3.name)+'">'+esc(m3.name)+'</span>';
-        out+='<div class="goal-bar-bg" style="flex:1;"><div class="goal-bar-fill" style="width:'+wPct+'%;"></div></div>';
+        out+='<div class="goal-bar-bg" style="flex:1;background:#f0c0d0;"><div class="goal-bar-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">주목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/>';
         out+='<span class="goal-bar-cnt">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span>';
