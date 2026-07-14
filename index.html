@@ -231,9 +231,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .btn-logout:hover{color:#ff4466;border-color:#ffdddd;}
 /* ── 숫자 목표 바 ── */
 /* ── 목표 계층 ── */
-.goal-hdr-row{display:flex;align-items:center;gap:7px;margin:10px 0 5px;}
-.goal-hdr-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.85);flex:1;letter-spacing:.3px;}
-.goal-hdr-name-light{font-size:12px;font-weight:900;color:var(--dk);flex:1;}
+.goal-hdr-row{display:flex;align-items:center;gap:7px;margin:0 0 6px;}
+.goal-hdr-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.9);flex:1;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.goal-hdr-name-light{font-size:12px;font-weight:900;color:var(--dk);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.goal-group{border-left:2px solid rgba(255,255,255,.18);border-radius:0 10px 10px 0;padding:10px 10px 6px 12px;margin-bottom:12px;background:rgba(255,255,255,.04);}
+.goal-group-light{border:1.5px solid #f0f0f0;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:#fafafa;}
 .goal-hdr-del{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
 .goal-hdr-del:hover{color:#ff4466;}
 .goal-hdr-del-light{background:none;border:none;color:#ddd;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
@@ -593,23 +595,23 @@ function render(){
     for(var gi=0;gi<topGoals.length;gi++){
       var tg=topGoals[gi];
       var children=goals.filter(function(g){return g.parentId===tg.id;});
-      // 대목표 헤더
+      // 대목표 그룹 박스
+      out+='<div class="goal-group">';
       out+='<div class="goal-hdr-row">';
-      out+='<span style="font-size:10px;color:rgba(255,255,255,.35);">🎯</span>';
-      out+='<span class="goal-hdr-name">'+esc(tg.name)+'</span>';
+      out+='<span style="font-size:10px;color:rgba(255,255,255,.5);">🎯</span>';
+      out+='<span class="goal-hdr-name" title="'+esc(tg.name)+'">'+esc(tg.name)+'</span>';
       out+='<button class="goal-add-btn-sm" onclick="openMetric(\''+tg.id+'\')">+ 지표</button>';
       out+='<button class="goal-hdr-del" style="font-size:11px;" onclick="openEditGoal(\''+tg.id+'\')">✏️</button>';
       out+='<button class="goal-hdr-del" onclick="delGoal(\''+tg.id+'\')">×</button>';
       out+='</div>';
       if(!children.length){
-        out+='<div style="font-size:11px;color:rgba(255,255,255,.25);padding:4px 10px 8px;">세부 지표를 추가하면 달성 현황을 추적할 수 있어요</div>';
+        out+='<div style="font-size:11px;color:rgba(255,255,255,.25);padding:4px 0 4px 4px;">세부 지표를 추가하면 달성 현황을 추적할 수 있어요</div>';
       } else {
         for(var ci=0;ci<children.length;ci++){
           var m=children[ci];
           var qDone=countGoalInDates(m.id,qKeys);
           var qTgt=m.quarterTarget||0;
           var qPct=qTgt>0?Math.min(100,Math.round(qDone/qTgt*100)):0;
-          // 월별 소계
           var mBreakStr='';
           if(p.startDate&&p.endDate){
             var mBreak=getMonthBreakdown(m.id,p.startDate,p.endDate);
@@ -620,21 +622,18 @@ function render(){
             }
           }
           out+='<div class="goal-bar-row">';
-          out+='<span class="goal-bar-name" style="color:rgba(255,255,255,.75);">'+esc(m.name)+'</span>';
+          out+='<span class="goal-bar-name" style="color:rgba(255,255,255,.75);" title="'+esc(m.name)+'">'+esc(m.name)+'</span>';
           out+='<div class="goal-bar-bg" style="background:rgba(255,255,255,.12);"><div class="goal-bar-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<span class="goal-bar-cnt">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span>';
           out+='<span class="goal-bar-pct" style="color:rgba(255,255,255,.35);">'+qPct+'%</span>';
           out+='<button class="goal-del-sm" style="color:rgba(255,255,255,.3);font-size:11px;" onclick="openEditMetric(\''+m.id+'\')">✏️</button>';
           out+='<button class="goal-del-sm" style="color:rgba(255,255,255,.2);" onclick="delMetric(\''+m.id+'\')">×</button>';
           out+='</div>';
-          if(m.memo){
-            out+='<div style="font-size:10px;color:rgba(255,255,255,.3);padding:0 0 4px 80px;font-style:italic;">'+esc(m.memo)+'</div>';
-          }
-          if(mBreakStr){
-            out+='<div style="font-size:10px;color:rgba(255,255,255,.28);padding:0 0 8px 80px;">'+esc(mBreakStr)+'</div>';
-          }
+          if(m.memo){out+='<div style="font-size:10px;color:rgba(255,255,255,.3);padding:0 0 4px 4px;font-style:italic;">'+esc(m.memo)+'</div>';}
+          if(mBreakStr){out+='<div style="font-size:10px;color:rgba(255,255,255,.28);padding:0 0 6px 4px;">'+esc(mBreakStr)+'</div>';}
         }
       }
+      out+='</div>';
     }
   }
   out+='</div></div>';
@@ -673,7 +672,8 @@ function render(){
       var tg2=topGoals[gi];
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
       if(!ch2.length)continue;
-      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:8px 0 5px;">🎯 '+esc(tg2.name)+'</div>';
+      out+='<div class="goal-group-light">';
+      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span style="color:var(--pk);">🎯</span><span title="'+esc(tg2.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
       for(var ci=0;ci<ch2.length;ci++){
         var m2=ch2[ci];
         var autoMTgt=m2.quarterTarget?Math.round(m2.quarterTarget/3):0;
@@ -681,7 +681,7 @@ function render(){
         var mDone=countGoalInDates(m2.id,mKeys);
         var mPct=mTgt>0?Math.min(100,Math.round(mDone/mTgt*100)):0;
         out+='<div class="goal-bar-row">';
-        out+='<span class="goal-bar-name">'+esc(m2.name)+'</span>';
+        out+='<span class="goal-bar-name" title="'+esc(m2.name)+'">'+esc(m2.name)+'</span>';
         out+='<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:'+mPct+'%;"></div></div>';
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">월목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" title="이달 목표 (비우면 자동)" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/>';
@@ -692,6 +692,7 @@ function render(){
         var mMemo2=(m2.monthMemos&&m2.monthMemos[mKey2])||'';
         out+='<input class="goal-period-memo" placeholder="'+(m2.memo?esc(m2.memo):'이달 메모 (선택)')+'" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
       }
+      out+='</div>';
     }
     out+='</div>';
   }
@@ -778,7 +779,8 @@ function render(){
       var tg3=topGoals[gi3];
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
       if(!ch3.length)continue;
-      out+='<div style="font-size:10px;font-weight:700;color:#aaa;margin:6px 0 3px;">'+esc(tg3.name)+'</div>';
+      out+='<div class="goal-group-light">';
+      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span style="color:var(--pk);">🎯</span><span title="'+esc(tg3.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
       for(var ci3=0;ci3<ch3.length;ci3++){
         var m3=ch3[ci3];
         var wDone=countGoalInDates(m3.id,wdKeys);
@@ -787,7 +789,7 @@ function render(){
         var wTgt=(m3.weekTargets&&m3.weekTargets[curWKey]!=null)?m3.weekTargets[curWKey]:autoWTgt;
         var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
         out+='<div class="goal-week-row">';
-        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">'+esc(m3.name)+'</span>';
+        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="'+esc(m3.name)+'">'+esc(m3.name)+'</span>';
         out+='<div class="goal-bar-bg" style="flex:1;"><div class="goal-bar-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">주목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/>';
@@ -800,6 +802,7 @@ function render(){
         var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
         out+='<input class="goal-period-memo" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모 (선택)')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
       }
+      out+='</div>';
     }
     out+='</div>';
   }
