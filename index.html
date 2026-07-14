@@ -239,6 +239,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 /* ── 숫자 목표 바 ── */
 /* ── 목표 계층 ── */
 .goal-hdr-row{display:flex;align-items:center;gap:7px;margin:0 0 6px;}
+.gdrag-handle{color:rgba(255,255,255,.25);font-size:14px;cursor:grab;flex-shrink:0;user-select:none;touch-action:none;-webkit-user-select:none;line-height:1;}
+.gdrag-handle:hover{color:rgba(255,255,255,.6);}
+.gdrag-handle.light{color:#ccc;}
+.gdrag-handle.light:hover{color:#999;}
+.goal-drag-over{outline:2px solid var(--pk)!important;outline-offset:2px;}
+.mc-drag-over{outline:2px solid var(--pk)!important;}
 .goal-hdr-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.9);flex:1;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-hdr-name-light{font-size:12px;font-weight:900;color:var(--dk);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-group{border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:rgba(255,255,255,.06);}
@@ -681,8 +687,9 @@ function render(){
       var tg=topGoals[gi];
       var children=goals.filter(function(g){return g.parentId===tg.id;});
       // 대목표 그룹 박스
-      out+='<div class="goal-group">';
+      out+='<div class="goal-group" data-gid="'+tg.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg.id+'\')">';
       out+='<div class="goal-hdr-row">';
+      out+='<span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg.id+'\')">⠿</span>';
       out+='<span style="font-size:10px;color:rgba(255,255,255,.5);">🎯</span>';
       out+='<span class="goal-hdr-name">'+esc(tg.name)+'</span>';
       out+='<button class="goal-add-btn-sm" onclick="openMetric(\''+tg.id+'\')">+ 지표</button>';
@@ -703,8 +710,8 @@ function render(){
             var mBreak=getMonthBreakdown(m.id,p.startDate,p.endDate);
             if(mBreak.length>0){var mParts=[];for(var mi=0;mi<mBreak.length;mi++)mParts.push(mBreak[mi].label+' '+mBreak[mi].done);mBreakStr=mParts.join(' / ');}
           }
-          out+='<div class="mc-dark">';
-          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);">'+esc(m.name)+'<button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;float:right;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);float:right;" onclick="delMetric(\''+m.id+'\')">×</button></div>';
+          out+='<div class="mc-dark" data-mid="'+m.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m.id+'\')">';
+          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);display:flex;align-items:center;gap:4px;"><span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m.id+'\')">⠿</span>'+esc(m.name)+'<button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;margin-left:auto;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);" onclick="delMetric(\''+m.id+'\')">×</button></div>';
           out+='<div class="mc-bar"><div class="mc-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
           if(m.memo)out+='<div class="mc-memo" style="color:rgba(255,255,255,.3);">'+esc(m.memo)+'</div>';
@@ -959,6 +966,108 @@ function openPlanEdit(pk,i){planEditPk=pk;planEditIdx=i;render();setTimeout(func
 function savePlanEdit(pk,i,val){var t=val.trim();if(t)getPlanItems(pk)[i].text=t;planEditPk='';planEditIdx=-1;save();render();}
 function planDragStart(pk,i,e){planDragPk=pk;planDragIdx=i;e.dataTransfer.effectAllowed='move';}
 function planDragEnd(){planDragPk='';planDragIdx=-1;render();}
+
+// ── 목표/지표 드래그 정렬 ───────────────────────────────────────
+var _gDrag = null; // mouse
+var _gTouch = null; // touch
+var _gTouchListeners = false;
+
+// ── 마우스 (HTML5 DnD) ──
+function gDSm(e, type, id) {
+  _gDrag = {type:type, id:id};
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  setTimeout(function(){
+    var sel = type==='goal'?'[data-gid="'+id+'"]':'[data-mid="'+id+'"]';
+    var el = document.querySelector(sel); if(el) el.style.opacity='0.35';
+  },0);
+}
+function gDEm(e) {
+  document.querySelectorAll('[data-gid],[data-mid]').forEach(function(el){
+    el.style.opacity=''; el.classList.remove('goal-drag-over','mc-drag-over');
+  });
+  _gDrag = null;
+}
+function gDO(e, type) {
+  if(!_gDrag || _gDrag.type!==type) return;
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  var cls = type==='goal'?'goal-drag-over':'mc-drag-over';
+  document.querySelectorAll('.'+cls).forEach(function(el){el.classList.remove(cls);});
+  e.currentTarget.classList.add(cls);
+}
+function gDrop(e, type, toId) {
+  e.preventDefault();
+  document.querySelectorAll('.goal-drag-over,.mc-drag-over').forEach(function(el){el.classList.remove('goal-drag-over','mc-drag-over');});
+  if(!_gDrag || _gDrag.type!==type || _gDrag.id===toId){_gDrag=null;return;}
+  var goals=cp().goals||[], fi=-1, ti=-1;
+  for(var i=0;i<goals.length;i++){
+    if(goals[i].id===_gDrag.id) fi=i;
+    if(goals[i].id===toId) ti=i;
+  }
+  if(fi===-1||ti===-1){_gDrag=null;return;}
+  if(type==='metric'&&goals[fi].parentId!==goals[ti].parentId){_gDrag=null;return;}
+  var moved=goals.splice(fi,1)[0];
+  goals.splice(ti>fi?ti-1:ti,0,moved);
+  save(); render(); _gDrag=null;
+}
+
+// ── 터치 (long-press) ──
+function gDSt(e, type, id) {
+  if(e.target.tagName==='BUTTON') return;
+  if(!_gTouchListeners){
+    _gTouchListeners=true;
+    document.addEventListener('touchmove',function(e){
+      if(!_gTouch) return;
+      var t=e.touches[0], dy=Math.abs(t.clientY-_gTouch.startY);
+      if(!_gTouch.active){if(dy>8){clearTimeout(_gTouch.timer);_gTouch=null;} return;}
+      e.preventDefault();
+      _gTouch.ghost.style.top=(t.clientY-_gTouch.offY)+'px';
+      _gTouch.ghost.style.left=(t.clientX-_gTouch.offX)+'px';
+      var sel=_gTouch.type==='goal'?'[data-gid]':'[data-mid="'+_gTouch.parentId+'"] ~ [data-mid],[data-mid]';
+      var allEls=Array.prototype.slice.call(document.querySelectorAll(_gTouch.type==='goal'?'[data-gid]':'[data-mid]'));
+      var same=_gTouch.type==='metric'?allEls.filter(function(el){
+        var g=cp().goals||[]; for(var i=0;i<g.length;i++){if(g[i].id===el.dataset.mid)return g[i].parentId===_gTouch.parentId;} return false;
+      }):allEls;
+      var insertBefore=same.length;
+      for(var i=0;i<same.length;i++){var r=same[i].getBoundingClientRect();if(t.clientY<r.top+r.height*0.5){insertBefore=i;break;}}
+      _gTouch.insertBefore=insertBefore;
+      same.forEach(function(el,i){
+        el.style.opacity=el.dataset.gid===_gTouch.id||el.dataset.mid===_gTouch.id?'0.2':'1';
+        el.classList.toggle('goal-drag-over',i===insertBefore&&(el.dataset.gid!==_gTouch.id&&el.dataset.mid!==_gTouch.id));
+      });
+    },{passive:false});
+    document.addEventListener('touchend',function(){
+      if(!_gTouch){return;} clearTimeout(_gTouch.timer);
+      if(!_gTouch.active){_gTouch=null;return;}
+      if(_gTouch.ghost&&_gTouch.ghost.parentNode) _gTouch.ghost.parentNode.removeChild(_gTouch.ghost);
+      document.querySelectorAll('.goal-drag-over,.mc-drag-over').forEach(function(el){el.classList.remove('goal-drag-over','mc-drag-over');el.style.opacity='';});
+      var goals=cp().goals||[], fi=-1, insertBefore=_gTouch.insertBefore||0;
+      var same=Array.prototype.slice.call(document.querySelectorAll(_gTouch.type==='goal'?'[data-gid]':'[data-mid]'));
+      if(_gTouch.type==='metric') same=same.filter(function(el){var g=cp().goals||[];for(var i=0;i<g.length;i++){if(g[i].id===el.dataset.mid)return g[i].parentId===_gTouch.parentId;}return false;});
+      var toEl=same[insertBefore>0?insertBefore-1:0];
+      var toId=toEl?(toEl.dataset.gid||toEl.dataset.mid):null;
+      for(var i=0;i<goals.length;i++) if(goals[i].id===_gTouch.id) fi=i;
+      if(toId&&fi!==-1&&toId!==_gTouch.id){
+        var ti=-1; for(var i=0;i<goals.length;i++) if(goals[i].id===toId) ti=i;
+        if(ti!==-1){var moved=goals.splice(fi,1)[0]; goals.splice(ti>fi?ti-1:ti,0,moved); save(); render();}
+      } else if(fi!==-1) render();
+      _gTouch=null;
+    });
+  }
+  var el=e.currentTarget.parentElement.closest ? e.currentTarget.parentElement.closest('[data-gid],[data-mid]') : e.currentTarget.parentElement;
+  var touch=e.touches[0], goals=cp().goals||[], parentId='';
+  if(type==='metric') for(var i=0;i<goals.length;i++) if(goals[i].id===id){parentId=goals[i].parentId;break;}
+  _gTouch={type:type,id:id,parentId:parentId,startY:touch.clientY,active:false,ghost:null,insertBefore:null,
+    timer:setTimeout(function(){
+      _gTouch.active=true; navigator.vibrate&&navigator.vibrate(35);
+      var r=el.getBoundingClientRect(), ghost=el.cloneNode(true);
+      ghost.style.cssText='position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;z-index:99999;pointer-events:none;transform:scale(1.03);box-shadow:0 8px 28px rgba(0,0,0,.35);border-radius:12px;opacity:.88;';
+      document.body.appendChild(ghost); _gTouch.ghost=ghost;
+      _gTouch.offY=touch.clientY-r.top; _gTouch.offX=touch.clientX-r.left;
+      el.style.opacity='0.2';
+    },450)
+  };
+}
 function planDragOver(e,pk,i){e.preventDefault();e.dataTransfer.dropEffect='move';}
 function planDrop(pk,i,e){e.preventDefault();if(!planDragPk||planDragIdx<0||planDragIdx===i)return;var items=getPlanItems(pk);var item=items.splice(planDragIdx,1)[0];var ni=planDragIdx<i?i-1:i;items.splice(ni,0,item);planDragPk='';planDragIdx=-1;save();render();}
 function addPlan(pk,el){var t=el.value.trim();if(!t)return;getPlanItems(pk).push({text:t,done:false});el.value='';save();render();setTimeout(function(){var inp=document.getElementById('planInp_'+pk);if(inp)inp.focus();},50);}
