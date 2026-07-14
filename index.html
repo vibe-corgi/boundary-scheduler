@@ -327,7 +327,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mb-section-hdr{font-size:11px;font-weight:700;color:#aaa;letter-spacing:.5px;margin:16px 0 8px;text-transform:uppercase;}
 .mb-goal-group{background:#fff;border:1.5px solid #ffd6e7;border-radius:14px;padding:12px 14px;margin-bottom:10px;}
 .mb-goal-group-title{font-size:12px;font-weight:900;color:var(--dk);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
-.mb-mc{background:#fff5f8;border:1px solid #ffd6e7;border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.mb-mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.mb-mc{background:#fff5f8;border:1px solid #ffd6e7;border-radius:10px;padding:10px 10px;}
 .mb-mc-name{font-size:13px;font-weight:700;color:var(--dk);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mb-mc-bar-bg{background:#f0c0d0;border-radius:4px;height:5px;margin-bottom:5px;}
 .mb-mc-bar-fill{background:linear-gradient(90deg,var(--pk),#ff6ba8);border-radius:4px;height:5px;}
@@ -1682,6 +1683,7 @@ function renderMobile() {
         var ch = goals.filter(function(g) { return g.parentId === tg.id; });
         if (!ch.length) continue;
         content += '<div class="mb-goal-group"><div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg.name)+'</div>';
+        content += '<div class="mb-mc-grid">';
         for (var ci = 0; ci < ch.length; ci++) {
           var m = ch[ci];
           var wDone = countGoalInDates(m.id, wdKeys);
@@ -1690,10 +1692,10 @@ function renderMobile() {
           var wPct = wTgt > 0 ? Math.min(100, Math.round(wDone / wTgt * 100)) : 0;
           content += '<div class="mb-mc"><div class="mb-mc-name">'+esc(m.name)+'</div>';
           content += '<div class="mb-mc-bar-bg"><div class="mb-mc-bar-fill" style="width:'+wPct+'%"></div></div>';
-          content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+wDone+'/'+wTgt+esc(m.unit||'')+'</span><span style="color:#bbb">'+wPct+'%</span>';
-          content += '<span style="flex:1;text-align:right;color:#ccc;font-size:11px;">주목표 <input class="mb-tgt-inp" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/></span></div></div>';
+          content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+wDone+'/'+wTgt+esc(m.unit||'')+'</span><span style="color:#bbb;margin-left:auto">'+wPct+'%</span></div>';
+          content += '<div style="text-align:right;margin-top:4px;font-size:11px;color:#ccc;">주목표 <input class="mb-tgt-inp" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/></div></div>';
         }
-        content += '</div>';
+        content += '</div></div>';
       }
     }
     // 이달
@@ -1706,6 +1708,7 @@ function renderMobile() {
         var ch2 = goals.filter(function(g) { return g.parentId === tg2.id; });
         if (!ch2.length) continue;
         content += '<div class="mb-goal-group"><div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg2.name)+'</div>';
+        content += '<div class="mb-mc-grid">';
         for (var ci2 = 0; ci2 < ch2.length; ci2++) {
           var m2 = ch2[ci2];
           var autoMTgt = m2.quarterTarget ? Math.round(m2.quarterTarget / 3) : 0;
@@ -1714,10 +1717,10 @@ function renderMobile() {
           var mPct2 = mTgt2 > 0 ? Math.min(100, Math.round(mDone2 / mTgt2 * 100)) : 0;
           content += '<div class="mb-mc"><div class="mb-mc-name">'+esc(m2.name)+'</div>';
           content += '<div class="mb-mc-bar-bg"><div class="mb-mc-bar-fill" style="width:'+mPct2+'%"></div></div>';
-          content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+mDone2+'/'+(mTgt2||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb">'+mPct2+'%</span>';
-          content += '<span style="flex:1;text-align:right;color:#ccc;font-size:11px;">월목표 <input class="mb-tgt-inp" type="number" value="'+(mTgt2||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/></span></div></div>';
+          content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+mDone2+'/'+(mTgt2||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;margin-left:auto">'+mPct2+'%</span></div>';
+          content += '<div style="text-align:right;margin-top:4px;font-size:11px;color:#ccc;">월목표 <input class="mb-tgt-inp" type="number" value="'+(mTgt2||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/></div></div>';
         }
-        content += '</div>';
+        content += '</div></div>';
       }
     }
   }
