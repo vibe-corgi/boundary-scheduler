@@ -235,7 +235,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .goal-hdr-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.9);flex:1;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-hdr-name-light{font-size:12px;font-weight:900;color:var(--dk);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-group{border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:rgba(255,255,255,.06);}
-.goal-group-light{border:2px solid #ead5ff;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:#faf5ff;}
+.goal-group-light{border:1.5px solid #e8e8e8;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+#tipBox{position:fixed;display:none;background:rgba(30,30,40,.82);color:#fff;font-size:12px;font-family:inherit;padding:4px 10px;border-radius:7px;pointer-events:none;z-index:99999;white-space:nowrap;backdrop-filter:blur(4px);}
 .goal-hdr-del{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
 .goal-hdr-del:hover{color:#ff4466;}
 .goal-hdr-del-light{background:none;border:none;color:#ddd;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
@@ -262,6 +263,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </style>
 </head>
 <body>
+<div id="tipBox"></div>
 <div id="saveToast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;font-size:13px;font-weight:600;padding:10px 22px;border-radius:24px;opacity:0;transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.22);">💾 저장되었습니다</div>
 <!-- 로그인 화면 -->
 <div class="login-screen" id="loginScreen">
@@ -599,7 +601,7 @@ function render(){
       out+='<div class="goal-group">';
       out+='<div class="goal-hdr-row">';
       out+='<span style="font-size:10px;color:rgba(255,255,255,.5);">🎯</span>';
-      out+='<span class="goal-hdr-name" title="'+esc(tg.name)+'">'+esc(tg.name)+'</span>';
+      out+='<span class="goal-hdr-name" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(tg.name)+'">'+esc(tg.name)+'</span>';
       out+='<button class="goal-add-btn-sm" onclick="openMetric(\''+tg.id+'\')">+ 지표</button>';
       out+='<button class="goal-hdr-del" style="font-size:11px;" onclick="openEditGoal(\''+tg.id+'\')">✏️</button>';
       out+='<button class="goal-hdr-del" onclick="delGoal(\''+tg.id+'\')">×</button>';
@@ -622,7 +624,7 @@ function render(){
             }
           }
           out+='<div class="goal-bar-row">';
-          out+='<span class="goal-bar-name" style="color:rgba(255,255,255,.75);" title="'+esc(m.name)+'">'+esc(m.name)+'</span>';
+          out+='<span class="goal-bar-name" style="color:rgba(255,255,255,.75);" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m.name)+'">'+esc(m.name)+'</span>';
           out+='<div class="goal-bar-bg" style="background:rgba(255,255,255,.12);"><div class="goal-bar-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<span class="goal-bar-cnt">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span>';
           out+='<span class="goal-bar-pct" style="color:rgba(255,255,255,.35);">'+qPct+'%</span>';
@@ -673,7 +675,7 @@ function render(){
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
       if(!ch2.length)continue;
       out+='<div class="goal-group-light">';
-      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span style="color:var(--pk);">🎯</span><span title="'+esc(tg2.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
+      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span style="color:var(--pk);">🎯</span><span onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(tg2.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
       for(var ci=0;ci<ch2.length;ci++){
         var m2=ch2[ci];
         var autoMTgt=m2.quarterTarget?Math.round(m2.quarterTarget/3):0;
@@ -681,7 +683,7 @@ function render(){
         var mDone=countGoalInDates(m2.id,mKeys);
         var mPct=mTgt>0?Math.min(100,Math.round(mDone/mTgt*100)):0;
         out+='<div class="goal-bar-row">';
-        out+='<span class="goal-bar-name" title="'+esc(m2.name)+'">'+esc(m2.name)+'</span>';
+        out+='<span class="goal-bar-name" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m2.name)+'">'+esc(m2.name)+'</span>';
         out+='<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:'+mPct+'%;"></div></div>';
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">월목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" title="이달 목표 (비우면 자동)" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/>';
@@ -780,7 +782,7 @@ function render(){
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
       if(!ch3.length)continue;
       out+='<div class="goal-group-light">';
-      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span style="color:var(--pk);">🎯</span><span title="'+esc(tg3.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
+      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span style="color:var(--pk);">🎯</span><span onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(tg3.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
       for(var ci3=0;ci3<ch3.length;ci3++){
         var m3=ch3[ci3];
         var wDone=countGoalInDates(m3.id,wdKeys);
@@ -789,7 +791,7 @@ function render(){
         var wTgt=(m3.weekTargets&&m3.weekTargets[curWKey]!=null)?m3.weekTargets[curWKey]:autoWTgt;
         var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
         out+='<div class="goal-week-row">';
-        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="'+esc(m3.name)+'">'+esc(m3.name)+'</span>';
+        out+='<span style="font-size:12px;font-weight:700;color:var(--dk);width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m3.name)+'">'+esc(m3.name)+'</span>';
         out+='<div class="goal-bar-bg" style="flex:1;"><div class="goal-bar-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">주목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/>';
@@ -1522,6 +1524,9 @@ function importXLSX(input){
   reader.readAsBinaryString(file);
 }
 // 키보드 단축키
+function showTip(e,txt){var t=document.getElementById('tipBox');t.textContent=txt;t.style.display='block';var x=e.clientX,y=e.clientY-32;if(x+t.offsetWidth+10>window.innerWidth)x=window.innerWidth-t.offsetWidth-10;t.style.left=x+'px';t.style.top=y+'px';}
+function moveTip(e){var t=document.getElementById('tipBox');t.style.left=e.clientX+'px';t.style.top=(e.clientY-32)+'px';}
+function hideTip(){var t=document.getElementById('tipBox');t.style.display='none';}
 function showSaveToast(){var t=document.getElementById('saveToast');if(!t)return;t.style.opacity='1';t.style.transform='translateY(0)';clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(20px)';},1800);}
 document.addEventListener('keydown',function(e){
   if(e.key==='s'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();saveNow();showSaveToast();return;}
