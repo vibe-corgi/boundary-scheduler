@@ -664,7 +664,7 @@ function render(){
   var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{left:'',right:''};
   out+='<div class="card"><div class="card-top"><span class="ctitle">📅 월간 캘린더</span></div>';
   // Key Scene 메모 (달력 위)
-  out+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">';
   out+='<div style="background:var(--pkl);border-radius:12px;padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 달 끝에 내가 원하는 모습</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea></div>';
