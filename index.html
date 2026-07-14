@@ -205,7 +205,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mv-btn:hover{border-color:var(--pk);background:var(--pkl);color:var(--pk);}
 .mv-btn.cur{border-color:#ddd;background:#f9f9f9;color:#bbb;cursor:default;}
 .ex-ta{width:100%;height:260px;border:1.5px solid #eee;border-radius:9px;padding:11px;font-size:12px;font-family:inherit;color:#333;background:#fafafa;resize:none;outline:none;line-height:1.6;}
-@media(max-width:580px){.e-grid{grid-template-columns:1fr;}.pdca-grid{grid-template-columns:1fr 1fr;}.hdr-right{gap:4px;}}
+@media(max-width:580px){.e-grid{grid-template-columns:1fr;}.pdca-grid{grid-template-columns:1fr 1fr 1fr;}.hdr-right{gap:4px;}}
 @media print{.hdr-right,.tab-row,.todo-acts,.cal-plus,.overlay,.login-screen{display:none!important;}body{background:#fff;}.app{padding:10px;}}
 /* 로그인 화면 */
 .login-screen{position:fixed;inset:0;background:#f5f4f0;display:flex;align-items:center;justify-content:center;z-index:9999;}
@@ -248,7 +248,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .goal-bar-fill{background:linear-gradient(90deg,var(--pk),#ff6ba8);border-radius:6px;height:5px;transition:width .4s;}
 .goal-bar-cnt{font-size:12px;font-weight:700;color:var(--pk);white-space:nowrap;flex-shrink:0;}
 .goal-bar-pct{font-size:11px;color:#aaa;min-width:32px;text-align:right;flex-shrink:0;}
-.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
 .mc-dark{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 10px;}
 .mc-light{background:#fff;border:1px solid #f0e8f4;border-radius:10px;padding:8px 10px;}
 .mc-week{background:rgba(255,255,255,.55);border:1px solid #ffd6e7;border-radius:10px;padding:8px 10px;}
@@ -636,7 +636,7 @@ function render(){
             if(mBreak.length>0){var mParts=[];for(var mi=0;mi<mBreak.length;mi++)mParts.push(mBreak[mi].label+' '+mBreak[mi].done);mBreakStr=mParts.join(' / ');}
           }
           out+='<div class="mc-dark">';
-          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m.name)+'">'+esc(m.name)+'<button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;float:right;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);float:right;" onclick="delMetric(\''+m.id+'\')">×</button></div>';
+          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);">'+esc(m.name)+'<button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;float:right;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);float:right;" onclick="delMetric(\''+m.id+'\')">×</button></div>';
           out+='<div class="mc-bar"><div class="mc-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
           if(m.memo)out+='<div class="mc-memo" style="color:rgba(255,255,255,.3);">'+esc(m.memo)+'</div>';
@@ -664,7 +664,7 @@ function render(){
   var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{left:'',right:''};
   out+='<div class="card"><div class="card-top"><span class="ctitle">📅 월간 캘린더</span></div>';
   // Key Scene 메모 (달력 위)
-  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">';
   out+='<div style="background:var(--pkl);border-radius:12px;padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 달 끝에 내가 원하는 모습</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea></div>';
@@ -694,7 +694,7 @@ function render(){
         var mPct=mTgt>0?Math.min(100,Math.round(mDone/mTgt*100)):0;
         var mMemo2=(m2.monthMemos&&m2.monthMemos[mKey2])||'';
         out+='<div class="mc-light">';
-        out+='<div class="mc-name" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m2.name)+'">'+esc(m2.name)+'</div>';
+        out+='<div class="mc-name" >'+esc(m2.name)+'</div>';
         out+='<div class="mc-bar-light"><div class="mc-fill" style="width:'+mPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;">'+mPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">월<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)" style="width:28px;"/>'+(m2.quarterTarget?'<span style="color:#ddd;font-size:10px;"> / 3개월'+m2.quarterTarget+esc(m2.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="'+(m2.memo?esc(m2.memo):'이달 메모')+'" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
@@ -803,7 +803,7 @@ function render(){
         var mTgt3=(m3.monthTargets&&m3.monthTargets[curMKey2]!=null)?m3.monthTargets[curMKey2]:autoMTgt3;
         var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
         out+='<div class="mc-week">';
-        out+='<div class="mc-name" onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(m3.name)+'">'+esc(m3.name)+'</div>';
+        out+='<div class="mc-name" >'+esc(m3.name)+'</div>';
         out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
@@ -1137,7 +1137,7 @@ function captureAll(){
   if(p.problem)body+='<p style="font-size:13px;margin-bottom:8px;"><b>문제:</b> '+p.problem+'</p>';
   if(p.numLang)body+='<p style="font-size:13px;margin-bottom:4px;"><b>숫자언어:</b> '+p.numLang+'</p>';
   if(p.cusLang)body+='<p style="font-size:13px;margin-bottom:4px;"><b>고객언어:</b> '+p.cusLang+'</p>';
-  body+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">';
+  body+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">';
   body+='<div style="background:#fff9fb;border-radius:10px;padding:10px;border:1px solid #ffd6e0;"><div style="font-size:10px;font-weight:700;color:#FF2D78;margin-bottom:4px;">📍 시작 메모 (전략)</div><div style="font-size:12px;white-space:pre-wrap;">'+(p.startNote||'<span style="color:#ddd">없음</span>')+'</div></div>';
   body+='<div style="background:#fff9fb;border-radius:10px;padding:10px;border:1px solid #ffd6e0;"><div style="font-size:10px;font-weight:700;color:#FF2D78;margin-bottom:4px;">🎯 끝 메모 (성과)</div><div style="font-size:12px;white-space:pre-wrap;">'+(p.endNote||'<span style="color:#ddd">없음</span>')+'</div></div>';
   body+='</div>';
@@ -1156,7 +1156,7 @@ function captureAll(){
 
   // 월간 캘린더 (끝점 + Key Scene + 월별 메모)
   body+='<div class="card"><div class="ct">📅 월간 캘린더 ('+S.calY+'년 '+(S.calM+1)+'월)</div>';
-  body+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">';
+  body+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">';
   body+='<div style="background:#fff9fb;border-radius:10px;padding:10px;border:1px solid #ffd6e0;"><div style="font-size:10px;font-weight:700;color:#FF2D78;margin-bottom:4px;">🎯 끝점 — 이번 달 끝에 원하는 모습</div><div style="font-size:12px;white-space:pre-wrap;">'+(ks.left||'<span style="color:#ddd">없음</span>')+'</div></div>';
   body+='<div style="background:#f0f4ff;border-radius:10px;padding:10px;border:1px solid #c4b5fd;"><div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ Key Scene — 이달의 핵심 장면</div><div style="font-size:12px;white-space:pre-wrap;">'+(ks.right||'<span style="color:#ddd">없음</span>')+'</div></div>';
   body+='</div>';
