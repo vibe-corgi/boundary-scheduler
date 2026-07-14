@@ -313,8 +313,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mb-del-btn:active{color:#f44;}
 .mb-edit-btn{background:none;border:none;color:#ccc;font-size:13px;cursor:pointer;padding:0 3px;flex-shrink:0;}
 .mb-edit-btn:active{color:var(--pk);}
-.mb-drag-handle{color:#ccc;font-size:18px;cursor:grab;flex-shrink:0;padding:0 4px 0 0;line-height:1;user-select:none;touch-action:none;}
-.mb-drag-handle:active{color:#999;}
+.mb-drag-handle{color:#ccc;font-size:16px;cursor:grab;flex-shrink:0;padding:0 6px 0 0;line-height:1;user-select:none;touch-action:none;-webkit-user-select:none;}
+.mb-drag-handle:active{color:#999;cursor:grabbing;}
 .mb-edit-inp{flex:1;min-width:0;background:rgba(255,62,138,.05);border:1.5px solid var(--pk);border-radius:7px;padding:5px 9px;font-size:14px;font-family:inherit;color:var(--dk);outline:none;}
 .mb-drag-over-top{border-top:2.5px solid var(--pk)!important;}
 .mb-drag-faded{opacity:.25!important;}
@@ -1638,7 +1638,8 @@ function renderMobile() {
         var item = items[t], done = item.done;
         var badge = '';
         if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
-        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">';
+        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
+        content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\','+c+','+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
         content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
         content += '<span class="mb-todo-txt'+(done?' done':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
         content += '<button class="mb-edit-btn" onclick="mbEditTodo('+c+','+t+')">✏️</button>';
@@ -1740,7 +1741,8 @@ function renderMobile() {
     content += '<div class="mb-pdca-label">📋 PLAN</div>';
     for (var pi = 0; pi < planItems.length; pi++) {
       var pitem = planItems[pi];
-      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
+      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
+      content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'plan\',0,'+pi+',\''+pk2+'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
       content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
@@ -1820,6 +1822,59 @@ function mbEditPlan(pk, i) {
   };
   span.replaceWith(inp);
   inp.focus(); inp.select();
+}
+
+// ── 마우스 드래그 (HTML5 DnD) ──────────────────────────────────
+var _mdSrc = null;
+
+function mbDStart(e, type, cat, idx, pk) {
+  _mdSrc = { type: type, cat: cat, idx: idx, pk: pk };
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', idx); // Firefox 필수
+  setTimeout(function() {
+    var item = e.currentTarget.parentElement;
+    if (item) item.style.opacity = '0.3';
+  }, 0);
+}
+
+function mbDEnd(e) {
+  var item = e.currentTarget.parentElement;
+  if (item) item.style.opacity = '';
+  document.querySelectorAll('.mb-drag-over-top').forEach(function(el) {
+    el.classList.remove('mb-drag-over-top');
+  });
+  _mdSrc = null;
+}
+
+function mbDO(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.mb-drag-over-top').forEach(function(el) {
+    el.classList.remove('mb-drag-over-top');
+  });
+  e.currentTarget.classList.add('mb-drag-over-top');
+}
+
+function mbDrop(e, type, cat, toIdx, pk) {
+  e.preventDefault();
+  if (!_mdSrc || _mdSrc.idx === toIdx) {
+    document.querySelectorAll('.mb-drag-over-top').forEach(function(el) { el.classList.remove('mb-drag-over-top'); });
+    _mdSrc = null; return;
+  }
+  var from = _mdSrc.idx, to = toIdx;
+  if (type === 'todo') {
+    var arr = getTodos()[cat];
+    var moved = arr.splice(from, 1)[0];
+    arr.splice(to > from ? to - 1 : to, 0, moved);
+    save();
+  } else {
+    var arr2 = getPlanItems(pk);
+    var moved2 = arr2.splice(from, 1)[0];
+    arr2.splice(to > from ? to - 1 : to, 0, moved2);
+    save();
+  }
+  _mdSrc = null;
+  renderMobile();
 }
 
 // ── 모바일 드래그 정렬 ─────────────────────────────────────────
@@ -1914,9 +1969,8 @@ function mbSetupDragListeners() {
 }
 
 function mbDS(e, type, cat, idx, pk) {
-  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
   mbSetupDragListeners();
-  var itemEl = e.currentTarget;
+  var itemEl = e.currentTarget.parentElement; // 핸들의 부모 = 아이템 div
   var touch = e.touches[0];
   var startY = touch.clientY;
   _mbDrag = {
