@@ -741,7 +741,7 @@ function render(){
       var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
       out+='<span class="todo-txt'+(done?' done':'')+'">'+esc(items[t].text)+badge+'</span>';
       out+='<div class="todo-acts">';
-      if(!done)out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
+      out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
       out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="ic-btn" onclick="openMoveTodo('+c+','+t+')">↔</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
     }}
     out+='</div>';
@@ -827,6 +827,7 @@ function render(){
     } else {
       out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';
     }
+    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
     out+='</div>';
   }
@@ -928,6 +929,7 @@ function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.ge
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 function setMonthMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthMemos=g.monthMemos||{};var v=el.value.trim();if(v)g.monthMemos[el.dataset.mk]=v;else delete g.monthMemos[el.dataset.mk];save();}
 function setWeekMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.weekMemos=g.weekMemos||{};var v=el.value.trim();if(v)g.weekMemos[el.dataset.wk]=v;else delete g.weekMemos[el.dataset.wk];save();}
+function carryPlan(pk,i){var p=cp();var items=getPlanItems(pk);var item=items[i];var d=new Date(pk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()+1);var ndk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();p.todosByDate=p.todosByDate||{};if(!p.todosByDate[ndk])p.todosByDate[ndk]=[[],[],[]];p.todosByDate[ndk][0].push({text:item.text,done:false});save();showSaveToast();}
 function carryTodo(c,i){var p=cp();p.todosByDate=p.todosByDate||{};var tdk=S.todoDate||todayKey();var d=new Date(tdk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()+1);var ndk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!p.todosByDate[ndk])p.todosByDate[ndk]=[[],[],[]];var item=p.todosByDate[tdk][c][i];var copy={text:item.text,done:false};if(item.goalId)copy.goalId=item.goalId;p.todosByDate[ndk][c].push(copy);save();showSaveToast();}
 // 드래그
 var dragC=-1,dragI=-1;
