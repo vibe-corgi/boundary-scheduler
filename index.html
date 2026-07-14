@@ -1826,31 +1826,53 @@ function mbEditPlan(pk, i) {
 var _mbDrag = null;
 var _mbListenersAdded = false;
 
+function mbGetDragEls() {
+  var sel = _mbDrag.type === 'todo'
+    ? '[data-drag-cat="'+_mbDrag.cat+'"]'
+    : '[data-drag-plan]';
+  return Array.prototype.slice.call(document.querySelectorAll(sel));
+}
+
+// insertBefore index 계산: 손가락 Y 위치 기준
+function mbCalcInsert(touchY) {
+  var els = mbGetDragEls();
+  for (var i = 0; i < els.length; i++) {
+    var r = els[i].getBoundingClientRect();
+    if (touchY < r.top + r.height * 0.5) return parseInt(els[i].dataset.dragIdx);
+  }
+  return els.length; // 맨 끝
+}
+
 function mbSetupDragListeners() {
   if (_mbListenersAdded) return;
   _mbListenersAdded = true;
+
   document.addEventListener('touchmove', function(e) {
-    if (!_mbDrag || !_mbDrag.active) return;
-    e.preventDefault();
+    if (!_mbDrag) return;
     var touch = e.touches[0];
-    // move ghost
-    _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
-    // find best drop index
-    var sel = _mbDrag.type === 'todo'
-      ? '[data-drag-cat="'+_mbDrag.cat+'"]'
-      : '[data-drag-plan]';
-    var els = Array.prototype.slice.call(document.querySelectorAll(sel));
-    var best = _mbDrag.fromIdx;
-    for (var i = 0; i < els.length; i++) {
-      var r = els[i].getBoundingClientRect();
-      if (touch.clientY > r.top + r.height * 0.5) best = parseInt(els[i].dataset.dragIdx);
+    var dy = Math.abs(touch.clientY - _mbDrag.startY);
+
+    // 드래그 미활성 + 손가락 8px 이상 움직임 → 스크롤 의도로 보고 취소
+    if (!_mbDrag.active) {
+      if (dy > 8) { clearTimeout(_mbDrag.timer); _mbDrag = null; }
+      return;
     }
-    _mbDrag.targetIdx = best;
-    // visual feedback
+
+    e.preventDefault(); // 드래그 활성 후에만 스크롤 차단
+
+    // 고스트 이동
+    _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
+
+    // 드롭 위치 계산
+    var insertBefore = mbCalcInsert(touch.clientY);
+    _mbDrag.insertBefore = insertBefore;
+
+    // 시각적 피드백
+    var els = mbGetDragEls();
     els.forEach(function(el) {
-      var idx = parseInt(el.dataset.dragIdx);
-      el.classList.toggle('mb-drag-faded', idx === _mbDrag.fromIdx);
-      el.classList.toggle('mb-drag-over-top', idx === best + 1 && best !== _mbDrag.fromIdx);
+      var i = parseInt(el.dataset.dragIdx);
+      el.style.opacity = i === _mbDrag.fromIdx ? '0.2' : '1';
+      el.classList.toggle('mb-drag-over-top', i === insertBefore && i !== _mbDrag.fromIdx);
     });
   }, { passive: false });
 
@@ -1858,23 +1880,31 @@ function mbSetupDragListeners() {
     if (!_mbDrag) return;
     clearTimeout(_mbDrag.timer);
     if (!_mbDrag.active) { _mbDrag = null; return; }
-    var from = _mbDrag.fromIdx, to = _mbDrag.targetIdx;
+
+    // 고스트 제거 + 시각 초기화
     if (_mbDrag.ghost && _mbDrag.ghost.parentNode) _mbDrag.ghost.parentNode.removeChild(_mbDrag.ghost);
-    // remove visual classes
     document.querySelectorAll('.mb-drag-faded,.mb-drag-over-top').forEach(function(el) {
       el.classList.remove('mb-drag-faded','mb-drag-over-top');
       el.style.opacity = '';
     });
+
+    var from = _mbDrag.fromIdx;
+    var insertBefore = (_mbDrag.insertBefore != null) ? _mbDrag.insertBefore : from;
+
+    // insertBefore → 실제 splice 인덱스 변환
+    // 제거 후 배열이 앞당겨지므로 insertBefore > from 이면 1 감소
+    var to = insertBefore > from ? insertBefore - 1 : insertBefore;
+
     if (from !== to) {
       if (_mbDrag.type === 'todo') {
         var arr = getTodos()[_mbDrag.cat];
-        var item = arr.splice(from, 1)[0];
-        arr.splice(to > from ? to : to, 0, item);
+        var moved = arr.splice(from, 1)[0];
+        arr.splice(to, 0, moved);
         save();
       } else {
         var arr2 = getPlanItems(_mbDrag.pk);
-        var item2 = arr2.splice(from, 1)[0];
-        arr2.splice(to > from ? to : to, 0, item2);
+        var moved2 = arr2.splice(from, 1)[0];
+        arr2.splice(to, 0, moved2);
         save();
       }
     }
@@ -1884,28 +1914,26 @@ function mbSetupDragListeners() {
 }
 
 function mbDS(e, type, cat, idx, pk) {
-  // 버튼·체크박스·입력창 터치는 드래그 무시
   if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
   mbSetupDragListeners();
   var itemEl = e.currentTarget;
   var touch = e.touches[0];
+  var startY = touch.clientY;
   _mbDrag = {
-    type: type, cat: cat, fromIdx: idx, targetIdx: idx, pk: pk,
-    startY: touch.clientY, active: false, ghost: null, srcEl: itemEl,
+    type: type, cat: cat, fromIdx: idx, insertBefore: null, pk: pk,
+    startY: startY, active: false, ghost: null, srcEl: itemEl,
     timer: setTimeout(function() {
-      // activate
       _mbDrag.active = true;
       navigator.vibrate && navigator.vibrate(40);
       var r = itemEl.getBoundingClientRect();
       var ghost = itemEl.cloneNode(true);
       ghost.style.cssText = 'position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;'
         +'z-index:99999;pointer-events:none;transform:scale(1.04);'
-        +'box-shadow:0 10px 32px rgba(0,0,0,.35);border-radius:10px;background:#fff;'
-        +'opacity:.9;transition:transform .12s;';
+        +'box-shadow:0 10px 32px rgba(0,0,0,.35);border-radius:10px;background:#fff;opacity:.9;';
       document.body.appendChild(ghost);
       _mbDrag.ghost = ghost;
-      _mbDrag.ghostOffY = _mbDrag.startY - r.top;
-      itemEl.style.opacity = '0.25';
+      _mbDrag.ghostOffY = startY - r.top;
+      itemEl.style.opacity = '0.2';
     }, 420)
   };
 }
