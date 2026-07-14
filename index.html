@@ -679,7 +679,10 @@ function render(){
   out+='<div style="border-top:1px solid rgba(255,255,255,.12);margin-top:14px;padding-top:12px;">';
   out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">';
   out+='<span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;">📊 숫자 목표 달성 현황</span>';
+  out+='<div style="display:flex;gap:6px;">';
   out+='<button class="goal-add-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.3);" onclick="openGoal()">+ 대목표 추가</button>';
+  out+='<button class="goal-add-btn" style="color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.15);font-size:10px;" onclick="cleanOrphanGoalIds()" title="잘못된 지표 연결 정리">🧹 연결 정리</button>';
+  out+='</div>';
   out+='</div>';
   if(!topGoals.length){out+='<div style="font-size:12px;color:rgba(255,255,255,.25);text-align:center;padding:6px 0;">대목표를 추가하고 세부 지표로 달성을 추적하세요</div>';}
   else{
@@ -713,7 +716,7 @@ function render(){
           out+='<div class="mc-dark" data-mid="'+m.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m.id+'\')">';
           out+='<div class="mc-name" style="color:rgba(255,255,255,.85);display:flex;align-items:center;gap:4px;"><span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m.id+'\')">⠿</span>'+esc(m.name)+'<button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;margin-left:auto;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);" onclick="delMetric(\''+m.id+'\')">×</button></div>';
           out+='<div class="mc-bar"><div class="mc-fill" style="width:'+qPct+'%;"></div></div>';
-          out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
+          out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m.id+'\')">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
           if(m.memo)out+='<div class="mc-memo" style="color:rgba(255,255,255,.3);">'+esc(m.memo)+'</div>';
           out+='</div>';
         }
@@ -758,8 +761,8 @@ function render(){
       var tg2=topGoals[gi];
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
       if(!ch2.length)continue;
-      out+='<div class="goal-group-month">';
-      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
+      out+='<div class="goal-group-month" data-gid="'+tg2.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg2.id+'\')">';
+      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg2.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
       out+='<div class="metric-grid">';
       for(var ci=0;ci<ch2.length;ci++){
         var m2=ch2[ci];
@@ -768,10 +771,10 @@ function render(){
         var mDone=countGoalInDates(m2.id,mKeys);
         var mPct=mTgt>0?Math.min(100,Math.round(mDone/mTgt*100)):0;
         var mMemo2=(m2.monthMemos&&m2.monthMemos[mKey2])||'';
-        out+='<div class="mc-light">';
-        out+='<div class="mc-name" >'+esc(m2.name)+'</div>';
+        out+='<div class="mc-light" data-mid="'+m2.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m2.id+'\')">';
+        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m2.id+'\')">⠿</span>'+esc(m2.name)+'</div>';
         out+='<div class="mc-bar-light"><div class="mc-fill" style="width:'+mPct+'%;"></div></div>';
-        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;">'+mPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">월<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)" style="width:28px;"/>'+(m2.quarterTarget?'<span style="color:#ddd;font-size:10px;"> / 3개월'+m2.quarterTarget+esc(m2.unit||'')+'</span>':'')+'</span></div>';
+        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m2.id+'\')">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;">'+mPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">월<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)" style="width:28px;"/>'+(m2.quarterTarget?'<span style="color:#ddd;font-size:10px;"> / 3개월'+m2.quarterTarget+esc(m2.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="'+(m2.memo?esc(m2.memo):'이달 메모')+'" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
         out+='</div>';
       }
@@ -863,8 +866,8 @@ function render(){
       var tg3=topGoals[gi3];
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
       if(!ch3.length)continue;
-      out+='<div class="goal-group-week">';
-      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
+      out+='<div class="goal-group-week" data-gid="'+tg3.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg3.id+'\')">';
+      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg3.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
       out+='<div class="metric-grid">';
       for(var ci3=0;ci3<ch3.length;ci3++){
         var m3=ch3[ci3];
@@ -877,10 +880,10 @@ function render(){
         var autoMTgt3=m3.quarterTarget?Math.round(m3.quarterTarget/3):0;
         var mTgt3=(m3.monthTargets&&m3.monthTargets[curMKey2]!=null)?m3.monthTargets[curMKey2]:autoMTgt3;
         var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
-        out+='<div class="mc-week">';
-        out+='<div class="mc-name" >'+esc(m3.name)+'</div>';
+        out+='<div class="mc-week" data-mid="'+m3.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m3.id+'\')">';
+        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'</div>';
         out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
-        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
+        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m3.id+'\')">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
         out+='</div>';
       }
@@ -2100,6 +2103,54 @@ function mbDS(e, type, cat, idx, pk) {
       itemEl.style.opacity = '0.2';
     }, 420)
   };
+}
+
+// ── 지표 카운트 진단 ─────────────────────────────────────────────
+function showMetricTodos(goalId) {
+  var p = cp(), todos = p.todosByDate || {};
+  var found = [];
+  Object.keys(todos).forEach(function(dk) {
+    var day = todos[dk];
+    if (!Array.isArray(day)) return;
+    for (var c = 0; c < day.length; c++) {
+      if (!Array.isArray(day[c])) continue;
+      for (var t2 = 0; t2 < day[c].length; t2++) {
+        var item = day[c][t2];
+        if (item && item.goalId === goalId && item.done)
+          found.push({ dk: dk, c: c, text: item.text });
+      }
+    }
+  });
+  found.sort(function(a,b){ return a.dk < b.dk ? -1 : 1; });
+  if (!found.length) { alert('연결된 완료 할일이 없습니다.'); return; }
+  var msg = '📊 카운트된 완료 할일 (' + found.length + '개):\n\n';
+  found.forEach(function(f) { msg += '• ' + f.dk + '  ' + f.text + '\n'; });
+  msg += '\n잘못 연결된 항목이 있으면\n해당 날짜의 할일에서 ✏️ 눌러 지표 수정하세요.';
+  alert(msg);
+}
+
+// 잘못 연결된 goalId 일괄 해제 (해당 goalId가 존재하지 않는 경우)
+function cleanOrphanGoalIds() {
+  var p = cp(), goals = p.goals || [];
+  var validIds = {};
+  goals.forEach(function(g) { validIds[g.id] = true; });
+  var fixed = 0;
+  var todos = p.todosByDate || {};
+  Object.keys(todos).forEach(function(dk) {
+    var day = todos[dk];
+    if (!Array.isArray(day)) return;
+    for (var c = 0; c < day.length; c++) {
+      if (!Array.isArray(day[c])) continue;
+      for (var t2 = 0; t2 < day[c].length; t2++) {
+        var item = day[c][t2];
+        if (item && item.goalId && !validIds[item.goalId]) {
+          delete item.goalId; fixed++;
+        }
+      }
+    }
+  });
+  if (fixed > 0) { save(); render(); alert(fixed + '개의 잘못된 지표 연결을 해제했습니다.'); }
+  else alert('정리할 항목이 없습니다.');
 }
 
 function showSaveToast(){var t=document.getElementById('saveToast');if(!t)return;t.style.opacity='1';t.style.transform='translateY(0)';clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(20px)';},1800);}
