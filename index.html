@@ -687,6 +687,7 @@ function render(){
         out+='<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" title="이달 목표 (비우면 자동)" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/>';
         out+='<span class="goal-bar-cnt">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span>';
         out+='<span class="goal-bar-pct">'+mPct+'%</span>';
+        if(m2.quarterTarget)out+='<span style="font-size:10px;color:#ccc;white-space:nowrap;flex-shrink:0;margin-left:2px;" title="3개월 목표">3개월 '+m2.quarterTarget+esc(m2.unit||'')+'</span>';
         out+='</div>';
         var mMemo2=(m2.monthMemos&&m2.monthMemos[mKey2])||'';
         out+='<input class="goal-period-memo" placeholder="'+(m2.memo?esc(m2.memo):'이달 메모 (선택)')+'" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
@@ -791,6 +792,10 @@ function render(){
         out+='<span style="font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0;">주목표</span>';
         out+='<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" title="이번 주 목표 (비우면 자동)" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/>';
         out+='<span class="goal-bar-cnt">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span>';
+        var curMKey2=curWk.s.getFullYear()+'-'+(curWk.s.getMonth()+1);
+        var autoMTgt3=m3.quarterTarget?Math.round(m3.quarterTarget/3):0;
+        var mTgt3=(m3.monthTargets&&m3.monthTargets[curMKey2]!=null)?m3.monthTargets[curMKey2]:autoMTgt3;
+        if(mTgt3)out+='<span style="font-size:10px;color:#ccc;white-space:nowrap;flex-shrink:0;margin-left:2px;" title="이달 목표">월 '+mTgt3+esc(m3.unit||'')+'</span>';
         out+='</div>';
         var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
         out+='<input class="goal-period-memo" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모 (선택)')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
