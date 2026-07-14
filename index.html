@@ -235,7 +235,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .goal-hdr-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.9);flex:1;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-hdr-name-light{font-size:12px;font-weight:900;color:var(--dk);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .goal-group{border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:rgba(255,255,255,.06);}
-.goal-group-light{border:1.5px solid #ffd6e7;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:linear-gradient(135deg,#fff5f8 0%,#fff 100%);box-shadow:0 1px 6px rgba(255,45,120,.06);}
+.goal-group-month{border:1.5px solid #ffd6e7;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:#fff;box-shadow:0 1px 4px rgba(255,45,120,.05);}
+.goal-group-week{border:1.5px solid #ffd6e7;border-radius:12px;padding:10px 12px 6px;margin-bottom:10px;background:#fff0f5;}
 #tipBox{position:fixed;display:none;background:rgba(30,30,40,.82);color:#fff;font-size:12px;font-family:inherit;padding:4px 10px;border-radius:7px;pointer-events:none;z-index:99999;white-space:nowrap;backdrop-filter:blur(4px);}
 .goal-hdr-del{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
 .goal-hdr-del:hover{color:#ff4466;}
@@ -668,13 +669,13 @@ function render(){
   var mKey2=S.calY+'-'+(S.calM+1);
   var metrics=goals.filter(function(g){return g.parentId;});
   if(topGoals.length){
-    out+='<div style="background:#fff9fb;border:1.5px solid #ffd6e0;border-radius:12px;padding:12px 14px;margin-bottom:14px;">';
+    out+='<div style="background:#ffd6e7;border-radius:12px;padding:12px 14px;margin-bottom:14px;">';
     out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:10px;">📊 이달의 목표 달성</div>';
     for(var gi=0;gi<topGoals.length;gi++){
       var tg2=topGoals[gi];
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
       if(!ch2.length)continue;
-      out+='<div class="goal-group-light">';
+      out+='<div class="goal-group-month">';
       out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span style="color:var(--pk);">🎯</span><span onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(tg2.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span></div>';
       for(var ci=0;ci<ch2.length;ci++){
         var m2=ch2[ci];
@@ -781,7 +782,7 @@ function render(){
       var tg3=topGoals[gi3];
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
       if(!ch3.length)continue;
-      out+='<div class="goal-group-light">';
+      out+='<div class="goal-group-week">';
       out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span style="color:var(--pk);">🎯</span><span onmouseenter="showTip(event,this.dataset.tip)" onmousemove="moveTip(event)" onmouseleave="hideTip()" data-tip="'+esc(tg3.name)+'" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
       for(var ci3=0;ci3<ch3.length;ci3++){
         var m3=ch3[ci3];
