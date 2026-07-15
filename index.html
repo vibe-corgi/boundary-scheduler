@@ -826,6 +826,75 @@ function render(){
     out+='</div>';
   }
   out+='</div>';
+  // PDCA
+  var ps=pdcaStart(S.pdcaOff),pe=new Date(ps);pe.setDate(ps.getDate()+6);
+  var psIso=isoWeek(ps),pk2=ps.getFullYear()+'-'+(ps.getMonth()+1)+'-'+ps.getDate();
+  var pdcaD=(p.pdca&&p.pdca[pk2])||{plan:[],doIt:'',check:'',act:''};
+  if(typeof pdcaD.plan==='string'){
+    var oldPlan=pdcaD.plan;
+    pdcaD.plan=oldPlan?oldPlan.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[];
+  }
+  var planItems=pdcaD.plan||[];
+  out+='<div class="card"><div class="card-top"><span class="ctitle">🔄 이번 주 PDCA</span>';
+  out+='<div class="nav-g"><button class="nav-btn" onclick="S.pdcaOff--;save();render()">◀</button><span class="nav-lbl">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span><button class="nav-btn" onclick="S.pdcaOff++;save();render()">▶</button></div></div>';
+  out+='<div class="pdca-grid">';
+  out+='<div class="pdca-col" style="border-color:#BBDEFB;background:#F0F8FF;">';
+  out+='<div class="pdca-lbl" style="color:#1565C0;">📋 PLAN</div>';
+  out+='<div class="pdca-sub">이번 주 할 것들 (Enter로 추가)</div>';
+  out+='<div id="planList">';
+  var impCnt=planItems.filter(function(it){return it.important;}).length;
+  out+='<div class="plan-section" id="planSec_imp_'+pk2+'" ondragover="planSectionOver(event,\'important\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'important\',\''+pk2+'\')">';
+  out+='<div class="plan-sec-hdr">⭐ 중요 <span style="font-size:9px;font-weight:400;color:#bbb;">'+impCnt+'/5</span></div>';
+  for(var pi=0;pi<planItems.length;pi++){
+    var pitem=planItems[pi];
+    if(!pitem.important) continue;
+    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
+    out+='<div class="plan-item plan-imp'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'important\')">';
+    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;font-weight:700;">'+esc(pitem.text)+'</span>';}
+    out+='<button class="ic-btn" title="중요 해제" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#F59E0B;font-size:15px;line-height:1;">★</button>';
+    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
+    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
+    out+='</div>';
+  }
+  if(impCnt===0)out+='<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정 (최대 5개)</div>';
+  out+='</div>';
+  out+='<div class="plan-section" id="planSec_nor_'+pk2+'" ondragover="planSectionOver(event,\'normal\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'normal\',\''+pk2+'\')">';
+  out+='<div class="plan-sec-hdr">📋 일반</div>';
+  for(var pi=0;pi<planItems.length;pi++){
+    var pitem=planItems[pi];
+    if(pitem.important) continue;
+    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
+    out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'normal\')">';
+    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';}
+    out+='<button class="ic-btn" title="중요로 이동" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#ccc;font-size:15px;line-height:1;">☆</button>';
+    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
+    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
+    out+='</div>';
+  }
+  out+='</div>';
+  out+='</div>';
+  out+='<input class="plan-inp" id="planInp_'+pk2+'" placeholder="+ 일반 할 것 입력 후 Enter" onkeydown="if(event.key===\'Enter\'){addPlan(\''+pk2+'\',this);}" style="width:100%;border:none;outline:none;border-top:1px solid #BBDEFB;padding:6px 0;font-size:12px;font-family:inherit;background:transparent;margin-top:6px;color:var(--dk);" />';
+  out+='</div>';
+  var pdcaWkKeys=getWeekDateKeys(ps,pe);
+  var goalAutoCheck='';
+  if(metrics.length){
+    var parts=[];
+    for(var gpi=0;gpi<metrics.length;gpi++){var gm=metrics[gpi];var wd=countGoalInDates(gm.id,pdcaWkKeys);if(wd>0)parts.push(gm.name+' '+wd+esc(gm.unit||''));}
+    if(parts.length)goalAutoCheck='[이번 주 달성] '+parts.join(' / ');
+  }
+  var otherCols=[{k:'doIt',i:'▷',l:'DO',s:'실제로 한 것...',bc:'#C8E6C9',bg:'#F0FFF4',lc:'#2E7D32'},{k:'check',i:'◎',l:'CHECK',s:'결과, 숫자, 시그널...',bc:'#FFE082',bg:'#FFFDE7',lc:'#F57F17'},{k:'act',i:'★',l:'ACT',s:'다음 주 개선점...',bc:'#F8BBD9',bg:'#FFF0F5',lc:'#AD1457'}];
+  for(var i=0;i<otherCols.length;i++){var col=otherCols[i];
+    out+='<div class="pdca-col" style="border-color:'+col.bc+';background:'+col.bg+';">';
+    out+='<div class="pdca-lbl" style="color:'+col.lc+';">'+col.i+' '+col.l+'</div><div class="pdca-sub">'+col.s+'</div>';
+    if(col.k==='check'&&goalAutoCheck){
+      out+='<div style="font-size:10px;color:#F57F17;background:#FFF8E1;border-radius:5px;padding:4px 7px;margin-bottom:6px;line-height:1.5;">'+esc(goalAutoCheck)+'</div>';
+    }
+    out+='<textarea class="pdca-ta" placeholder="'+col.s+'" data-pk="'+pk2+'" data-fk="'+col.k+'" oninput="updatePdca(this);ar(this)">'+esc(pdcaD[col.k])+'</textarea></div>';}
+  out+='</div></div>';
   // 할일
   var tdk=S.todoDate||todayKey(),todayK=todayKey(),isPast=tdk<todayK,isFuture=tdk>todayK,isToday2=tdk===todayK;
   var tdP=tdk.split('-');
@@ -913,82 +982,7 @@ function render(){
   out+='</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
   out+='</div>';
-  // PDCA
-  var ps=pdcaStart(S.pdcaOff),pe=new Date(ps);pe.setDate(ps.getDate()+6);
-  var psIso=isoWeek(ps),pk2=ps.getFullYear()+'-'+(ps.getMonth()+1)+'-'+ps.getDate();
-  var pdcaD=(p.pdca&&p.pdca[pk2])||{plan:[],doIt:'',check:'',act:''};
-  // plan이 문자열이면 배열로 변환 (하위 호환)
-  if(typeof pdcaD.plan==='string'){
-    var oldPlan=pdcaD.plan;
-    pdcaD.plan=oldPlan?oldPlan.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[]; 
-  }
-  var planItems=pdcaD.plan||[];
-  out+='<div class="card"><div class="card-top"><span class="ctitle">🔄 이번 주 PDCA</span>';
-  out+='<div class="nav-g"><button class="nav-btn" onclick="S.pdcaOff--;save();render()">◀</button><span class="nav-lbl">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span><button class="nav-btn" onclick="S.pdcaOff++;save();render()">▶</button></div></div>';
-  out+='<div class="pdca-grid">';
-  // PLAN - 체크리스트
-  out+='<div class="pdca-col" style="border-color:#BBDEFB;background:#F0F8FF;">';
-  out+='<div class="pdca-lbl" style="color:#1565C0;">📋 PLAN</div>';
-  out+='<div class="pdca-sub">이번 주 할 것들 (Enter로 추가)</div>';
-  out+='<div id="planList">';
-  var impCnt=planItems.filter(function(it){return it.important;}).length;
-  // ⭐ 중요 section
-  out+='<div class="plan-section" id="planSec_imp_'+pk2+'" ondragover="planSectionOver(event,\'important\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'important\',\''+pk2+'\')">';
-  out+='<div class="plan-sec-hdr">⭐ 중요 <span style="font-size:9px;font-weight:400;color:#bbb;">'+impCnt+'/5</span></div>';
-  for(var pi=0;pi<planItems.length;pi++){
-    var pitem=planItems[pi];
-    if(!pitem.important) continue;
-    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
-    out+='<div class="plan-item plan-imp'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'important\')">';
-    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
-    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
-    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;font-weight:700;">'+esc(pitem.text)+'</span>';}
-    out+='<button class="ic-btn" title="중요 해제" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#F59E0B;font-size:15px;line-height:1;">★</button>';
-    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
-    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
-    out+='</div>';
-  }
-  if(impCnt===0)out+='<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정 (최대 5개)</div>';
-  out+='</div>';
-  // 📋 일반 section
-  out+='<div class="plan-section" id="planSec_nor_'+pk2+'" ondragover="planSectionOver(event,\'normal\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'normal\',\''+pk2+'\')">';
-  out+='<div class="plan-sec-hdr">📋 일반</div>';
-  for(var pi=0;pi<planItems.length;pi++){
-    var pitem=planItems[pi];
-    if(pitem.important) continue;
-    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
-    out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'normal\')">';
-    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
-    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
-    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';}
-    out+='<button class="ic-btn" title="중요로 이동" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#ccc;font-size:15px;line-height:1;">☆</button>';
-    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
-    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
-    out+='</div>';
-  }
-  out+='</div>';
-  out+='</div>';
-  out+='<input class="plan-inp" id="planInp_'+pk2+'" placeholder="+ 일반 할 것 입력 후 Enter" onkeydown="if(event.key===\'Enter\'){addPlan(\''+pk2+'\',this);}" style="width:100%;border:none;outline:none;border-top:1px solid #BBDEFB;padding:6px 0;font-size:12px;font-family:inherit;background:transparent;margin-top:6px;color:var(--dk);" />';
-  out+='</div>';
-  // DO, CHECK, ACT - 기존 textarea
-  // PDCA 주간 목표 자동 요약 (CHECK용)
-  var pdcaWkKeys=getWeekDateKeys(ps,pe);
-  var goalAutoCheck='';
-  if(metrics.length){
-    var parts=[];
-    for(var gpi=0;gpi<metrics.length;gpi++){var gm=metrics[gpi];var wd=countGoalInDates(gm.id,pdcaWkKeys);if(wd>0)parts.push(gm.name+' '+wd+esc(gm.unit||''));}
-    if(parts.length)goalAutoCheck='[이번 주 달성] '+parts.join(' / ');
-  }
-  var otherCols=[{k:'doIt',i:'▷',l:'DO',s:'실제로 한 것...',bc:'#C8E6C9',bg:'#F0FFF4',lc:'#2E7D32'},{k:'check',i:'◎',l:'CHECK',s:'결과, 숫자, 시그널...',bc:'#FFE082',bg:'#FFFDE7',lc:'#F57F17'},{k:'act',i:'★',l:'ACT',s:'다음 주 개선점...',bc:'#F8BBD9',bg:'#FFF0F5',lc:'#AD1457'}];
-  for(var i=0;i<otherCols.length;i++){var col=otherCols[i];
-    out+='<div class="pdca-col" style="border-color:'+col.bc+';background:'+col.bg+';">';
-    out+='<div class="pdca-lbl" style="color:'+col.lc+';">'+col.i+' '+col.l+'</div><div class="pdca-sub">'+col.s+'</div>';
-    if(col.k==='check'&&goalAutoCheck){
-      out+='<div style="font-size:10px;color:#F57F17;background:#FFF8E1;border-radius:5px;padding:4px 7px;margin-bottom:6px;line-height:1.5;">'+esc(goalAutoCheck)+'</div>';
-    }
-    out+='<textarea class="pdca-ta" placeholder="'+col.s+'" data-pk="'+pk2+'" data-fk="'+col.k+'" oninput="updatePdca(this);ar(this)">'+esc(pdcaD[col.k])+'</textarea></div>';}
-  out+='</div></div>';
-  // 이번 주 목표 달성 (PDCA 아래)
+  // 이번 주 목표 달성
   var curWk=null;var wks2=getWeeks(S.wkY,S.wkM);for(var w=0;w<wks2.length;w++){if(isThisWeek(wks2[w].s,wks2[w].e)){curWk=wks2[w];break;}}
   var metrics2=goals.filter(function(g){return g.parentId;});
   if(curWk&&metrics2.length){
