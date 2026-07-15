@@ -1166,7 +1166,7 @@ function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
 function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){setTodoEditColor(item.color||'');document.getElementById('iTodoEdit').select();},50);}
-function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;td[todoEditE].push(item);hide('mTodoEdit');save();render();}
+function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;if(editC===todoEditE){td[todoEditE].splice(editI,0,item);}else{td[todoEditE].push(item);}hide('mTodoEdit');save();render();}
 function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.getElementById('moveTxt').textContent='"'+item.text+'"';for(var n=0;n<3;n++){var b=document.getElementById('mcb'+n);b.className='mv-btn'+(n===c?' cur':'');b.textContent=CAT[n]+(n===c?' (현재)':'');}show('mMove');}
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 function setMonthMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthMemos=g.monthMemos||{};var v=el.value.trim();if(v)g.monthMemos[el.dataset.mk]=v;else delete g.monthMemos[el.dataset.mk];save();}
@@ -1800,7 +1800,8 @@ function renderMobile() {
         content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
         content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\','+c+','+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
         content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
-        content += '<span class="mb-todo-txt'+(done?' done':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+        var mbTStyle='';if(c===0)mbTStyle+='font-weight:700;';if(item.color)mbTStyle+='color:'+item.color+';';
+        content += '<span class="mb-todo-txt'+(done?' done':'')+'"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
         content += '<button class="mb-edit-btn" onclick="mbEditTodo('+c+','+t+')">✏️</button>';
         content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
         content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
