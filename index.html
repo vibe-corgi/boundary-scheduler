@@ -1904,11 +1904,10 @@ function renderMobile() {
       var pitem = planItems[pi];
       if (!pitem.important) continue;
       content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
-      content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'plan\',0,'+pi+',\''+pk2+'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
-      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
-      content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')" style="color:#F59E0B;">★</button>';
-      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()">☆</button>';
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
+      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" style="color:#F59E0B;" title="중요 해제">★</button>';
       content += '</div>';
     }
     if (mbImpCnt === 0) content += '<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정</div>';
@@ -1917,9 +1916,8 @@ function renderMobile() {
       var pitem = planItems[pi];
       if (pitem.important) continue;
       content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
-      content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'plan\',0,'+pi+',\''+pk2+'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
-      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
       content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" title="중요로">☆</button>';
       content += '</div>';
@@ -2085,7 +2083,7 @@ function mbSetupDragListeners() {
     // 드래그 미활성 + 손가락 8px 이상 움직임 → 스크롤 의도로 보고 취소
     if (!_mbDrag.active) {
       if (dy > 8) { clearTimeout(_mbDrag.timer); _mbDrag = null; return; }
-      e.preventDefault(); // 대기 중에도 네이티브 드래그/텍스트선택 차단
+      // 대기 중(420ms 전)에는 preventDefault 안 함 → 일반 스크롤 허용
       return;
     }
 
@@ -2145,7 +2143,7 @@ function mbSetupDragListeners() {
 }
 
 function mbDS(e, type, cat, idx, pk) {
-  e.preventDefault();
+  // e.preventDefault() 제거 — touchstart에서 막으면 컨테이너 스크롤이 완전히 차단됨
   mbSetupDragListeners();
   var itemEl = e.currentTarget.parentElement;
   var touch = e.touches[0];
