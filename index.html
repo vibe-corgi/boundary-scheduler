@@ -431,12 +431,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
       <input class="m-inp" id="iEv" placeholder="일정 내용 입력"/>
       <div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div>
       <div class="prow"><button class="pbtn sel" id="ep1" onclick="setEP(1)">① 1순위</button><button class="pbtn" id="ep2" onclick="setEP(2)">② 2순위</button><button class="pbtn" id="ep3" onclick="setEP(3)">③ 3순위</button></div>
-      <div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ec0" style="background:#FF3E8A;border-color:#333;" onclick="setEvColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ec1" style="background:#FF8CB4;" onclick="setEvColor('#FF8CB4')" title="연핑크"></span><span class="ev-col-dot" id="ec2" style="background:#E879F9;" onclick="setEvColor('#E879F9')" title="푸시아"></span><span class="ev-col-dot" id="ec3" style="background:#FB923C;" onclick="setEvColor('#FB923C')" title="코랄"></span><span class="ev-col-dot" id="ec4" style="background:#C084FC;" onclick="setEvColor('#C084FC')" title="라벤더"></span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ec0" style="background:#FF3E8A;border-color:#333;" onclick="setEvColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ec1" style="background:#FF8C69;" onclick="setEvColor('#FF8C69')" title="살몬"></span><span class="ev-col-dot" id="ec2" style="background:#22C55E;" onclick="setEvColor('#22C55E')" title="초록"></span><span class="ev-col-dot" id="ec3" style="background:#3B82F6;" onclick="setEvColor('#3B82F6')" title="파랑"></span><span class="ev-col-dot" id="ec4" style="background:#9CA3AF;" onclick="setEvColor('#9CA3AF')" title="회색"></span><span class="ev-col-dot" id="ec5" style="background:#8B5CF6;" onclick="setEvColor('#8B5CF6')" title="보라"></span></div>
       <div class="act-row"><button class="btn-cancel" onclick="hide('mEv')">닫기</button><button class="btn-ok" onclick="doAddEv()">추가 ✓</button></div>
     </div>
   </div>
 </div>
-<div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ece0" style="background:#FF3E8A;" onclick="setEvEditColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ece1" style="background:#FF8CB4;" onclick="setEvEditColor('#FF8CB4')" title="연핑크"></span><span class="ev-col-dot" id="ece2" style="background:#E879F9;" onclick="setEvEditColor('#E879F9')" title="푸시아"></span><span class="ev-col-dot" id="ece3" style="background:#FB923C;" onclick="setEvEditColor('#FB923C')" title="코랄"></span><span class="ev-col-dot" id="ece4" style="background:#C084FC;" onclick="setEvEditColor('#C084FC')" title="라벤더"></span></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ece0" style="background:#FF3E8A;" onclick="setEvEditColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ece1" style="background:#FF8C69;" onclick="setEvEditColor('#FF8C69')" title="살몬"></span><span class="ev-col-dot" id="ece2" style="background:#22C55E;" onclick="setEvEditColor('#22C55E')" title="초록"></span><span class="ev-col-dot" id="ece3" style="background:#3B82F6;" onclick="setEvEditColor('#3B82F6')" title="파랑"></span><span class="ev-col-dot" id="ece4" style="background:#9CA3AF;" onclick="setEvEditColor('#9CA3AF')" title="회색"></span><span class="ev-col-dot" id="ece5" style="background:#8B5CF6;" onclick="setEvEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
@@ -760,12 +760,43 @@ function render(){
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이달의 핵심 장면</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 달 가장 빛날 나의 장면을 상상해보세요..." oninput="setKeyScene(\'right\',this)" data-ks="'+ksKey+'">'+esc(ks.right)+'</textarea></div>';
   out+='</div>';
-  // 이달의 숫자 목표 (계층)
+  // 이달의 숫자 목표 변수 (렌더링은 메모 아래로 이동)
   var mKeys=getMonthDateKeys(S.calY,S.calM);
   var mKey2=S.calY+'-'+(S.calM+1);
   var metrics=goals.filter(function(g){return g.parentId;});
+  out+='<div class="cal-top"><button class="cal-nav" onclick="prevCal()">◀</button><span class="cal-lbl">'+S.calY+'년 '+(S.calM+1)+'월</span><button class="cal-nav" onclick="nextCal()">▶</button></div>';
+  out+='<div class="cal-grid">';
+  for(var i=0;i<7;i++){var dc2=i===5?'#4a9eff':i===6?'#FF2D78':'#aaa';out+='<div class="cal-hdr" style="color:'+dc2+'">'+DAYS[i]+'</div>';}
+  for(var i=0;i<cells.length;i++){
+    var d=cells[i],ck=S.calY+'-'+(S.calM+1)+'-'+d.day;
+    var evsSrc=(d.cur&&p.events&&p.events[ck])?p.events[ck]:[];
+    var evs=evsSrc.map(function(ev,oi){return{ev:ev,oi:oi};}).sort(function(a,b){return a.ev.p-b.ev.p;});
+    var isT=d.cur&&d.day===today.getDate()&&S.calY===today.getFullYear()&&S.calM===today.getMonth();
+    var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
+    out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
+    out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
+    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
+    out+='</div>';
+  }
+  out+='</div>';
+  var todayEvKey=S.calY+'-'+(S.calM+1)+'-'+today.getDate();
+  out+='<div class="todo-add-row" style="margin:12px 0 4px;"><input class="todo-qi" id="evQuickInp" placeholder="+ 오늘('+today.getDate()+'일) 일정 빠르게 추가 (Enter)" onkeydown="quickAddEv(event,\''+todayEvKey+'\')"/></div>';
+  // 이번달 주간 성과 목표 (달력과 메모 사이)
+  var wks=getWeeks(S.wkY,S.wkM),wg=p.weekGoals||{};
+  out+='<div style="margin:12px 0;border-top:1px solid #f0f0f0;padding-top:10px;">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+  out+='<span style="font-size:11px;font-weight:700;color:var(--dk);">📈 이번 달 주간 성과 목표</span>';
+  out+='<div style="display:flex;align-items:center;gap:4px;"><button class="nav-btn" style="padding:2px 6px;" onclick="prevWk()">◀</button><span style="font-size:11px;color:#aaa;">'+S.wkY+'년 '+(S.wkM+1)+'월</span><button class="nav-btn" style="padding:2px 6px;" onclick="nextWk()">▶</button></div></div>';
+  for(var w=0;w<wks.length;w++){var wk=wks[w],iso=isoWeek(wk.s),wkey='iso-'+iso.year+'-w'+iso.week,isCur=isThisWeek(wk.s,wk.e);
+    out+='<div class="week-item'+(isCur?' cw':'')+'"><span class="week-bdg">'+fmd(wk.s)+' ~ '+fmd(wk.e)+' ('+iso.week+'주차)</span><input class="week-inp" placeholder="이 주의 성과 목표를 한 줄로..." value="'+esc(wg[wkey]||'')+'" data-wk="'+wkey+'" oninput="updateWG(this)"/></div>';
+  }
+  out+='</div>';
+  var memoKey=S.calY+'-'+(S.calM+1);
+  out+='<div class="cal-memo-box"><div class="cal-memo-lbl">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
+  out+='<textarea class="cal-memo-ta" placeholder="이번 달에 대한 생각, 느낌, 계획 등을 자유롭게..." oninput="setCalMemo(this)" data-mk="'+memoKey+'">'+esc((p.calMemos||{})[memoKey]||'')+'</textarea></div>';
+  // 이달의 목표달성 (메모 아래로 이동)
   if(topGoals.length){
-    out+='<div style="background:#fff0f5;border-radius:12px;padding:12px 14px;margin-bottom:14px;">';
+    out+='<div style="background:#fff0f5;border-radius:12px;padding:12px 14px;margin-top:14px;">';
     out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:10px;">📊 이달의 목표 달성</div>';
     for(var gi=0;gi<topGoals.length;gi++){
       var tg2=topGoals[gi];
@@ -793,26 +824,7 @@ function render(){
     }
     out+='</div>';
   }
-  out+='<div class="cal-top"><button class="cal-nav" onclick="prevCal()">◀</button><span class="cal-lbl">'+S.calY+'년 '+(S.calM+1)+'월</span><button class="cal-nav" onclick="nextCal()">▶</button></div>';
-  out+='<div class="cal-grid">';
-  for(var i=0;i<7;i++){var dc2=i===5?'#4a9eff':i===6?'#FF2D78':'#aaa';out+='<div class="cal-hdr" style="color:'+dc2+'">'+DAYS[i]+'</div>';}
-  for(var i=0;i<cells.length;i++){
-    var d=cells[i],ck=S.calY+'-'+(S.calM+1)+'-'+d.day;
-    var evsSrc=(d.cur&&p.events&&p.events[ck])?p.events[ck]:[];
-    var evs=evsSrc.map(function(ev,oi){return{ev:ev,oi:oi};}).sort(function(a,b){return a.ev.p-b.ev.p;});
-    var isT=d.cur&&d.day===today.getDate()&&S.calY===today.getFullYear()&&S.calM===today.getMonth();
-    var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
-    out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
-    out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
-    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
-    out+='</div>';
-  }
   out+='</div>';
-  var todayEvKey=S.calY+'-'+(S.calM+1)+'-'+today.getDate();
-  out+='<div class="todo-add-row" style="margin:12px 0 4px;"><input class="todo-qi" id="evQuickInp" placeholder="+ 오늘('+today.getDate()+'일) 일정 빠르게 추가 (Enter)" onkeydown="quickAddEv(event,\''+todayEvKey+'\')"/></div>';
-  var memoKey=S.calY+'-'+(S.calM+1);
-  out+='<div class="cal-memo-box"><div class="cal-memo-lbl">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="이번 달에 대한 생각, 느낌, 계획 등을 자유롭게..." oninput="setCalMemo(this)" data-mk="'+memoKey+'">'+esc((p.calMemos||{})[memoKey]||'')+'</textarea></div></div>';
   // 할일
   var tdk=S.todoDate||todayKey(),todayK=todayKey(),isPast=tdk<todayK,isFuture=tdk>todayK,isToday2=tdk===todayK;
   var tdP=tdk.split('-');
@@ -858,51 +870,6 @@ function render(){
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." style="min-height:60px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
   out+='</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
-  out+='</div>';
-  // 주간 성과 목표
-  var wks=getWeeks(S.wkY,S.wkM),wg=p.weekGoals||{};
-  out+='<div class="card"><div class="card-top"><span class="ctitle">📈 이번 달 주간 성과 목표</span>';
-  out+='<div class="nav-g"><button class="nav-btn" onclick="prevWk()">◀</button><span class="nav-lbl">'+S.wkY+'년 '+(S.wkM+1)+'월</span><button class="nav-btn" onclick="nextWk()">▶</button></div></div>';
-  for(var w=0;w<wks.length;w++){var wk=wks[w],iso=isoWeek(wk.s),wkey='iso-'+iso.year+'-w'+iso.week,isCur=isThisWeek(wk.s,wk.e);
-    out+='<div class="week-item'+(isCur?' cw':'')+'"><span class="week-bdg">'+fmd(wk.s)+' ~ '+fmd(wk.e)+' ('+iso.week+'주차)</span><input class="week-inp" placeholder="이 주의 성과 목표를 한 줄로..." value="'+esc(wg[wkey]||'')+'" data-wk="'+wkey+'" oninput="updateWG(this)"/></div>';
-  }
-  // 이번 주 숫자 목표 진행 (계층)
-  var curWk=null;for(var w=0;w<wks.length;w++){if(isThisWeek(wks[w].s,wks[w].e)){curWk=wks[w];break;}}
-  var metrics=goals.filter(function(g){return g.parentId;});
-  if(curWk&&metrics.length){
-    var wdKeys=getWeekDateKeys(curWk.s,curWk.e);
-    out+='<div style="border-top:1.5px solid #f5f5f5;margin-top:10px;padding-top:10px;">';
-    out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:8px;">📊 이번 주 목표 달성</div>';
-    for(var gi3=0;gi3<topGoals.length;gi3++){
-      var tg3=topGoals[gi3];
-      var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
-      if(!ch3.length)continue;
-      out+='<div class="goal-group-week" data-gid="'+tg3.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg3.id+'\')">';
-      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg3.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
-      out+='<div class="metric-grid">';
-      for(var ci3=0;ci3<ch3.length;ci3++){
-        var m3=ch3[ci3];
-        var wDone=countGoalInDates(m3.id,wdKeys);
-        var autoWTgt=m3.quarterTarget?Math.round(m3.quarterTarget/12):0;
-        var curWIso=isoWeek(curWk.s),curWKey='iso-'+curWIso.year+'-w'+curWIso.week;
-        var wTgt=(m3.weekTargets&&m3.weekTargets[curWKey]!=null)?m3.weekTargets[curWKey]:autoWTgt;
-        var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
-        var curMKey2=curWk.s.getFullYear()+'-'+(curWk.s.getMonth()+1);
-        var autoMTgt3=m3.quarterTarget?Math.round(m3.quarterTarget/3):0;
-        var mTgt3=(m3.monthTargets&&m3.monthTargets[curMKey2]!=null)?m3.monthTargets[curMKey2]:autoMTgt3;
-        var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
-        out+='<div class="mc-week" data-mid="'+m3.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m3.id+'\')">';
-        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'</div>';
-        out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
-        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m3.id+'\')">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
-        out+='<input class="mc-memo-inp" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
-        out+='</div>';
-      }
-      out+='</div>';
-      out+='</div>';
-    }
-    out+='</div>';
-  }
   out+='</div>';
   // PDCA
   var ps=pdcaStart(S.pdcaOff),pe=new Date(ps);pe.setDate(ps.getDate()+6);
@@ -979,6 +946,41 @@ function render(){
     }
     out+='<textarea class="pdca-ta" placeholder="'+col.s+'" data-pk="'+pk2+'" data-fk="'+col.k+'" oninput="updatePdca(this);ar(this)">'+esc(pdcaD[col.k])+'</textarea></div>';}
   out+='</div></div>';
+  // 이번 주 목표 달성 (PDCA 아래)
+  var curWk=null;var wks2=getWeeks(S.wkY,S.wkM);for(var w=0;w<wks2.length;w++){if(isThisWeek(wks2[w].s,wks2[w].e)){curWk=wks2[w];break;}}
+  var metrics2=goals.filter(function(g){return g.parentId;});
+  if(curWk&&metrics2.length){
+    var wdKeys=getWeekDateKeys(curWk.s,curWk.e);
+    var curWIso=isoWeek(curWk.s),curWKey='iso-'+curWIso.year+'-w'+curWIso.week;
+    out+='<div class="card"><div class="card-top"><span class="ctitle">📊 이번 주 목표 달성</span><span style="font-size:11px;color:#aaa;">'+fmd(curWk.s)+' ~ '+fmd(curWk.e)+'</span></div>';
+    for(var gi3=0;gi3<topGoals.length;gi3++){
+      var tg3=topGoals[gi3];
+      var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
+      if(!ch3.length)continue;
+      out+='<div class="goal-group-week" data-gid="'+tg3.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg3.id+'\')">';
+      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg3.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span></div>';
+      out+='<div class="metric-grid">';
+      for(var ci3=0;ci3<ch3.length;ci3++){
+        var m3=ch3[ci3];
+        var wDone=countGoalInDates(m3.id,wdKeys);
+        var autoWTgt=m3.quarterTarget?Math.round(m3.quarterTarget/12):0;
+        var wTgt=(m3.weekTargets&&m3.weekTargets[curWKey]!=null)?m3.weekTargets[curWKey]:autoWTgt;
+        var wPct=wTgt>0?Math.min(100,Math.round(wDone/wTgt*100)):0;
+        var curMKey2=curWk.s.getFullYear()+'-'+(curWk.s.getMonth()+1);
+        var autoMTgt3=m3.quarterTarget?Math.round(m3.quarterTarget/3):0;
+        var mTgt3=(m3.monthTargets&&m3.monthTargets[curMKey2]!=null)?m3.monthTargets[curMKey2]:autoMTgt3;
+        var wMemo3=(m3.weekMemos&&m3.weekMemos[curWKey])||'';
+        out+='<div class="mc-week" data-mid="'+m3.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m3.id+'\')">';
+        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'</div>';
+        out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
+        out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m3.id+'\')">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
+        out+='<input class="mc-memo-inp" placeholder="'+(m3.memo?esc(m3.memo):'이번 주 메모')+'" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+curWKey+'" oninput="setWeekMetricMemo(this)"/>';
+        out+='</div>';
+      }
+      out+='</div></div>';
+    }
+    out+='</div>';
+  }
   document.getElementById('app').innerHTML=out;
   document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta').forEach(function(el){ar(el);});
 }
@@ -1126,7 +1128,7 @@ function prevWk(){if(S.wkM===0){S.wkY--;S.wkM=11;}else S.wkM--;save();render();}
 function nextWk(){if(S.wkM===11){S.wkY++;S.wkM=0;}else S.wkM++;save();render();}
 // 달력 이벤트
 var evKey='',evP=1,evEditIdx=-1,evEditP=1,evColor='',evEditColor='';
-var EV_COLORS=['','#FF8CB4','#E879F9','#FB923C','#C084FC'];
+var EV_COLORS=['','#FF8C69','#22C55E','#3B82F6','#9CA3AF','#8B5CF6'];
 function setEvColor(c){evColor=c;EV_COLORS.forEach(function(v,i){var el=document.getElementById('ec'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
 function setEvEditColor(c){evEditColor=c;EV_COLORS.forEach(function(v,i){var el=document.getElementById('ece'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
 function openEv(k){evKey=k;evP=1;evColor='';var pts=k.split('-');document.getElementById('evDateLbl').textContent=pts[0]+'년 '+pts[1]+'월 '+pts[2]+'일';document.getElementById('iEv').value='';setEP(1);renderEvList();show('mEv');setTimeout(function(){setEvColor('');document.getElementById('iEv').focus();},50);}
