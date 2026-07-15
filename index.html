@@ -186,6 +186,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .plan-item.plan-dragging{opacity:.4;}
 .plan-edit-inp{flex:1;border:none;border-bottom:1.5px solid #1565C0;outline:none;font-size:12px;font-family:inherit;background:transparent;color:var(--dk);padding:1px 2px;}
 .plan-inp::placeholder{color:#AACCE8;}
+.plan-section{margin-bottom:4px;}
+.plan-sec-hdr{font-size:10px;font-weight:700;color:#999;letter-spacing:.5px;padding:4px 2px 3px;border-bottom:1px solid rgba(21,101,192,.15);margin-bottom:3px;}
+.plan-sec-over{background:rgba(21,101,192,.06);border-radius:7px;}
+.plan-item.plan-imp .todo-txt{font-weight:700;}
+.plan-item.plan-over-top{border-top:2px solid #1565C0;}
+.tc-dot{display:inline-block;width:18px;height:18px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
+.tc-dot:hover{transform:scale(1.15);}
+.ev-col-dot{display:inline-block;width:16px;height:16px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
+.ev-col-dot:hover{transform:scale(1.15);}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px;}
 .modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;box-shadow:0 16px 50px rgba(0,0,0,.18);}
 .modal.wide{max-width:700px;}
@@ -388,7 +397,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div class="overlay" id="mAdd" style="display:none"><div class="modal"><h3>📂 새 프로젝트 추가</h3><input class="m-inp" id="iAdd" placeholder="프로젝트 이름"/><div class="act-row"><button class="btn-cancel" onclick="hide('mAdd')">취소</button><button class="btn-ok" onclick="doAdd()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mRen" style="display:none"><div class="modal"><h3>✏️ 이름 수정</h3><input class="m-inp" id="iRen"/><div class="act-row"><button class="btn-cancel" onclick="hide('mRen')">취소</button><button class="btn-ok" onclick="doRen()">수정 ✓</button></div></div></div>
 <div class="overlay" id="mDel" style="display:none"><div class="modal"><h3>🗑 프로젝트 삭제</h3><div class="modal-sub">"<span class="del-nm" id="delNm"></span>" 을 삭제할까요?</div><div class="act-row"><button class="btn-cancel" onclick="hide('mDel')">취소</button><button class="btn-red" onclick="doDel()">삭제</button></div></div></div>
-<div class="overlay" id="mTodo" style="display:none"><div class="modal"><h3>✅ 할 일 추가</h3><input class="m-inp" id="iTodo" placeholder="할 일 입력"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn sel" id="tp0" onclick="setTP(0)">🔥 80%</button><button class="pbtn" id="tp1" onclick="setTP(1)">⚡ 20%</button><button class="pbtn" id="tp2" onclick="setTP(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(선택 — 완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoGoalSel"><option value="">연결 안함</option></select><div class="act-row"><button class="btn-cancel" onclick="hide('mTodo')">취소</button><button class="btn-ok" onclick="doAddTodo()">추가 ✓</button></div></div></div>
+<div class="overlay" id="mTodo" style="display:none"><div class="modal"><h3>✅ 할 일 추가</h3><input class="m-inp" id="iTodo" placeholder="할 일 입력"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn sel" id="tp0" onclick="setTP(0)">🔥 80%</button><button class="pbtn" id="tp1" onclick="setTP(1)">⚡ 20%</button><button class="pbtn" id="tp2" onclick="setTP(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(선택 — 완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tc0" style="background:#FF3E8A;border-color:#333;" onclick="setTodoColor('')" title="기본"></span><span class="tc-dot" id="tc1" style="background:#3B82F6;" onclick="setTodoColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tc2" style="background:#10B981;" onclick="setTodoColor('#10B981')" title="초록"></span><span class="tc-dot" id="tc3" style="background:#EF4444;" onclick="setTodoColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tc4" style="background:#8B5CF6;" onclick="setTodoColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodo')">취소</button><button class="btn-ok" onclick="doAddTodo()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mGoal" style="display:none"><div class="modal"><h3>🎯 대목표 추가</h3><div class="modal-sub">달성하고 싶은 큰 목표를 입력하세요. 세부 지표는 아래에서 추가해요.</div><input class="m-inp" id="iGoalName" placeholder="대목표 이름 (예: 마라톤 완주, SNS 성장, 독서 습관)"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoal')">취소</button><button class="btn-ok" onclick="doAddGoal()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mMetric" style="display:none"><div class="modal"><h3>📊 세부 지표 추가</h3>
 <div style="font-size:11px;font-weight:700;color:var(--pk);margin-bottom:10px;">🎯 대목표: <span id="mMetricGoalNm" style="color:#555;font-weight:600;"></span></div>
@@ -410,7 +419,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
   <button class="btn-cancel" style="border-color:var(--pk);color:var(--pk);" onclick="doAddMetric(true)">추가하고 계속 +</button>
   <button class="btn-ok" onclick="doAddMetric(false)">추가 ✓</button>
 </div></div></div>
-<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn" id="tpe0" onclick="setTPE(0)">🔥 80%</button><button class="pbtn" id="tpe1" onclick="setTPE(1)">⚡ 20%</button><button class="pbtn" id="tpe2" onclick="setTPE(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn" id="tpe0" onclick="setTPE(0)">🔥 80%</button><button class="pbtn" id="tpe1" onclick="setTPE(1)">⚡ 20%</button><button class="pbtn" id="tpe2" onclick="setTPE(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tce0" style="background:#FF3E8A;" onclick="setTodoEditColor('')" title="기본"></span><span class="tc-dot" id="tce1" style="background:#3B82F6;" onclick="setTodoEditColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tce2" style="background:#10B981;" onclick="setTodoEditColor('#10B981')" title="초록"></span><span class="tc-dot" id="tce3" style="background:#EF4444;" onclick="setTodoEditColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tce4" style="background:#8B5CF6;" onclick="setTodoEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mGoalEdit" style="display:none"><div class="modal"><h3>✏️ 대목표 수정</h3><input class="m-inp" id="iGoalEditName" placeholder="대목표 이름"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoalEdit')">취소</button><button class="btn-ok" onclick="doEditGoal()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMetricEdit" style="display:none"><div class="modal"><h3>✏️ 세부 지표 수정</h3><input class="m-inp" id="iMetricEditName" placeholder="지표 이름"/><div style="display:flex;gap:8px;"><input class="m-inp" type="number" id="iMetricEditQTarget" placeholder="3개월 횟수 목표" style="flex:1;"/><input class="m-inp" id="iMetricEditUnit" placeholder="단위 (회, 일, 권)" style="flex:1;"/></div><input class="m-inp" id="iMetricEditMemo" placeholder="메모 (예: 총 300km, 12권 완독, 매일 30분)" style="font-size:12px;color:#888;"/><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricEdit')">취소</button><button class="btn-ok" onclick="doEditMetric()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMove" style="display:none"><div class="modal"><h3>↔ 카테고리 이동</h3><div style="font-size:13px;font-weight:600;color:var(--dk);margin-bottom:14px;" id="moveTxt"></div><button class="mv-btn" id="mcb0" onclick="doMove(0)">🔥 80% 에너지</button><button class="mv-btn" id="mcb1" onclick="doMove(1)">⚡ 20% 에너지</button><button class="mv-btn" id="mcb2" onclick="doMove(2)">🌿 가지치기</button><button class="btn-cancel" style="width:100%;margin-top:4px;" onclick="hide('mMove')">취소</button></div></div>
@@ -422,11 +431,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
       <input class="m-inp" id="iEv" placeholder="일정 내용 입력"/>
       <div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div>
       <div class="prow"><button class="pbtn sel" id="ep1" onclick="setEP(1)">① 1순위</button><button class="pbtn" id="ep2" onclick="setEP(2)">② 2순위</button><button class="pbtn" id="ep3" onclick="setEP(3)">③ 3순위</button></div>
+      <div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ec0" style="background:#FF3E8A;border-color:#333;" onclick="setEvColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ec1" style="background:#FF8CB4;" onclick="setEvColor('#FF8CB4')" title="연핑크"></span><span class="ev-col-dot" id="ec2" style="background:#E879F9;" onclick="setEvColor('#E879F9')" title="푸시아"></span><span class="ev-col-dot" id="ec3" style="background:#FB923C;" onclick="setEvColor('#FB923C')" title="코랄"></span><span class="ev-col-dot" id="ec4" style="background:#C084FC;" onclick="setEvColor('#C084FC')" title="라벤더"></span></div>
       <div class="act-row"><button class="btn-cancel" onclick="hide('mEv')">닫기</button><button class="btn-ok" onclick="doAddEv()">추가 ✓</button></div>
     </div>
   </div>
 </div>
-<div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ece0" style="background:#FF3E8A;" onclick="setEvEditColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ece1" style="background:#FF8CB4;" onclick="setEvEditColor('#FF8CB4')" title="연핑크"></span><span class="ev-col-dot" id="ece2" style="background:#E879F9;" onclick="setEvEditColor('#E879F9')" title="푸시아"></span><span class="ev-col-dot" id="ece3" style="background:#FB923C;" onclick="setEvEditColor('#FB923C')" title="코랄"></span><span class="ev-col-dot" id="ece4" style="background:#C084FC;" onclick="setEvEditColor('#C084FC')" title="라벤더"></span></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
@@ -794,7 +804,7 @@ function render(){
     var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
     out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
     out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
-    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')">'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
+    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
   out+='</div>';
@@ -828,7 +838,8 @@ function render(){
       var linkedMetric=null,linkedParent=null;
       if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
       var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
-      out+='<span class="todo-txt'+(done?' done':'')+'">'+esc(items[t].text)+badge+'</span>';
+      var tStyle='';if(c===0)tStyle+='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
+      out+='<span class="todo-txt'+(done?' done':'')+'"'+(tStyle?' style="'+tStyle+'"':'')+'>'+esc(items[t].text)+badge+'</span>';
       out+='<div class="todo-acts">';
       out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
       out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="ic-btn" onclick="openMoveTodo('+c+','+t+')">↔</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
@@ -911,22 +922,44 @@ function render(){
   out+='<div class="pdca-lbl" style="color:#1565C0;">📋 PLAN</div>';
   out+='<div class="pdca-sub">이번 주 할 것들 (Enter로 추가)</div>';
   out+='<div id="planList">';
+  var impCnt=planItems.filter(function(it){return it.important;}).length;
+  // ⭐ 중요 section
+  out+='<div class="plan-section" id="planSec_imp_'+pk2+'" ondragover="planSectionOver(event,\'important\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'important\',\''+pk2+'\')">';
+  out+='<div class="plan-sec-hdr">⭐ 중요 <span style="font-size:9px;font-weight:400;color:#bbb;">'+impCnt+'/5</span></div>';
   for(var pi=0;pi<planItems.length;pi++){
     var pitem=planItems[pi];
+    if(!pitem.important) continue;
     var isEditing=(planEditPk===pk2&&planEditIdx===pi);
-    out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event)">';
+    out+='<div class="plan-item plan-imp'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'important\')">';
     out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
-    if(isEditing){
-      out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';
-    } else {
-      out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';
-    }
+    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;font-weight:700;">'+esc(pitem.text)+'</span>';}
+    out+='<button class="ic-btn" title="중요 해제" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#F59E0B;font-size:15px;line-height:1;">★</button>';
+    out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
+    out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
+    out+='</div>';
+  }
+  if(impCnt===0)out+='<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정 (최대 5개)</div>';
+  out+='</div>';
+  // 📋 일반 section
+  out+='<div class="plan-section" id="planSec_nor_'+pk2+'" ondragover="planSectionOver(event,\'normal\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'normal\',\''+pk2+'\')">';
+  out+='<div class="plan-sec-hdr">📋 일반</div>';
+  for(var pi=0;pi<planItems.length;pi++){
+    var pitem=planItems[pi];
+    if(pitem.important) continue;
+    var isEditing=(planEditPk===pk2&&planEditIdx===pi);
+    out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'normal\')">';
+    out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';}
+    out+='<button class="ic-btn" title="중요로 이동" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#ccc;font-size:15px;line-height:1;">☆</button>';
     out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
     out+='</div>';
   }
   out+='</div>';
-  out+='<input class="plan-inp" id="planInp_'+pk2+'" placeholder="+ 할 것 입력 후 Enter" onkeydown="if(event.key===\'Enter\'){addPlan(\''+pk2+'\',this);}" style="width:100%;border:none;outline:none;border-top:1px solid #BBDEFB;padding:6px 0;font-size:12px;font-family:inherit;background:transparent;margin-top:6px;color:var(--dk);" />';
+  out+='</div>';
+  out+='<input class="plan-inp" id="planInp_'+pk2+'" placeholder="+ 일반 할 것 입력 후 Enter" onkeydown="if(event.key===\'Enter\'){addPlan(\''+pk2+'\',this);}" style="width:100%;border:none;outline:none;border-top:1px solid #BBDEFB;padding:6px 0;font-size:12px;font-family:inherit;background:transparent;margin-top:6px;color:var(--dk);" />';
   out+='</div>';
   // DO, CHECK, ACT - 기존 textarea
   // PDCA 주간 목표 자동 요약 (CHECK용)
@@ -967,8 +1000,11 @@ function setKeyScene(side,el){var p=cp();p.calKeyScenes=p.calKeyScenes||{};var k
 function getPlanItems(pk){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};if(typeof p.pdca[pk].plan==='string'){var s=p.pdca[pk].plan;p.pdca[pk].plan=s?s.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[]; }return p.pdca[pk].plan;}
 function openPlanEdit(pk,i){planEditPk=pk;planEditIdx=i;render();setTimeout(function(){var el=document.getElementById('planEditInp');if(el){el.focus();el.select();}},30);}
 function savePlanEdit(pk,i,val){var t=val.trim();if(t)getPlanItems(pk)[i].text=t;planEditPk='';planEditIdx=-1;save();render();}
-function planDragStart(pk,i,e){planDragPk=pk;planDragIdx=i;e.dataTransfer.effectAllowed='move';}
-function planDragEnd(){planDragPk='';planDragIdx=-1;render();}
+function planDragStart(pk,i,e){planDragPk=pk;planDragIdx=i;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',i);setTimeout(function(){var el=document.getElementById('pitem-'+pk+'-'+i);if(el)el.style.opacity='0.35';},0);}
+function planDragEnd(){document.querySelectorAll('.plan-item').forEach(function(el){el.style.opacity='';el.classList.remove('plan-over-top');});document.querySelectorAll('.plan-sec-over').forEach(function(el){el.classList.remove('plan-sec-over');});planDragPk='';planDragIdx=-1;}
+function planSectionOver(e,section,pk){if(!planDragPk||planDragPk!==pk)return;e.preventDefault();e.stopPropagation();document.querySelectorAll('.plan-item').forEach(function(el){el.classList.remove('plan-over-top');});document.querySelectorAll('.plan-sec-over').forEach(function(el){el.classList.remove('plan-sec-over');});var sid='planSec_'+(section==='important'?'imp':'nor')+'_'+pk;var sec=document.getElementById(sid);if(sec)sec.classList.add('plan-sec-over');}
+function planSectionDrop(e,section,pk){e.preventDefault();e.stopPropagation();document.querySelectorAll('.plan-item').forEach(function(el){el.style.opacity='';el.classList.remove('plan-over-top');});document.querySelectorAll('.plan-sec-over').forEach(function(el){el.classList.remove('plan-sec-over');});if(!planDragPk||planDragPk!==pk||planDragIdx<0){planDragPk='';planDragIdx=-1;return;}var items=getPlanItems(pk);var from=planDragIdx;if(section==='important'){var cnt=items.filter(function(it,ii){return it.important&&ii!==from;}).length;if(cnt>=5){planDragPk='';planDragIdx=-1;return;}items[from].important=true;var mv=items.splice(from,1)[0];var li=-1;for(var i=0;i<items.length;i++)if(items[i].important)li=i;items.splice(li+1,0,mv);}else{items[from].important=false;var mv2=items.splice(from,1)[0];items.push(mv2);}planDragPk='';planDragIdx=-1;save();render();}
+function togglePlanImportant(pk,i){var items=getPlanItems(pk);if(!items[i].important){var cnt=items.filter(function(it){return it.important;}).length;if(cnt>=5){alert('중요 항목은 최대 5개까지 지정할 수 있습니다.');return;}items[i].important=true;var mv=items.splice(i,1)[0];var li=-1;for(var j=0;j<items.length;j++)if(items[j].important)li=j;items.splice(li+1,0,mv);}else{items[i].important=false;var mv2=items.splice(i,1)[0];var li2=-1;for(var j2=0;j2<items.length;j2++)if(items[j2].important)li2=j2;items.splice(li2+1,0,mv2);}save();render();}
 
 // ── 목표/지표 드래그 정렬 ───────────────────────────────────────
 var _gDrag = null; // mouse
@@ -1071,8 +1107,8 @@ function gDSt(e, type, id) {
     },450)
   };
 }
-function planDragOver(e,pk,i){e.preventDefault();e.dataTransfer.dropEffect='move';}
-function planDrop(pk,i,e){e.preventDefault();if(!planDragPk||planDragIdx<0||planDragIdx===i)return;var items=getPlanItems(pk);var item=items.splice(planDragIdx,1)[0];var ni=planDragIdx<i?i-1:i;items.splice(ni,0,item);planDragPk='';planDragIdx=-1;save();render();}
+function planDragOver(e,pk,i){if(planDragPk!==pk)return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='move';document.querySelectorAll('.plan-item').forEach(function(el){el.classList.remove('plan-over-top');});document.querySelectorAll('.plan-sec-over').forEach(function(el){el.classList.remove('plan-sec-over');});var el=document.getElementById('pitem-'+pk+'-'+i);if(el)el.classList.add('plan-over-top');}
+function planDrop(pk,toIdx,e,toSection){e.preventDefault();e.stopPropagation();document.querySelectorAll('.plan-item').forEach(function(el){el.style.opacity='';el.classList.remove('plan-over-top');});document.querySelectorAll('.plan-sec-over').forEach(function(el){el.classList.remove('plan-sec-over');});if(planDragPk!==pk||planDragIdx<0||planDragIdx===toIdx){planDragPk='';planDragIdx=-1;return;}var items=getPlanItems(pk);var from=planDragIdx;if(toSection==='important'){var cnt=items.filter(function(it,ii){return it.important&&ii!==from;}).length;if(cnt<5)items[from].important=true;}else{items[from].important=false;}var moved=items.splice(from,1)[0];var adj=toIdx>from?toIdx-1:toIdx;items.splice(adj,0,moved);planDragPk='';planDragIdx=-1;save();render();}
 function addPlan(pk,el){var t=el.value.trim();if(!t)return;getPlanItems(pk).push({text:t,done:false});el.value='';save();render();setTimeout(function(){var inp=document.getElementById('planInp_'+pk);if(inp)inp.focus();},50);}
 function togglePlan(pk,i,v){getPlanItems(pk)[i].done=v;save();render();}
 function delPlan(pk,i){getPlanItems(pk).splice(i,1);save();render();}
@@ -1089,15 +1125,18 @@ function nextCal(){if(S.calM===11){S.calY++;S.calM=0;}else S.calM++;render();}
 function prevWk(){if(S.wkM===0){S.wkY--;S.wkM=11;}else S.wkM--;save();render();}
 function nextWk(){if(S.wkM===11){S.wkY++;S.wkM=0;}else S.wkM++;save();render();}
 // 달력 이벤트
-var evKey='',evP=1,evEditIdx=-1,evEditP=1;
-function openEv(k){evKey=k;evP=1;var pts=k.split('-');document.getElementById('evDateLbl').textContent=pts[0]+'년 '+pts[1]+'월 '+pts[2]+'일';document.getElementById('iEv').value='';setEP(1);renderEvList();show('mEv');setTimeout(function(){document.getElementById('iEv').focus();},50);}
+var evKey='',evP=1,evEditIdx=-1,evEditP=1,evColor='',evEditColor='';
+var EV_COLORS=['','#FF8CB4','#E879F9','#FB923C','#C084FC'];
+function setEvColor(c){evColor=c;EV_COLORS.forEach(function(v,i){var el=document.getElementById('ec'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
+function setEvEditColor(c){evEditColor=c;EV_COLORS.forEach(function(v,i){var el=document.getElementById('ece'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
+function openEv(k){evKey=k;evP=1;evColor='';var pts=k.split('-');document.getElementById('evDateLbl').textContent=pts[0]+'년 '+pts[1]+'월 '+pts[2]+'일';document.getElementById('iEv').value='';setEP(1);renderEvList();show('mEv');setTimeout(function(){setEvColor('');document.getElementById('iEv').focus();},50);}
 function renderEvList(){var p=cp(),evs=(p.events&&p.evs)||(p.events&&p.events[evKey])||[];var sorted=evs.slice().map(function(ev,i){return{ev:ev,i:i};}).sort(function(a,b){return a.ev.p-b.ev.p;});var PI=['①','②','③'],PC=['var(--pk)','#ff7eb3','#aaa'],html='';if(!sorted.length)html='<div style="font-size:12px;color:#ccc;text-align:center;padding:6px 0;">아직 일정이 없어요</div>';for(var i=0;i<sorted.length;i++){var ev=sorted[i].ev,oi=sorted[i].i;html+='<div class="ev-item"><span class="ev-pi" style="color:'+PC[ev.p-1]+'">'+PI[ev.p-1]+'</span><span class="ev-txt">'+esc(ev.text)+'</span><button class="ev-btn" onclick="openEvEdit(\''+evKey+'\','+oi+')">수정</button><button class="ev-del" onclick="delEv(\''+evKey+'\','+oi+')">삭제</button></div>';}document.getElementById('evList').innerHTML=html;}
 function setEP(p2){evP=p2;for(var n=1;n<=3;n++)document.getElementById('ep'+n).className='pbtn'+(n===p2?' sel':'');}
-function doAddEv(){var t=document.getElementById('iEv').value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[evKey])p.events[evKey]=[];p.events[evKey].push({text:t,p:evP});document.getElementById('iEv').value='';save();render();renderEvList();}
+function doAddEv(){var t=document.getElementById('iEv').value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[evKey])p.events[evKey]=[];var ev={text:t,p:evP};if(evColor)ev.color=evColor;p.events[evKey].push(ev);document.getElementById('iEv').value='';evColor='';setEvColor('');save();render();renderEvList();}
 function delEv(k,i){var p=cp();if(!p.events||!p.events[k])return;p.events[k].splice(i,1);if(!p.events[k].length)delete p.events[k];save();render();renderEvList();}
-function openEvEdit(k,i){evKey=k;evEditIdx=i;var ev=cp().events[k][i];if(!ev)return;document.getElementById('iEvEdit').value=ev.text;setEE(ev.p);show('mEvEdit');setTimeout(function(){document.getElementById('iEvEdit').focus();},50);}
+function openEvEdit(k,i){evKey=k;evEditIdx=i;var ev=cp().events[k][i];if(!ev)return;document.getElementById('iEvEdit').value=ev.text;setEE(ev.p);show('mEvEdit');setTimeout(function(){setEvEditColor(ev.color||'');document.getElementById('iEvEdit').focus();},50);}
 function setEE(p2){evEditP=p2;for(var n=1;n<=3;n++)document.getElementById('ee'+n).className='pbtn'+(n===p2?' sel':'');}
-function doEditEv(){var t=document.getElementById('iEvEdit').value.trim();if(!t)return;cp().events[evKey][evEditIdx]={text:t,p:evEditP};hide('mEvEdit');save();render();}
+function doEditEv(){var t=document.getElementById('iEvEdit').value.trim();if(!t)return;var ev={text:t,p:evEditP};if(evEditColor)ev.color=evEditColor;cp().events[evKey][evEditIdx]=ev;hide('mEvEdit');save();render();}
 function delEvEdit(){if(!confirm('이 일정을 삭제할까요?'))return;cp().events[evKey].splice(evEditIdx,1);if(!cp().events[evKey].length)delete cp().events[evKey];hide('mEvEdit');save();render();}
 // 다이어그램
 var diagType='';
@@ -1111,16 +1150,20 @@ function prevTodo(){var td=S.todoDate||todayKey();var d=new Date(td.replace(/(\d
 function nextTodo(){var td=S.todoDate||todayKey();var d=new Date(td.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()+1);S.todoDate=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(isMobile)renderMobile();else render();}
 function getTodos(){var p=cp();p.todosByDate=p.todosByDate||{};var tdk=S.todoDate||todayKey();if(!p.todosByDate[tdk])p.todosByDate[tdk]=[[],[],[]];return p.todosByDate[tdk];}
 var todoE=0,todoEditE=0,editC=-1,editI=-1,moveC=-1,moveI=-1;
+var todoColor='',todoEditColor='';
+var TODO_COLORS=['','#3B82F6','#10B981','#EF4444','#8B5CF6'];
+function setTodoColor(c){todoColor=c;TODO_COLORS.forEach(function(v,i){var el=document.getElementById('tc'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
+function setTodoEditColor(c){todoEditColor=c;TODO_COLORS.forEach(function(v,i){var el=document.getElementById('tce'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
 function _buildGoalSel(selId,selectedId){var p=cp(),allG=p.goals||[];var topG=allG.filter(function(g){return !g.parentId;});var sel=document.getElementById(selId);sel.innerHTML='<option value="">연결 안함</option>';for(var ti=0;ti<topG.length;ti++){var tg=topG[ti];var ch=allG.filter(function(g){return g.parentId===tg.id;});if(!ch.length)continue;sel.innerHTML+='<optgroup label="🎯 '+tg.name+'">';for(var ci=0;ci<ch.length;ci++){sel.innerHTML+='<option value="'+ch[ci].id+'"'+(selectedId===ch[ci].id?' selected':'')+'>'+ch[ci].name+(ch[ci].unit?' ('+ch[ci].unit+'/ 회)':'')+'</option>';}sel.innerHTML+='</optgroup>';}}
-function openTodo(){todoE=0;setTP(0);document.getElementById('iTodo').value='';_buildGoalSel('todoGoalSel','');show('mTodo');setTimeout(function(){document.getElementById('iTodo').focus();},50);}
+function openTodo(){todoE=0;todoColor='';setTP(0);document.getElementById('iTodo').value='';_buildGoalSel('todoGoalSel','');show('mTodo');setTimeout(function(){setTodoColor('');document.getElementById('iTodo').focus();},50);}
 function setTP(i){todoE=i;for(var n=0;n<3;n++)document.getElementById('tp'+n).className='pbtn'+(n===i?' sel':'');}
 function setTPE(i){todoEditE=i;for(var n=0;n<3;n++)document.getElementById('tpe'+n).className='pbtn'+(n===i?' sel':'');}
-function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;var item={text:t,done:false};if(gid)item.goalId=gid;getTodos()[todoE].push(item);hide('mTodo');save();render();}
+function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;var item={text:t,done:false};if(gid)item.goalId=gid;if(todoColor)item.color=todoColor;getTodos()[todoE].push(item);todoColor='';hide('mTodo');save();render();}
 function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[0].push({text:t,done:false});el.value='';save();render();}
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
-function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){document.getElementById('iTodoEdit').select();},50);}
-function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;td[todoEditE].push(item);hide('mTodoEdit');save();render();}
+function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){setTodoEditColor(item.color||'');document.getElementById('iTodoEdit').select();},50);}
+function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;td[todoEditE].push(item);hide('mTodoEdit');save();render();}
 function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.getElementById('moveTxt').textContent='"'+item.text+'"';for(var n=0;n<3;n++){var b=document.getElementById('mcb'+n);b.className='mv-btn'+(n===c?' cur':'');b.textContent=CAT[n]+(n===c?' (현재)':'');}show('mMove');}
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 function setMonthMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthMemos=g.monthMemos||{};var v=el.value.trim();if(v)g.monthMemos[el.dataset.mk]=v;else delete g.monthMemos[el.dataset.mk];save();}
@@ -1852,14 +1895,30 @@ function renderMobile() {
     content += '<span style="font-size:13px;font-weight:700;color:var(--dk);">🔄 '+esc(wRange)+'</span>';
     content += '<button class="mb-nav-btn" onclick="S.pdcaOff++;save();renderMobile()">▶</button></div>';
     content += '<div class="mb-pdca-label">📋 PLAN</div>';
+    var mbImpCnt = planItems.filter(function(it){return it.important;}).length;
+    content += '<div style="font-size:10px;font-weight:700;color:#999;letter-spacing:.5px;padding:4px 0 3px;border-bottom:1px solid rgba(21,101,192,.15);margin-bottom:3px;">⭐ 중요 <span style="font-weight:400;color:#bbb;">'+mbImpCnt+'/5</span></div>';
     for (var pi = 0; pi < planItems.length; pi++) {
       var pitem = planItems[pi];
+      if (!pitem.important) continue;
+      content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
+      content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'plan\',0,'+pi+',\''+pk2+'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
+      content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')" style="color:#F59E0B;">★</button>';
+      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()">☆</button>';
+      content += '</div>';
+    }
+    if (mbImpCnt === 0) content += '<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정</div>';
+    content += '<div style="font-size:10px;font-weight:700;color:#999;letter-spacing:.5px;padding:4px 0 3px;border-bottom:1px solid rgba(21,101,192,.15);margin-top:6px;margin-bottom:3px;">📋 일반</div>';
+    for (var pi = 0; pi < planItems.length; pi++) {
+      var pitem = planItems[pi];
+      if (pitem.important) continue;
       content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
       content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'plan\',0,'+pi+',\''+pk2+'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')">⠿</span>';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
       content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
-      content += '<button class="mb-carry-btn" onclick="carryPlan(\''+pk2+'\','+pi+');renderMobile()">→</button>';
+      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" title="중요로">☆</button>';
       content += '</div>';
     }
     content += '<input class="mb-qi" placeholder="+ Plan 추가 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getPlanItems(\''+pk2+'\').push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
