@@ -448,7 +448,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 var TC=['#E8507A','#C45E9A','#7B5EA7','#4E7BC4','#3A9E82','#C47B3A','#9E3A3A','#3A6E9E','#6E9E3A','#9E853A','#3A4E9E','#7A9E3A'];
 var DAYS=['월','화','수','목','금','토','일'];
 var CAT=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기'];
-var CAT_D=['핵심 일, 성과의 80%를 만든다. (3개 이내로 정리)','필요하지만 가볍게 처리','큰 에너지를 쓰면 안되는 일'];
+var CAT_D=['핵심 일, 성과의 80%를 만든다. <strong style="color:var(--pk);">(3개 이내로 정리)</strong>','필요하지만 가볍게 처리','큰 에너지를 쓰면 안되는 일'];
 var CAT_C=['e80','e20','ecut'];
 var PDCA=[{k:'plan',i:'📋',l:'PLAN',s:'이번 주 뭘 할지...'},{k:'doIt',i:'▷',l:'DO',s:'실제로 한 것...'},{k:'check',i:'◎',l:'CHECK',s:'결과, 숫자, 시그널...'},{k:'act',i:'★',l:'ACT',s:'다음 주 개선점...'}];
 
@@ -837,26 +837,67 @@ function render(){
   out+='<div style="text-align:center;"><span style="font-size:13px;font-weight:700;color:'+(isFuture?'#7C3AED':isPast?'#aaa':'var(--dk)')+'">'+tdLbl+'</span>';
   if(!isToday2)out+='<br/><button onclick="S.todoDate=todayKey();render()" style="font-size:11px;color:var(--pk);background:none;border:none;cursor:pointer;margin-top:2px;">오늘로 이동</button>';
   out+='</div><button class="nav-btn" onclick="nextTodo()">▶</button></div>';
-  out+='<div class="todo-add-row"><input class="todo-qi" id="qInp" placeholder="+ 할 일 빠르게 추가 (Enter → 80% 에너지)" onkeydown="if(event.key===\'Enter\')quickTodo()"/><button class="btn-add-todo" onclick="openTodo()">+ 추가</button></div>';
+  out+='<div class="todo-add-row"><input class="todo-qi" id="qInp" placeholder="+ 할 일 빠르게 추가 (Enter → 가지치기)" onkeydown="if(event.key===\'Enter\')quickTodo()"/><button class="btn-add-todo" onclick="openTodo()">+ 추가</button></div>';
   out+='<div class="e-grid">';
   for(var c=0;c<3;c++){
     var items=todos[c]||[];
     out+='<div class="e-col '+CAT_C[c]+'" id="ecol'+c+'" ondragover="event.preventDefault();this.classList.add(\'dov\')" ondragleave="this.classList.remove(\'dov\')" ondrop="dropTodo(event,'+c+')">';
     out+='<div class="e-lbl">'+CAT[c]+'</div><div class="e-desc">'+CAT_D[c]+'</div>';
-    if(items.length===0){out+='<div class="todo-empty">추가하거나 드래그</div>';}
-    else{for(var t=0;t<items.length;t++){var done=items[t].done;
-      out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,'+c+','+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,'+c+','+t+')" ondrop="event.stopPropagation();dropItem(event,'+c+','+t+')">';
-      out+='<span class="drag-h">⠿</span>';
-      out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo('+c+','+t+',this.checked)"/>';
-      var linkedMetric=null,linkedParent=null;
-      if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
-      var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
-      var tStyle='';if(c===0)tStyle+='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
-      out+='<span class="todo-txt'+(done?' done':'')+'"'+(tStyle?' style="'+tStyle+'"':'')+'>'+esc(items[t].text)+badge+'</span>';
-      out+='<div class="todo-acts">';
-      out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
-      out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
-    }}
+    if(c===0){
+      var priIdxs=[],norIdxs=[];
+      for(var t=0;t<items.length;t++){if(items[t].priority)priIdxs.push(t);else norIdxs.push(t);}
+      // 최우선 섹션
+      out+='<div class="plan-section"><div class="plan-sec-hdr" style="color:var(--pk);">🌟 최우선 <span style="font-size:9px;font-weight:400;color:#ccc;">1개</span></div>';
+      if(priIdxs.length===0)out+='<div style="font-size:10px;color:#ddd;text-align:center;padding:4px 0;">아래 ○ 눌러 지정</div>';
+      for(var ki=0;ki<priIdxs.length;ki++){var t=priIdxs[ki],done=items[t].done;
+        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,0,'+t+')" ondrop="event.stopPropagation();dropItem(event,0,'+t+')">';
+        out+='<span class="drag-h">⠿</span>';
+        out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
+        var linkedMetric=null,linkedParent=null;
+        if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
+        var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
+        var tStyle='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
+        out+='<span class="todo-txt'+(done?' done':'')+'" style="'+tStyle+'">'+esc(items[t].text)+badge+'</span>';
+        out+='<div class="todo-acts">';
+        out+='<button class="ic-btn" title="최우선 해제" onclick="toggleTodoPriority(0,'+t+')" style="color:var(--pk);font-size:13px;">●</button>';
+        out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo(0,'+t+')">→</button>';
+        out+='<button class="ic-btn" onclick="openEditTodo(0,'+t+')">✏️</button><button class="todo-del" onclick="delTodo(0,'+t+')">×</button></div></div>';
+      }
+      out+='</div>';
+      // 일반 섹션
+      out+='<div class="plan-section"><div class="plan-sec-hdr">📋 일반 <span style="font-size:9px;font-weight:400;color:#ccc;">'+norIdxs.length+'/2</span></div>';
+      if(norIdxs.length===0&&priIdxs.length===0)out+='<div class="todo-empty">추가하거나 드래그</div>';
+      for(var ni=0;ni<norIdxs.length;ni++){var t=norIdxs[ni],done=items[t].done;
+        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,0,'+t+')" ondrop="event.stopPropagation();dropItem(event,0,'+t+')">';
+        out+='<span class="drag-h">⠿</span>';
+        out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
+        var linkedMetric=null,linkedParent=null;
+        if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
+        var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
+        var tStyle='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
+        out+='<span class="todo-txt'+(done?' done':'')+'" style="'+tStyle+'">'+esc(items[t].text)+badge+'</span>';
+        out+='<div class="todo-acts">';
+        out+='<button class="ic-btn" title="최우선으로" onclick="toggleTodoPriority(0,'+t+')" style="color:#ccc;font-size:13px;">○</button>';
+        out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo(0,'+t+')">→</button>';
+        out+='<button class="ic-btn" onclick="openEditTodo(0,'+t+')">✏️</button><button class="todo-del" onclick="delTodo(0,'+t+')">×</button></div></div>';
+      }
+      out+='</div>';
+    }else{
+      if(items.length===0){out+='<div class="todo-empty">추가하거나 드래그</div>';}
+      else{for(var t=0;t<items.length;t++){var done=items[t].done;
+        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,'+c+','+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,'+c+','+t+')" ondrop="event.stopPropagation();dropItem(event,'+c+','+t+')">';
+        out+='<span class="drag-h">⠿</span>';
+        out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo('+c+','+t+',this.checked)"/>';
+        var linkedMetric=null,linkedParent=null;
+        if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
+        var badge=linkedMetric?'<span style="font-size:10px;color:var(--pk);background:var(--pkl);border-radius:4px;padding:1px 5px;margin-left:4px;">📊'+(linkedParent?esc(linkedParent.name)+' · ':'')+esc(linkedMetric.name)+'</span>':'';
+        var tStyle='';if(items[t].color)tStyle+='color:'+items[t].color+';';
+        out+='<span class="todo-txt'+(done?' done':'')+'"'+(tStyle?' style="'+tStyle+'"':'')+'>'+esc(items[t].text)+badge+'</span>';
+        out+='<div class="todo-acts">';
+        out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
+        out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
+      }}
+    }
     out+='</div>';
   }
   out+='</div></div>';
@@ -1161,12 +1202,13 @@ function _buildGoalSel(selId,selectedId){var p=cp(),allG=p.goals||[];var topG=al
 function openTodo(){todoE=0;todoColor='';setTP(0);document.getElementById('iTodo').value='';_buildGoalSel('todoGoalSel','');show('mTodo');setTimeout(function(){setTodoColor('');document.getElementById('iTodo').focus();},50);}
 function setTP(i){todoE=i;for(var n=0;n<3;n++)document.getElementById('tp'+n).className='pbtn'+(n===i?' sel':'');}
 function setTPE(i){todoEditE=i;for(var n=0;n<3;n++)document.getElementById('tpe'+n).className='pbtn'+(n===i?' sel':'');}
-function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;var item={text:t,done:false};if(gid)item.goalId=gid;if(todoColor)item.color=todoColor;getTodos()[todoE].push(item);todoColor='';hide('mTodo');save();render();}
-function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[0].push({text:t,done:false});el.value='';save();render();}
+function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;if(todoE===0&&getTodos()[0].length>=3){alert('80% 에너지는 최대 3개까지 등록할 수 있어요.');return;}var item={text:t,done:false};if(gid)item.goalId=gid;if(todoColor)item.color=todoColor;getTodos()[todoE].push(item);todoColor='';hide('mTodo');save();render();}
+function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[2].push({text:t,done:false});el.value='';save();render();}
+function toggleTodoPriority(c,i){var items=getTodos()[c];var newPri=!items[i].priority;for(var j=0;j<items.length;j++)delete items[j].priority;if(newPri)items[i].priority=true;save();render();}
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
 function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){setTodoEditColor(item.color||'');document.getElementById('iTodoEdit').select();},50);}
-function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;if(editC===todoEditE){td[todoEditE].splice(editI,0,item);}else{td[todoEditE].push(item);}hide('mTodoEdit');save();if(isMobile)renderMobile();else render();}
+function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();if(editC!==todoEditE&&todoEditE===0&&td[0].length>=3){alert('80% 에너지는 최대 3개까지 가능해요.');return;}var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;if(editC===todoEditE){td[todoEditE].splice(editI,0,item);}else{td[todoEditE].push(item);}hide('mTodoEdit');save();if(isMobile)renderMobile();else render();}
 function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.getElementById('moveTxt').textContent='"'+item.text+'"';for(var n=0;n<3;n++){var b=document.getElementById('mcb'+n);b.className='mv-btn'+(n===c?' cur':'');b.textContent=CAT[n]+(n===c?' (현재)':'');}show('mMove');}
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 function setQuarterMetricMemo(el){var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){allG[i].memo=el.value.trim()||'';break;}}save();}
@@ -1200,7 +1242,7 @@ function setMonthTarget(el){var p=cp();var allG=p.goals||[];var g=null;for(var i
 function dragStart(e,c,i){dragC=c;dragI=i;e.dataTransfer.effectAllowed='move';setTimeout(function(){e.target.classList.add('dragging');},0);}
 function dragOverItem(e,c,t){if(dragC<0)return;var el=e.currentTarget,rect=el.getBoundingClientRect();el.style.borderTop=e.clientY<rect.top+rect.height/2?'2px solid var(--pk)':'';el.style.borderBottom=e.clientY>=rect.top+rect.height/2?'2px solid var(--pk)':'';}
 function dropItem(e,toCat,toIdx){e.preventDefault();var el=e.currentTarget,rect=el.getBoundingClientRect(),after=e.clientY>=rect.top+rect.height/2;if(dragC<0)return;var td=getTodos();if(dragC===toCat){if(dragI===toIdx)return;var item=td[toCat].splice(dragI,1)[0];var ni=toIdx;if(dragI<toIdx)ni--;if(after)ni++;ni=Math.max(0,Math.min(ni,td[toCat].length));td[toCat].splice(ni,0,item);}else{var item=td[dragC].splice(dragI,1)[0];td[toCat].splice(after?toIdx+1:toIdx,0,item);}dragC=-1;dragI=-1;save();render();}
-function dropTodo(e,to){e.preventDefault();document.getElementById('ecol'+to).classList.remove('dov');if(dragC<0||dragC===to){dragC=-1;return;}var item=getTodos()[dragC].splice(dragI,1)[0];getTodos()[to].push(item);dragC=-1;dragI=-1;save();render();}
+function dropTodo(e,to){e.preventDefault();document.getElementById('ecol'+to).classList.remove('dov');if(dragC<0||dragC===to){dragC=-1;return;}if(to===0&&getTodos()[0].length>=3){alert('80% 에너지는 최대 3개까지 가능해요.');dragC=-1;return;}var item=getTodos()[dragC].splice(dragI,1)[0];getTodos()[to].push(item);dragC=-1;dragI=-1;save();render();}
 // Notion 복사
 function exportNotion(){
   var p=cp(),lines=[];
@@ -1794,20 +1836,54 @@ function renderMobile() {
     for (var c = 0; c < 3; c++) {
       var items = todos[c] || [];
       content += '<div class="mb-ecol"><div class="mb-ecol-hdr">'+MCAT[c]+' <span>'+MCAT_D[c]+'</span></div>';
-      for (var t = 0; t < items.length; t++) {
-        var item = items[t], done = item.done;
-        var badge = '';
-        if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
-        content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
-        content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
-        var mbTStyle='';if(c===0)mbTStyle+='font-weight:700;';if(item.color)mbTStyle+='color:'+item.color+';';
-        content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
-        content += '<button class="mb-edit-btn" onclick="openEditTodo('+c+','+t+')">✏️</button>';
-        content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
-        content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
-        content += '</div>';
+      if (c === 0) {
+        // 최우선 / 일반 분리
+        var mbPriIdxs=[], mbNorIdxs=[];
+        for (var t=0;t<items.length;t++){if(items[t].priority)mbPriIdxs.push(t);else mbNorIdxs.push(t);}
+        content += '<div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(255,62,138,.15);margin-bottom:3px;">🌟 최우선 <span style="font-weight:400;color:#ccc;">1개</span></div>';
+        if (mbPriIdxs.length===0) content += '<div style="font-size:10px;color:#ddd;text-align:center;padding:3px 0;">○ 눌러 최우선 지정</div>';
+        for (var ki=0;ki<mbPriIdxs.length;ki++) {
+          var t=mbPriIdxs[ki], item=items[t], done=item.done;
+          var badge='';
+          if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
+          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
+          content += '<button class="mb-carry-btn" onclick="toggleTodoPriority(0,'+t+');renderMobile()" style="color:var(--pk);" title="최우선 해제">●</button>';
+          content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
+          content += '</div>';
+        }
+        content += '<div style="font-size:9px;font-weight:700;color:#999;letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(0,0,0,.07);margin:4px 0 3px;">📋 일반 <span style="font-weight:400;color:#ccc;">'+mbNorIdxs.length+'/2</span></div>';
+        for (var ni=0;ni<mbNorIdxs.length;ni++) {
+          var t=mbNorIdxs[ni], item=items[t], done=item.done;
+          var badge='';
+          if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
+          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
+          content += '<button class="mb-carry-btn" onclick="toggleTodoPriority(0,'+t+');renderMobile()" style="color:#ddd;" title="최우선으로">○</button>';
+          content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
+          content += '</div>';
+        }
+        content += '<input class="mb-qi" placeholder="+ 빠르게 추가 → 가지치기 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getTodos()[2].push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
+      } else {
+        for (var t = 0; t < items.length; t++) {
+          var item = items[t], done = item.done;
+          var badge = '';
+          if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
+          content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
+          content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
+          var mbTStyle='';if(item.color)mbTStyle+='color:'+item.color+';';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<button class="mb-edit-btn" onclick="openEditTodo('+c+','+t+')">✏️</button>';
+          content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
+          content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
+          content += '</div>';
+        }
+        content += '<input class="mb-qi" placeholder="+ 빠르게 추가 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getTodos()['+c+'].push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
       }
-      content += '<input class="mb-qi" placeholder="+ 빠르게 추가 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getTodos()['+c+'].push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
       content += '</div>';
     }
     content += '</div>';
