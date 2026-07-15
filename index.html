@@ -835,6 +835,17 @@ function render(){
     pdcaD.plan=oldPlan?oldPlan.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[];
   }
   var planItems=pdcaD.plan||[];
+  var wksKey='iso-'+psIso.year+'-w'+psIso.week;
+  var wksD=(p.weekKeyScenes&&p.weekKeyScenes[wksKey])||{left:'',right:''};
+  out+='<div class="card"><div class="card-top"><span class="ctitle">🗓️ 이번 주 끝점 & Key Scene</span><span style="font-size:10px;color:#aaa;margin-left:8px;">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span></div>';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">';
+  out+='<div style="background:var(--pkl);border-radius:12px;padding:12px;">';
+  out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 주 끝에 내가 원하는 모습</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey+'">'+esc(wksD.left)+'</textarea></div>';
+  out+='<div style="background:#f0f4ff;border-radius:12px;padding:12px;">';
+  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이번 주 핵심 장면</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey+'">'+esc(wksD.right)+'</textarea></div>';
+  out+='</div></div>';
   out+='<div class="card"><div class="card-top"><span class="ctitle">🔄 이번 주 PDCA</span>';
   out+='<div class="nav-g"><button class="nav-btn" onclick="S.pdcaOff--;save();render()">◀</button><span class="nav-lbl">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span><button class="nav-btn" onclick="S.pdcaOff++;save();render()">▶</button></div></div>';
   out+='<div class="pdca-grid">';
@@ -1034,6 +1045,7 @@ function setF(f,v){cp()[f]=v;save();}
 function updatePrn(el){cp().principles[+el.dataset.pi]=el.value;save();}
 function updateWG(el){var p=cp();p.weekGoals=p.weekGoals||{};p.weekGoals[el.dataset.wk]=el.value;save();}
 function updatePdca(el){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[el.dataset.pk])p.pdca[el.dataset.pk]={plan:'',doIt:'',check:'',act:''};p.pdca[el.dataset.pk][el.dataset.fk]=el.value;save();}
+function setWeekKeyScene(side,el){var p=cp();p.weekKeyScenes=p.weekKeyScenes||{};var k=el.dataset.wks;if(!p.weekKeyScenes[k])p.weekKeyScenes[k]={left:'',right:''};p.weekKeyScenes[k][side]=el.value;save();}
 function setKeyScene(side,el){var p=cp();p.calKeyScenes=p.calKeyScenes||{};var ksKey=el.dataset.ks;if(!p.calKeyScenes[ksKey])p.calKeyScenes[ksKey]={left:'',right:''};p.calKeyScenes[ksKey][side]=el.value;ar(el);save();}
 function getPlanItems(pk){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};if(typeof p.pdca[pk].plan==='string'){var s=p.pdca[pk].plan;p.pdca[pk].plan=s?s.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[]; }return p.pdca[pk].plan;}
 function openPlanEdit(pk,i){planEditPk=pk;planEditIdx=i;render();setTimeout(function(){var el=document.getElementById('planEditInp');if(el){el.focus();el.select();}},30);}
@@ -1968,6 +1980,15 @@ function renderMobile() {
     if (typeof pdcaD.plan === 'string') { var op = pdcaD.plan; pdcaD.plan = op ? op.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}) : []; }
     var planItems = pdcaD.plan || [];
     var wRange = fmd(ps) + ' ~ ' + fmd(pe) + ' (' + psIso.week + '주차)';
+    var wksKey2 = 'iso-' + psIso.year + '-w' + psIso.week;
+    var wksD2 = (p.weekKeyScenes && p.weekKeyScenes[wksKey2]) || { left: '', right: '' };
+    content += '<div class="mb-card">';
+    content += '<div style="font-size:12px;font-weight:700;color:var(--dk);margin-bottom:10px;">🗓️ 이번 주 끝점 & Key Scene</div>';
+    content += '<div class="mb-keyscene-box" style="margin-bottom:8px;"><div class="mb-keyscene-label" style="color:var(--pk);">🎯 끝점 — 이번 주 끝에 원하는 모습</div>';
+    content += '<textarea class="mb-ta" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.left)+'</textarea></div>';
+    content += '<div class="mb-keyscene-box"><div class="mb-keyscene-label">✨ Key Scene — 이번 주 핵심 장면</div>';
+    content += '<textarea class="mb-ta" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.right)+'</textarea></div>';
+    content += '</div>';
     content += '<div class="mb-card">';
     content += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">';
     content += '<button class="mb-nav-btn" onclick="S.pdcaOff--;save();renderMobile()">◀</button>';
