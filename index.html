@@ -1288,12 +1288,18 @@ function exportNotion(){
   lines.push('📝 월별 메모');
   lines.push(calMemo||'(없음)');
   lines.push('');
+  lines.push('## 🔄 PDCA ('+fmd(ps2)+'~'+fmd(pe2)+')');
+  lines.push('PLAN:\n'+(planToText(pd.plan)||'(미작성)'));
+  lines.push('DO: '+(pd.doIt||'(미작성)'));
+  lines.push('CHECK: '+(pd.check||'(미작성)'));
+  lines.push('ACT: '+(pd.act||'(미작성)'));
+  lines.push('');
   lines.push('## ✅ 할 일 ('+tdk2+')');
   CAT.forEach(function(cat,c){
     lines.push('[ '+cat+' ]');
     var items=todos[c]||[];
     if(!items.length)lines.push('  (없음)');
-    else items.forEach(function(it){lines.push('  '+(it.done?'☑':'☐')+' '+it.text);});
+    else items.forEach(function(it){lines.push('  '+(it.done?'☑':'☐')+' '+(c===0&&it.priority?'🌟 ':'')+it.text);});
     lines.push('');
   });
   lines.push('## 📓 오늘의 기록 ('+tdk2+')');
@@ -1305,12 +1311,6 @@ function exportNotion(){
   lines.push('');
   lines.push('## 📈 주간 성과 목표 ('+S.wkY+'년 '+(S.wkM+1)+'월)');
   wks.forEach(function(wk){var iso=isoWeek(wk.s),wkey='iso-'+iso.year+'-w'+iso.week;lines.push(fmd(wk.s)+'~'+fmd(wk.e)+' ('+iso.week+'주차): '+(wg[wkey]||'(미작성)'));});
-  lines.push('');
-  lines.push('## 🔄 PDCA ('+fmd(ps2)+'~'+fmd(pe2)+')');
-  lines.push('PLAN:\n'+(planToText(pd.plan)||'(미작성)'));
-  lines.push('DO: '+(pd.doIt||'(미작성)'));
-  lines.push('CHECK: '+(pd.check||'(미작성)'));
-  lines.push('ACT: '+(pd.act||'(미작성)'));
 
   var txt=lines.join('\n');
   document.getElementById('exportTxt').value=txt;
@@ -1358,16 +1358,16 @@ function snapWeek(){
   body+='<div class="hd">📸 주간 캡처 <span>_you just shine</span></div>';
   body+='<div class="sub">'+(S.tabs[S.activeTab]||'')+' · '+fmd(ps2)+' ~ '+fmd(pe2)+' ('+iso.week+'주차) · '+ds+'</div>';
   if(thisGoal)body+='<div class="card"><div class="ct">📈 이번 주 성과 목표</div><div class="bv">'+thisGoal+'</div></div>';
+  body+='<div class="card"><div class="ct">🔄 PDCA ('+fmd(ps2)+'~'+fmd(pe2)+')</div><div class="pg">';
+  [{k:'plan',l:'📋 PLAN'},{k:'doIt',l:'▷ DO'},{k:'check',l:'◎ CHECK'},{k:'act',l:'★ ACT'}].forEach(function(col){var pdcv=col.k==='plan'?planToText(pd.plan):pd[col.k];body+='<div class="pc"><div class="pl">'+col.l+'</div>'+(pdcv?'<div class="pv">'+pdcv+'</div>':'<div class="pe">미작성</div>')+'</div>';});
+  body+='</div></div>';
   body+='<div class="card"><div class="ct">✅ 오늘 할 일 ('+tdk+')</div><div class="eg">';
-  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+it.text+'</span></div>';});body+='</div>';}
+  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
   body+='</div></div>';
   body+='<div class="card"><div class="ct">📓 오늘의 기록 ('+tdk+')</div>';
   body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+(dailyKS||'<span style="color:#ddd">없음</span>')+'</div>';
   body+='<div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px;">📝 기록</div>';
   body+='<div style="font-size:12px;white-space:pre-wrap;line-height:1.7;">'+(todayMemo||'<span style="color:#ddd">없음</span>')+'</div></div>';
-  body+='<div class="card"><div class="ct">🔄 PDCA ('+fmd(ps2)+'~'+fmd(pe2)+')</div><div class="pg">';
-  [{k:'plan',l:'📋 PLAN'},{k:'doIt',l:'▷ DO'},{k:'check',l:'◎ CHECK'},{k:'act',l:'★ ACT'}].forEach(function(col){var pdcv=col.k==='plan'?planToText(pd.plan):pd[col.k];body+='<div class="pc"><div class="pl">'+col.l+'</div>'+(pdcv?'<div class="pv">'+pdcv+'</div>':'<div class="pe">미작성</div>')+'</div>';});
-  body+='</div></div>';
   var wks2=getWeeks(S.wkY,S.wkM),wg=p.weekGoals||{};
   body+='<div class="card"><div class="ct">📅 '+S.wkY+'년 '+(S.wkM+1)+'월 주간 성과 목표</div>';
   wks2.forEach(function(wk){var iso2=isoWeek(wk.s),wkey='iso-'+iso2.year+'-w'+iso2.week,isCur=isThisWeek(wk.s,wk.e);body+='<div class="wr'+(isCur?' cw':'')+'"><span class="wl">'+fmd(wk.s)+'~'+fmd(wk.e)+' ('+iso2.week+'주차)'+(isCur?' 👈':'')+'</span><span class="wv">'+(wg[wkey]||'<span style="color:#ddd">미작성</span>')+'</span></div>';});
@@ -1429,9 +1429,14 @@ function captureAll(){
   body+='<div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px;">📝 월별 메모</div>';
   body+='<div style="font-size:12px;white-space:pre-wrap;line-height:1.7;">'+(calMemo||'<span style="color:#ddd">없음</span>')+'</div></div>';
 
+  // PDCA
+  body+='<div class="card"><div class="ct">🔄 PDCA ('+fmd(ps3)+'~'+fmd(pe3)+', '+psIso.week+'주차)</div><div class="pg">';
+  [{k:'plan',l:'📋 PLAN'},{k:'doIt',l:'▷ DO'},{k:'check',l:'◎ CHECK'},{k:'act',l:'★ ACT'}].forEach(function(col){var pdcv=col.k==='plan'?planToText(pd.plan):pd[col.k];body+='<div class="pc"><div class="pl">'+col.l+'</div>'+(pdcv?'<div class="pv">'+pdcv+'</div>':'<div class="pe">미작성</div>')+'</div>';});
+  body+='</div></div>';
+
   // 오늘 할일
   body+='<div class="card"><div class="ct">✅ 오늘 할 일 ('+tdk+')</div><div class="eg">';
-  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+it.text+'</span></div>';});body+='</div>';}
+  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
   body+='</div></div>';
 
   // 오늘의 기록
@@ -1444,11 +1449,6 @@ function captureAll(){
   body+='<div class="card"><div class="ct">📈 주간 성과 목표 ('+S.wkY+'년 '+(S.wkM+1)+'월)</div>';
   wks3.forEach(function(wk){var iso=isoWeek(wk.s),wkey='iso-'+iso.year+'-w'+iso.week,isCur=isThisWeek(wk.s,wk.e);body+='<div class="wr'+(isCur?' cw':'')+'"><span class="wl">'+fmd(wk.s)+'~'+fmd(wk.e)+' ('+iso.week+'주차)'+(isCur?' 👈':'')+'</span><span class="wv">'+(wg[wkey]||'<span style="color:#ddd">미작성</span>')+'</span></div>';});
   body+='</div>';
-
-  // PDCA
-  body+='<div class="card"><div class="ct">🔄 PDCA ('+fmd(ps3)+'~'+fmd(pe3)+', '+psIso.week+'주차)</div><div class="pg">';
-  [{k:'plan',l:'📋 PLAN'},{k:'doIt',l:'▷ DO'},{k:'check',l:'◎ CHECK'},{k:'act',l:'★ ACT'}].forEach(function(col){var pdcv=col.k==='plan'?planToText(pd.plan):pd[col.k];body+='<div class="pc"><div class="pl">'+col.l+'</div>'+(pdcv?'<div class="pv">'+pdcv+'</div>':'<div class="pe">미작성</div>')+'</div>';});
-  body+='</div></div>';
 
   body+='<div class="ft">바운더리 일정관리 _you just shine · '+ds+' 전체 캡처<br/>Ctrl+P → PDF 저장 또는 스크린샷</div>';
   dlHTML(getVerFname('전체캡처','html'),makePageHTML('전체캡처_'+ds,body));
@@ -1567,12 +1567,12 @@ function exportXLSX(){
   XLSX.utils.book_append_sheet(wb,addSheet(ws3,[{wch:13},{wch:35},{wch:35},{wch:45}]),'📝 월간 기록');
 
   // ── 시트4: 할일 기록 ────────────────────────────────────
-  var s4=[['날짜','에너지 구분','할일 내용','완료여부']];
+  var s4=[['날짜','에너지 구분','할일 내용','완료여부','최우선']];
   var allTdKeys=sortDates(Object.keys(tbd));
-  if(allTdKeys.length===0){s4.push(['(없음)','','','']);}
-  else{allTdKeys.forEach(function(dk){var dayT=tbd[dk],has=false;[0,1,2].forEach(function(c){(dayT[c]||[]).forEach(function(it){s4.push([dk,catNames[c],it.text,it.done?'✅ 완료':'⬜ 미완']);has=true;});});if(!has)s4.push([dk,'','(없음)','']);});}
+  if(allTdKeys.length===0){s4.push(['(없음)','','','','']);}
+  else{allTdKeys.forEach(function(dk){var dayT=tbd[dk],has=false;[0,1,2].forEach(function(c){(dayT[c]||[]).forEach(function(it){s4.push([dk,catNames[c],it.text,it.done?'✅ 완료':'⬜ 미완',it.priority?'🌟 최우선':'']);has=true;});});if(!has)s4.push([dk,'','(없음)','','']);});}
   var ws4=XLSX.utils.aoa_to_sheet(s4);
-  sc(ws4,0,0,'날짜',ST.hdrPink);sc(ws4,0,1,'에너지 구분',ST.hdrPink);sc(ws4,0,2,'할일 내용',ST.hdrPink);sc(ws4,0,3,'완료여부',ST.hdrPink);
+  sc(ws4,0,0,'날짜',ST.hdrPink);sc(ws4,0,1,'에너지 구분',ST.hdrPink);sc(ws4,0,2,'할일 내용',ST.hdrPink);sc(ws4,0,3,'완료여부',ST.hdrPink);sc(ws4,0,4,'최우선',ST.hdrPink);
   // 완료 색상
   for(var ri=1;ri<s4.length;ri++){
     var doneVal=s4[ri][3];
@@ -1580,7 +1580,7 @@ function exportXLSX(){
     var dateAddr=XLSX.utils.encode_cell({r:ri,c:0});
     if(ws4[dateAddr])ws4[dateAddr].s=ST.datePink;
   }
-  XLSX.utils.book_append_sheet(wb,addSheet(ws4,[{wch:13},{wch:16},{wch:45},{wch:10}]),'✅ 할일 기록');
+  XLSX.utils.book_append_sheet(wb,addSheet(ws4,[{wch:13},{wch:16},{wch:45},{wch:10},{wch:12}]),'✅ 할일 기록');
 
   // ── 시트5: 일별 기록 (Key Scene + 오늘의 기록) ──────────
   var dailyKSAll=p.dailyKeyScenes||{};
@@ -1697,9 +1697,11 @@ function importXLSX(input){
           var cat=String(row[1]).trim();
           var txt=String(row[2]).trim();
           var done=String(row[3]||'').includes('완료');
+          var priority=String(row[4]||'').includes('최우선');
           if(catMap[cat]===undefined)return;
           if(!newTBD[dk])newTBD[dk]=[[],[],[]];
-          newTBD[dk][catMap[cat]].push({text:txt,done:done});
+          var item={text:txt,done:done};if(priority)item.priority=true;
+          newTBD[dk][catMap[cat]].push(item);
         });
       }
 
