@@ -320,7 +320,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mb-todo-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f5f5f5;}
 .mb-todo-item:last-child{border-bottom:none;}
 .mb-todo-cb{width:18px;height:18px;accent-color:var(--pk);flex-shrink:0;cursor:pointer;}
-.mb-todo-txt{font-size:14px;color:var(--dk);flex:1;line-height:1.4;user-select:none;-webkit-user-select:none;cursor:default;}
+.mb-todo-txt{font-size:14px;color:var(--dk);flex:1;line-height:1.4;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none;cursor:default;}
 .mb-todo-txt.done{text-decoration:line-through;color:#ccc;}
 .mb-todo-badge{font-size:10px;color:var(--pk);background:#fff0f5;border-radius:4px;padding:1px 5px;margin-left:4px;white-space:nowrap;}
 .mb-carry-btn{background:none;border:none;color:#ddd;font-size:15px;cursor:pointer;padding:0;}
@@ -2084,11 +2084,12 @@ function mbSetupDragListeners() {
 
     // 드래그 미활성 + 손가락 8px 이상 움직임 → 스크롤 의도로 보고 취소
     if (!_mbDrag.active) {
-      if (dy > 8) { clearTimeout(_mbDrag.timer); _mbDrag = null; }
+      if (dy > 8) { clearTimeout(_mbDrag.timer); _mbDrag = null; return; }
+      e.preventDefault(); // 대기 중에도 네이티브 드래그/텍스트선택 차단
       return;
     }
 
-    e.preventDefault(); // 드래그 활성 후에만 스크롤 차단
+    e.preventDefault(); // 드래그 활성 후 스크롤 차단
 
     // 고스트 이동
     _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
@@ -2157,7 +2158,8 @@ function mbDS(e, type, cat, idx, pk) {
       navigator.vibrate && navigator.vibrate(40);
       var r = itemEl.getBoundingClientRect();
       var ghost = itemEl.cloneNode(true);
-      ghost.style.cssText = 'position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;'
+      var ghostTop = Math.max(r.top, 60);
+      ghost.style.cssText = 'position:fixed;left:'+r.left+'px;top:'+ghostTop+'px;width:'+r.width+'px;'
         +'z-index:99999;pointer-events:none;transform:scale(1.04);'
         +'box-shadow:0 10px 32px rgba(0,0,0,.35);border-radius:10px;background:#fff;opacity:.9;';
       document.body.appendChild(ghost);
