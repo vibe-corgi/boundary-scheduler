@@ -195,7 +195,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .tc-dot:hover{transform:scale(1.15);}
 .ev-col-dot{display:inline-block;width:16px;height:16px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
 .ev-col-dot:hover{transform:scale(1.15);}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10001;padding:16px;}
 .modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;box-shadow:0 16px 50px rgba(0,0,0,.18);}
 .modal.wide{max-width:700px;}
 .modal h3{font-size:15px;font-weight:700;color:var(--dk);margin-bottom:13px;}
@@ -855,7 +855,7 @@ function render(){
       out+='<span class="todo-txt'+(done?' done':'')+'"'+(tStyle?' style="'+tStyle+'"':'')+'>'+esc(items[t].text)+badge+'</span>';
       out+='<div class="todo-acts">';
       out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo('+c+','+t+')">→</button>';
-      out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="ic-btn" onclick="openMoveTodo('+c+','+t+')">↔</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
+      out+='<button class="ic-btn" onclick="openEditTodo('+c+','+t+')">✏️</button><button class="todo-del" onclick="delTodo('+c+','+t+')">×</button></div></div>';
     }}
     out+='</div>';
   }
@@ -1166,7 +1166,7 @@ function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
 function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){setTodoEditColor(item.color||'');document.getElementById('iTodoEdit').select();},50);}
-function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;if(editC===todoEditE){td[todoEditE].splice(editI,0,item);}else{td[todoEditE].push(item);}hide('mTodoEdit');save();render();}
+function doEditTodo(){var t=document.getElementById('iTodoEdit').value.trim();if(!t)return;var td=getTodos();var item=td[editC].splice(editI,1)[0];item.text=t;var gid=document.getElementById('todoEditGoalSel').value;if(gid)item.goalId=gid;else delete item.goalId;if(todoEditColor)item.color=todoEditColor;else delete item.color;if(editC===todoEditE){td[todoEditE].splice(editI,0,item);}else{td[todoEditE].push(item);}hide('mTodoEdit');save();if(isMobile)renderMobile();else render();}
 function openMoveTodo(c,i){moveC=c;moveI=i;var item=getTodos()[c][i];document.getElementById('moveTxt').textContent='"'+item.text+'"';for(var n=0;n<3;n++){var b=document.getElementById('mcb'+n);b.className='mv-btn'+(n===c?' cur':'');b.textContent=CAT[n]+(n===c?' (현재)':'');}show('mMove');}
 function doMove(to){if(to===moveC){hide('mMove');return;}var item=getTodos()[moveC].splice(moveI,1)[0];getTodos()[to].push(item);hide('mMove');save();render();}
 function setMonthMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthMemos=g.monthMemos||{};var v=el.value.trim();if(v)g.monthMemos[el.dataset.mk]=v;else delete g.monthMemos[el.dataset.mk];save();}
@@ -1798,11 +1798,10 @@ function renderMobile() {
         var badge = '';
         if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
         content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
-        content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\','+c+','+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
         content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
         var mbTStyle='';if(c===0)mbTStyle+='font-weight:700;';if(item.color)mbTStyle+='color:'+item.color+';';
-        content += '<span class="mb-todo-txt'+(done?' done':'')+'"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
-        content += '<button class="mb-edit-btn" onclick="mbEditTodo('+c+','+t+')">✏️</button>';
+        content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+        content += '<button class="mb-edit-btn" onclick="openEditTodo('+c+','+t+')">✏️</button>';
         content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
         content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
         content += '</div>';
