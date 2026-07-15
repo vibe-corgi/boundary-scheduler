@@ -846,11 +846,12 @@ function render(){
     if(c===0){
       var priIdxs=[],norIdxs=[];
       for(var t=0;t<items.length;t++){if(items[t].priority)priIdxs.push(t);else norIdxs.push(t);}
-      // 최우선 섹션
-      out+='<div class="plan-section"><div class="plan-sec-hdr" style="color:var(--pk);">🌟 최우선 <span style="font-size:9px;font-weight:400;color:#ccc;">1개</span></div>';
-      if(priIdxs.length===0)out+='<div style="font-size:10px;color:#ddd;text-align:center;padding:4px 0;">아래 ○ 눌러 지정</div>';
+      // 최우선 섹션 (드래그 드롭 영역)
+      out+='<div class="plan-section" id="todo80sec-pri" data-todo80sec="pri" ondragover="todo80SecOver(event,true)" ondragleave="todo80SecLeave()" ondrop="todo80SecDrop(event,true)">';
+      out+='<div class="plan-sec-hdr" style="color:var(--pk);">🌟 최우선 <span style="font-size:9px;font-weight:400;color:#ccc;">1개 · 드래그로 이동</span></div>';
+      if(priIdxs.length===0)out+='<div style="font-size:10px;color:#ddd;text-align:center;padding:4px 0;">여기로 드래그</div>';
       for(var ki=0;ki<priIdxs.length;ki++){var t=priIdxs[ki],done=items[t].done;
-        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,0,'+t+')" ondrop="event.stopPropagation();dropItem(event,0,'+t+')">';
+        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,true);">';
         out+='<span class="drag-h">⠿</span>';
         out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
         var linkedMetric=null,linkedParent=null;
@@ -859,16 +860,16 @@ function render(){
         var tStyle='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
         out+='<span class="todo-txt'+(done?' done':'')+'" style="'+tStyle+'">'+esc(items[t].text)+badge+'</span>';
         out+='<div class="todo-acts">';
-        out+='<button class="ic-btn" title="최우선 해제" onclick="toggleTodoPriority(0,'+t+')" style="color:var(--pk);font-size:13px;">●</button>';
         out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo(0,'+t+')">→</button>';
         out+='<button class="ic-btn" onclick="openEditTodo(0,'+t+')">✏️</button><button class="todo-del" onclick="delTodo(0,'+t+')">×</button></div></div>';
       }
       out+='</div>';
-      // 일반 섹션
-      out+='<div class="plan-section"><div class="plan-sec-hdr">📋 일반 <span style="font-size:9px;font-weight:400;color:#ccc;">'+norIdxs.length+'/2</span></div>';
+      // 일반 섹션 (드래그 드롭 영역)
+      out+='<div class="plan-section" id="todo80sec-nor" data-todo80sec="nor" ondragover="todo80SecOver(event,false)" ondragleave="todo80SecLeave()" ondrop="todo80SecDrop(event,false)">';
+      out+='<div class="plan-sec-hdr">📋 일반 <span style="font-size:9px;font-weight:400;color:#ccc;">'+norIdxs.length+'/2</span></div>';
       if(norIdxs.length===0&&priIdxs.length===0)out+='<div class="todo-empty">추가하거나 드래그</div>';
       for(var ni=0;ni<norIdxs.length;ni++){var t=norIdxs[ni],done=items[t].done;
-        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,0,'+t+')" ondrop="event.stopPropagation();dropItem(event,0,'+t+')">';
+        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,false);">';
         out+='<span class="drag-h">⠿</span>';
         out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
         var linkedMetric=null,linkedParent=null;
@@ -877,7 +878,6 @@ function render(){
         var tStyle='font-weight:700;';if(items[t].color)tStyle+='color:'+items[t].color+';';
         out+='<span class="todo-txt'+(done?' done':'')+'" style="'+tStyle+'">'+esc(items[t].text)+badge+'</span>';
         out+='<div class="todo-acts">';
-        out+='<button class="ic-btn" title="최우선으로" onclick="toggleTodoPriority(0,'+t+')" style="color:#ccc;font-size:13px;">○</button>';
         out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo(0,'+t+')">→</button>';
         out+='<button class="ic-btn" onclick="openEditTodo(0,'+t+')">✏️</button><button class="todo-del" onclick="delTodo(0,'+t+')">×</button></div></div>';
       }
@@ -1205,6 +1205,9 @@ function setTPE(i){todoEditE=i;for(var n=0;n<3;n++)document.getElementById('tpe'
 function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;if(todoE===0&&getTodos()[0].length>=3){alert('80% 에너지는 최대 3개까지 등록할 수 있어요.');return;}var item={text:t,done:false};if(gid)item.goalId=gid;if(todoColor)item.color=todoColor;getTodos()[todoE].push(item);todoColor='';hide('mTodo');save();render();}
 function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[2].push({text:t,done:false});el.value='';save();render();}
 function toggleTodoPriority(c,i){var items=getTodos()[c];var newPri=!items[i].priority;for(var j=0;j<items.length;j++)delete items[j].priority;if(newPri)items[i].priority=true;save();render();}
+function todo80SecOver(e,isPri){e.preventDefault();e.stopPropagation();if(dragC!==0)return;var ps=document.getElementById('todo80sec-pri'),ns=document.getElementById('todo80sec-nor');if(ps)ps.classList.toggle('plan-sec-over',isPri);if(ns)ns.classList.toggle('plan-sec-over',!isPri);}
+function todo80SecLeave(){var ps=document.getElementById('todo80sec-pri'),ns=document.getElementById('todo80sec-nor');if(ps)ps.classList.remove('plan-sec-over');if(ns)ns.classList.remove('plan-sec-over');}
+function todo80SecDrop(e,isPri){e.preventDefault();e.stopPropagation();todo80SecLeave();if(dragC!==0||dragI<0)return;var items=getTodos()[0];for(var j=0;j<items.length;j++)delete items[j].priority;if(isPri)items[dragI].priority=true;dragC=-1;dragI=-1;save();render();}
 function toggleTodo(c,i,v){getTodos()[c][i].done=v;save();render();}
 function delTodo(c,i){getTodos()[c].splice(i,1);save();render();}
 function openEditTodo(c,i){editC=c;editI=i;todoEditE=c;var item=getTodos()[c][i];document.getElementById('iTodoEdit').value=item.text;setTPE(c);_buildGoalSel('todoEditGoalSel',item.goalId||'');show('mTodoEdit');setTimeout(function(){setTodoEditColor(item.color||'');document.getElementById('iTodoEdit').select();},50);}
@@ -1840,30 +1843,30 @@ function renderMobile() {
         // 최우선 / 일반 분리
         var mbPriIdxs=[], mbNorIdxs=[];
         for (var t=0;t<items.length;t++){if(items[t].priority)mbPriIdxs.push(t);else mbNorIdxs.push(t);}
-        content += '<div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(255,62,138,.15);margin-bottom:3px;">🌟 최우선 <span style="font-weight:400;color:#ccc;">1개</span></div>';
-        if (mbPriIdxs.length===0) content += '<div style="font-size:10px;color:#ddd;text-align:center;padding:3px 0;">○ 눌러 최우선 지정</div>';
+        content += '<div data-todo80sec="pri" style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(255,62,138,.15);margin-bottom:3px;">🌟 최우선 <span style="font-weight:400;color:#ccc;">1개 · 롱프레스 드래그</span></div>';
+        if (mbPriIdxs.length===0) content += '<div data-todo80sec="pri" style="font-size:10px;color:#ddd;text-align:center;padding:3px 0;">여기로 드래그</div>';
         for (var ki=0;ki<mbPriIdxs.length;ki++) {
           var t=mbPriIdxs[ki], item=items[t], done=item.done;
           var badge='';
           if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
-          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="pri" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
           content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
           content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
           content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
-          content += '<button class="mb-carry-btn" onclick="toggleTodoPriority(0,'+t+');renderMobile()" style="color:var(--pk);" title="최우선 해제">●</button>';
+          content += '<button class="mb-carry-btn" onclick="carryTodo(0,'+t+');renderMobile()" title="내일로">→</button>';
           content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
           content += '</div>';
         }
-        content += '<div style="font-size:9px;font-weight:700;color:#999;letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(0,0,0,.07);margin:4px 0 3px;">📋 일반 <span style="font-weight:400;color:#ccc;">'+mbNorIdxs.length+'/2</span></div>';
+        content += '<div data-todo80sec="nor" style="font-size:9px;font-weight:700;color:#999;letter-spacing:.5px;padding:3px 0 3px;border-bottom:1px solid rgba(0,0,0,.07);margin:4px 0 3px;">📋 일반 <span style="font-weight:400;color:#ccc;">'+mbNorIdxs.length+'/2</span></div>';
         for (var ni=0;ni<mbNorIdxs.length;ni++) {
           var t=mbNorIdxs[ni], item=items[t], done=item.done;
           var badge='';
           if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
-          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="nor" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
           content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
           content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
           content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
-          content += '<button class="mb-carry-btn" onclick="toggleTodoPriority(0,'+t+');renderMobile()" style="color:#ddd;" title="최우선으로">○</button>';
+          content += '<button class="mb-carry-btn" onclick="carryTodo(0,'+t+');renderMobile()" title="내일로">→</button>';
           content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
           content += '</div>';
         }
@@ -2165,6 +2168,8 @@ function mbSetupDragListeners() {
     }
 
     e.preventDefault(); // 드래그 활성 후 스크롤 차단
+    _mbDrag.lastX = touch.clientX;
+    _mbDrag.lastY = touch.clientY;
 
     // 고스트 이동
     _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
@@ -2201,6 +2206,20 @@ function mbSetupDragListeners() {
     // 제거 후 배열이 앞당겨지므로 insertBefore > from 이면 1 감소
     var to = insertBefore > from ? insertBefore - 1 : insertBefore;
 
+    // cat===0 인 경우: 드롭된 위치의 섹션(최우선/일반)을 감지해 priority 설정
+    if (_mbDrag.type === 'todo' && _mbDrag.cat === 0 && _mbDrag.lastX != null) {
+      var dropEl = document.elementFromPoint(_mbDrag.lastX, _mbDrag.lastY);
+      while (dropEl && !dropEl.dataset.todo80sec) dropEl = dropEl.parentElement;
+      if (dropEl) {
+        var arr0 = getTodos()[0];
+        var moved0 = arr0.splice(from, 1)[0];
+        var isPri = (dropEl.dataset.todo80sec === 'pri');
+        arr0.forEach(function(it){ delete it.priority; });
+        if (isPri) moved0.priority = true;
+        arr0.splice(Math.min(to, arr0.length), 0, moved0);
+        save(); _mbDrag = null; renderMobile(); return;
+      }
+    }
     if (from !== to) {
       if (_mbDrag.type === 'todo') {
         var arr = getTodos()[_mbDrag.cat];
