@@ -143,16 +143,36 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .todo-qi::placeholder{color:#ccc;}
 .btn-add-todo{background:transparent;color:var(--pk);border:1.5px solid var(--pk);border-radius:9px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .btn-add-todo:hover{background:var(--pkl);}
-.e-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.e-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .e-col{border-radius:11px;padding:12px;min-height:100px;transition:border .15s;}
 .e80{border:1.5px solid #ffd6e0;background:#fff9fb;}
 .e20{border:1.5px solid #ffd6e0;background:#fff9fb;}
 .ecut{border:1.5px solid #eee;background:#fafafa;}
+.eroutine{border:1.5px solid #ddd6fe;background:#faf9ff;}
 .e-col.dov{border-color:var(--pk)!important;background:var(--pkl)!important;}
 .e-lbl{font-size:11px;font-weight:900;margin-bottom:3px;}
 .e80 .e-lbl{color:var(--pk);}
 .e20 .e-lbl{color:#ff7eb3;}
 .ecut .e-lbl{color:#aaa;}
+.eroutine .e-lbl{color:#7C3AED;}
+/* PDS Timeline */
+.pds-split{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.pds-panel{overflow:hidden;}
+.pds-panel-hdr{padding:10px 14px;border-bottom:1.5px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
+.pds-tl-scroll{height:420px;overflow-y:auto;overflow-x:hidden;position:relative;}
+.pds-tl-inner{position:relative;}
+.pds-hour-border{position:absolute;left:40px;right:0;border-top:1px solid #e8e8e8;z-index:1;pointer-events:none;}
+.pds-min-border{position:absolute;left:40px;right:0;border-top:1px dashed rgba(0,0,0,.06);z-index:1;pointer-events:none;}
+.pds-hour-label{position:absolute;left:0;width:38px;font-size:9px;font-weight:700;color:#bbb;text-align:right;padding-right:5px;line-height:1;}
+.pds-slot{position:absolute;left:40px;right:0;cursor:crosshair;z-index:2;}
+.pds-slot:hover{background:rgba(255,45,120,.06);}
+.pds-slot.pds-sel{background:rgba(255,45,120,.15)!important;}
+.pds-block{position:absolute;left:43px;right:4px;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;z-index:4;transition:opacity .1s;}
+.pds-block:hover{opacity:.82;}
+.pds-record{padding:14px 16px;height:420px;overflow-y:auto;}
+.pds-cat-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;}
+.pds-cat-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;border:2px solid transparent;cursor:pointer;}
+.pds-cat-chip.sel{border-color:#000;}
 .e-desc{font-size:10px;color:#bbb;margin-bottom:9px;line-height:1.5;}
 .todo-item{display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid #f5f5f5;cursor:grab;}
 .todo-item:last-child{border-bottom:none;}
@@ -448,6 +468,36 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </div>
 <div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ece0" style="background:#FF3E8A;" onclick="setEvEditColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ece1" style="background:#FF8C69;" onclick="setEvEditColor('#FF8C69')" title="살몬"></span><span class="ev-col-dot" id="ece2" style="background:#22C55E;" onclick="setEvEditColor('#22C55E')" title="초록"></span><span class="ev-col-dot" id="ece3" style="background:#3B82F6;" onclick="setEvEditColor('#3B82F6')" title="파랑"></span><span class="ev-col-dot" id="ece4" style="background:#9CA3AF;" onclick="setEvEditColor('#9CA3AF')" title="회색"></span><span class="ev-col-dot" id="ece5" style="background:#8B5CF6;" onclick="setEvEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMetricDiag" style="display:none"><div class="modal" style="max-width:460px;"><h3>📊 <span id="mmdTitle"></span> 연결 할일</h3><div id="mmdList" style="max-height:320px;overflow-y:auto;margin-bottom:14px;font-size:13px;"></div><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricDiag')">닫기</button></div></div></div>
+<div class="overlay" id="mPdsCreate" style="display:none"><div class="modal" style="max-width:380px;">
+<h3 id="pdsCreateTitle">⏱️ 타임블록 추가</h3>
+<div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:12px;" id="pdsNewTime"></div>
+<input type="hidden" id="pdsNewDk"/><input type="hidden" id="pdsNewS"/><input type="hidden" id="pdsNewE"/>
+<input class="m-inp" id="pdsNewLbl" placeholder="할 일 / 활동명 (선택)"/>
+<div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCat" value="e80" checked style="display:none;" onchange="pdsCatSel()"> 🔥 80% 에너지</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCat" value="e20" style="display:none;" onchange="pdsCatSel()"> ⚡ 20% 에너지</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCat" value="ecut" style="display:none;" onchange="pdsCatSel()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCat" value="eroutine" style="display:none;" onchange="pdsCatSel()"> 🔵 루틴</label>
+</div>
+<input class="m-inp" id="pdsNewTags" placeholder="#해시태그 #여러개 공백으로 구분"/>
+<div class="act-row"><button class="btn-cancel" onclick="hide('mPdsCreate')">취소</button><button class="btn-ok" onclick="pdsSave()">저장 ✓</button></div>
+</div></div>
+<div class="overlay" id="mPdsEdit" style="display:none"><div class="modal" style="max-width:380px;">
+<h3>⏱️ 타임블록 수정</h3>
+<div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:10px;" id="pdsEditTime"></div>
+<input type="hidden" id="pdsEditDk"/><input type="hidden" id="pdsEditId"/>
+<input class="m-inp" id="pdsEditLbl" placeholder="할 일 / 활동명"/>
+<div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCatE" value="e80" style="display:none;" onchange="pdsCatSelE()"> 🔥 80% 에너지</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCatE" value="e20" style="display:none;" onchange="pdsCatSelE()"> ⚡ 20% 에너지</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCatE" value="ecut" style="display:none;" onchange="pdsCatSelE()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCatE" value="eroutine" style="display:none;" onchange="pdsCatSelE()"> 🔵 루틴</label>
+</div>
+<input class="m-inp" id="pdsEditTags" placeholder="#해시태그"/>
+<div class="act-row"><button class="btn-cancel" onclick="hide('mPdsEdit')">취소</button><button class="btn-red" onclick="pdsDelBlock()">삭제</button><button class="btn-ok" onclick="pdsUpdate()">저장 ✓</button></div>
+</div></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
@@ -457,9 +507,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 // ── 상수 ──────────────────────────────────────────────────
 var TC=['#E8507A','#C45E9A','#7B5EA7','#4E7BC4','#3A9E82','#C47B3A','#9E3A3A','#3A6E9E','#6E9E3A','#9E853A','#3A4E9E','#7A9E3A'];
 var DAYS=['월','화','수','목','금','토','일'];
-var CAT=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기'];
-var CAT_D=['핵심 일, 성과의 80%를 만든다. <strong style="color:var(--pk);">(3개 이내로 정리)</strong>','필요하지만 가볍게 처리','큰 에너지를 쓰면 안되는 일'];
-var CAT_C=['e80','e20','ecut'];
+var CAT=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기','🔵 루틴'];
+var CAT_D=['핵심 일, 성과의 80%를 만든다. <strong style="color:var(--pk);">(3개 이내로 정리)</strong>','필요하지만 가볍게 처리','큰 에너지를 쓰면 안되는 일','매일 반복하는 습관과 일과'];
+var CAT_C=['e80','e20','ecut','eroutine'];
 var PDCA=[{k:'plan',i:'📋',l:'PLAN',s:'이번 주 뭘 할지...'},{k:'doIt',i:'▷',l:'DO',s:'실제로 한 것...'},{k:'check',i:'◎',l:'CHECK',s:'결과, 숫자, 시그널...'},{k:'act',i:'★',l:'ACT',s:'다음 주 개선점...'}];
 
 // ── 상태 ──────────────────────────────────────────────────
@@ -970,7 +1020,8 @@ function render(){
   var tdk=S.todoDate||todayKey(),todayK=todayKey(),isPast=tdk<todayK,isFuture=tdk>todayK,isToday2=tdk===todayK;
   var tdP=tdk.split('-');
   var tdLbl=tdP[0]+'년 '+tdP[1]+'월 '+tdP[2]+'일'+(isToday2?' (오늘)':isFuture?' (+'+Math.ceil((new Date(tdP[0],tdP[1]-1,tdP[2])-new Date())/86400000)+'일 후)':'');
-  var todos=((p.todosByDate||{})[tdk])||[[],[],[]];
+  var todos=((p.todosByDate||{})[tdk])||[[],[],[],[]];
+  while(todos.length<4)todos.push([]);
   out+='<div class="card"><div class="card-top"><span class="ctitle">✅ 할 일</span></div>';
   if(pinnedGoals.length){out+='<div style="background:var(--pkl);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pk);font-weight:700;">📌 집중 목표: '+pinnedGoals.map(function(g){return esc(g.name);}).join(' · ')+'</div>';}
   out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">';
@@ -980,7 +1031,7 @@ function render(){
   out+='</div><button class="nav-btn" onclick="nextTodo()">▶</button></div>';
   out+='<div class="todo-add-row"><input class="todo-qi" id="qInp" placeholder="+ 할 일 빠르게 추가 (Enter → 가지치기)" onkeydown="if(event.key===\'Enter\')quickTodo()"/><button class="btn-add-todo" onclick="openTodo()">+ 추가</button></div>';
   out+='<div class="e-grid">';
-  for(var c=0;c<3;c++){
+  for(var c=0;c<4;c++){
     var items=todos[c]||[];
     out+='<div class="e-col '+CAT_C[c]+'" id="ecol'+c+'" ondragover="event.preventDefault();this.classList.add(\'dov\')" ondragleave="this.classList.remove(\'dov\')" ondrop="dropTodo(event,'+c+')">';
     out+='<div class="e-lbl">'+CAT[c]+'</div><div class="e-desc">'+CAT_D[c]+'</div>';
@@ -1042,20 +1093,61 @@ function render(){
     out+='</div>';
   }
   out+='</div></div>';
-  // 오늘의 기록 메모
+  // PDS 타임라인 + 오늘의 기록
   var todayMemoKey='daily-'+tdk;
   var todayMemo=(p.dailyMemos&&p.dailyMemos[todayMemoKey])||'';
-  out+='<div class="card">';
-  out+='<div class="card-top"><span class="ctitle">📓 오늘의 기록</span>';
-  out+='<span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
-  out+='<div style="margin-bottom:12px;">';
+  var pdsBlocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
+  var PDS_SH=6,PDS_TH=18,PDS_SL=14; // startHour, totalHours, slotHeight(px)
+  var PDS_TOTAL=PDS_TH*6; // 108 slots
+  var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6'};
+  out+='<div class="card" style="padding:0;overflow:hidden;">';
+  out+='<div class="pds-split">';
+  // ── LEFT: PDS 타임라인 ──
+  out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
+  out+='<div class="pds-panel-hdr"><span class="ctitle">⏱️ PDS 타임라인</span><span style="font-size:10px;color:#bbb;margin-left:auto;">드래그로 블록 생성</span></div>';
+  out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
+  out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;" id="pdsTlInner">';
+  // 시간 라벨 + 구분선
+  for(var ph=0;ph<PDS_TH;ph++){
+    var ptop=ph*6*PDS_SL;
+    out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+(PDS_SH+ph)+'</div>';
+    out+='<div class="pds-hour-border" style="top:'+ptop+'px;"></div>';
+    for(var pm=1;pm<6;pm++){
+      out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';
+    }
+  }
+  // 슬롯 셀 (클릭/드래그)
+  for(var ps=0;ps<PDS_TOTAL;ps++){
+    out+='<div class="pds-slot" data-slot="'+ps+'" style="top:'+(ps*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsSlotDown(event,\''+tdk+'\','+ps+')" onmousemove="pdsSlotMove(event,'+ps+')"></div>';
+  }
+  // 블록 렌더
+  for(var bi=0;bi<pdsBlocks.length;bi++){
+    var bl=pdsBlocks[bi];
+    var bFrom=(bl.start-PDS_SH*60)/10;
+    var bTo=(bl.end-PDS_SH*60)/10;
+    if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
+    var bH=(bTo-bFrom)*PDS_SL;
+    var bCol=PDS_COLORS[bl.cat]||'#aaa';
+    out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" title="'+esc(bl.label||'')+(bl.tags&&bl.tags.length?' '+bl.tags.join(' '):'')+(bH>=28?' (클릭: 수정/삭제)':'')+'">';
+    out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(bl.label||'')+'</span>';
+    if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
+    out+='</div>';
+  }
+  out+='</div></div></div>';
+  // ── RIGHT: 오늘의 기록 ──
+  out+='<div class="pds-panel">';
+  out+='<div class="pds-panel-hdr"><span class="ctitle">📓 오늘의 기록</span><span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
+  out+='<div class="pds-record">';
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ 오늘의 Key Scene — 오늘 하루 가장 빛날 나의 장면</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." style="min-height:60px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
-  out+='</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
-  out+='</div>';
+  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:12px 0 6px;">📝 기록</div>';
+  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:180px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
+  out+='</div></div>';
+  out+='</div></div>';
   document.getElementById('app').innerHTML=out;
   document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta').forEach(function(el){ar(el);});
+  // PDS 타임라인 8시로 초기 스크롤
+  var pdsSc=document.getElementById('pdsTlScroll');if(pdsSc)pdsSc.scrollTop=(8-6)*6*14;
 }
 
 // ── 액션 ───────────────────────────────────────────────────
@@ -1189,6 +1281,104 @@ function addPlan(pk,el){var t=el.value.trim();if(!t)return;getPlanItems(pk).push
 function togglePlan(pk,i,v){getPlanItems(pk)[i].done=v;save();render();}
 function delPlan(pk,i){getPlanItems(pk).splice(i,1);save();render();}
 function setDailyMemo(el){var p=cp();p.dailyMemos=p.dailyMemos||{};p.dailyMemos[el.dataset.dmk]=el.value;ar(el);save();}
+// ── PDS 타임라인 ───────────────────────────────────────────
+var _pds={down:false,dk:'',startSlot:0,endSlot:0};
+var PDS_SH=6,PDS_SL=14; // startHour, slotHeight
+var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6'};
+function pad2(n){return n<10?'0'+n:''+n;}
+function pdsSlotDown(e,dk,slot){e.preventDefault();_pds={down:true,dk:dk,startSlot:slot,endSlot:slot};pdsHighlight(slot,slot);}
+function pdsSlotMove(e,slot){if(!_pds.down)return;_pds.endSlot=slot;var a=Math.min(_pds.startSlot,slot),b=Math.max(_pds.startSlot,slot);pdsHighlight(a,b);}
+function pdsSlotLeave(){/* keep selection visible until mouseup */}
+function pdsSlotUp(e,dk){
+  if(!_pds.down){return;}_pds.down=false;
+  var a=Math.min(_pds.startSlot,_pds.endSlot),b=Math.max(_pds.startSlot,_pds.endSlot);
+  document.querySelectorAll('.pds-slot.pds-sel').forEach(function(el){el.classList.remove('pds-sel');});
+  var sMin=(a*10)+PDS_SH*60, eMin=(b+1)*10+PDS_SH*60;
+  var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
+  document.getElementById('pdsNewDk').value=dk;
+  document.getElementById('pdsNewS').value=sMin;
+  document.getElementById('pdsNewE').value=eMin;
+  document.getElementById('pdsNewTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+((eMin-sMin))+'분)';
+  document.getElementById('pdsNewLbl').value='';
+  document.getElementById('pdsNewTags').value='';
+  var rads=document.querySelectorAll('input[name="pdsCat"]');
+  rads[0].checked=true; pdsCatSel();
+  show('mPdsCreate');
+  setTimeout(function(){var el=document.getElementById('pdsNewLbl');if(el)el.focus();},50);
+}
+function pdsHighlight(a,b){
+  document.querySelectorAll('.pds-slot').forEach(function(el){
+    var s=+el.dataset.slot;
+    el.classList.toggle('pds-sel',s>=a&&s<=b);
+  });
+}
+function pdsCatSel(){
+  var v=document.querySelector('input[name="pdsCat"]:checked').value;
+  document.querySelectorAll('input[name="pdsCat"]').forEach(function(r){
+    var lbl=r.parentElement;
+    lbl.style.opacity=r.value===v?'1':'0.45';
+    lbl.style.background=r.value===v?(PDS_COLORS[r.value]+'22'):'transparent';
+  });
+}
+function pdsCatSelE(){
+  var v=document.querySelector('input[name="pdsCatE"]:checked').value;
+  document.querySelectorAll('input[name="pdsCatE"]').forEach(function(r){
+    var lbl=r.parentElement;
+    lbl.style.opacity=r.value===v?'1':'0.45';
+    lbl.style.background=r.value===v?(PDS_COLORS[r.value]+'22'):'transparent';
+  });
+}
+function pdsSave(){
+  var dk=document.getElementById('pdsNewDk').value;
+  var s=+document.getElementById('pdsNewS').value;
+  var e2=+document.getElementById('pdsNewE').value;
+  var lbl=document.getElementById('pdsNewLbl').value.trim();
+  var cat=document.querySelector('input[name="pdsCat"]:checked').value;
+  var tagsRaw=document.getElementById('pdsNewTags').value;
+  var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t.length>1&&t.startsWith('#');});
+  var catLabels={e80:'80% 에너지',e20:'20% 에너지',ecut:'가지치기',eroutine:'루틴'};
+  var p=cp();p.timeBlocks=p.timeBlocks||{};p.timeBlocks[dk]=p.timeBlocks[dk]||[];
+  p.timeBlocks[dk].push({id:Date.now()+'',start:s,end:e2,cat:cat,label:lbl||(catLabels[cat]||''),tags:tags});
+  save();hide('mPdsCreate');render();
+  // 8시로 스크롤 복원
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+}
+function pdsEditBlock(dk,id){
+  var p=cp();var blocks=(p.timeBlocks&&p.timeBlocks[dk])||[];
+  var bl=null;for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){bl=blocks[i];break;}}
+  if(!bl)return;
+  document.getElementById('pdsEditDk').value=dk;
+  document.getElementById('pdsEditId').value=id;
+  document.getElementById('pdsEditLbl').value=bl.label||'';
+  document.getElementById('pdsEditTags').value=(bl.tags||[]).join(' ');
+  var h1=Math.floor(bl.start/60),m1=bl.start%60,h2=Math.floor(bl.end/60),m2=bl.end%60;
+  document.getElementById('pdsEditTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+((bl.end-bl.start))+'분)';
+  var rads=document.querySelectorAll('input[name="pdsCatE"]');
+  rads.forEach(function(r){r.checked=(r.value===bl.cat);});
+  pdsCatSelE();
+  show('mPdsEdit');
+  setTimeout(function(){var el=document.getElementById('pdsEditLbl');if(el)el.focus();},50);
+}
+function pdsUpdate(){
+  var dk=document.getElementById('pdsEditDk').value;
+  var id=document.getElementById('pdsEditId').value;
+  var lbl=document.getElementById('pdsEditLbl').value.trim();
+  var cat=document.querySelector('input[name="pdsCatE"]:checked').value;
+  var tagsRaw=document.getElementById('pdsEditTags').value;
+  var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t.length>1&&t.startsWith('#');});
+  var p=cp();var blocks=(p.timeBlocks&&p.timeBlocks[dk])||[];
+  for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){blocks[i].label=lbl;blocks[i].cat=cat;blocks[i].tags=tags;break;}}
+  save();hide('mPdsEdit');render();
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+}
+function pdsDelBlock(){
+  var dk=document.getElementById('pdsEditDk').value;
+  var id=document.getElementById('pdsEditId').value;
+  var p=cp();if(!p.timeBlocks||!p.timeBlocks[dk])return;
+  p.timeBlocks[dk]=p.timeBlocks[dk].filter(function(b){return b.id!==id;});
+  save();hide('mPdsEdit');render();
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+}
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
 function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
 function quickAddEv(e,ck){if(e.key!=='Enter')return;var inp=document.getElementById('evQuickInp'),t=inp.value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[ck])p.events[ck]=[];p.events[ck].push({text:t,p:1});inp.value='';save();render();setTimeout(function(){var el=document.getElementById('evQuickInp');if(el)el.focus();},50);}
@@ -1228,7 +1418,7 @@ function delCalIdea(mk,i){var p=cp();if(!p.calIdeas||!p.calIdeas[mk])return;p.ca
 // 할일
 function prevTodo(){var td=S.todoDate||todayKey();var d=new Date(td.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()-1);S.todoDate=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(isMobile)renderMobile();else render();}
 function nextTodo(){var td=S.todoDate||todayKey();var d=new Date(td.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()+1);S.todoDate=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(isMobile)renderMobile();else render();}
-function getTodos(){var p=cp();p.todosByDate=p.todosByDate||{};var tdk=S.todoDate||todayKey();if(!p.todosByDate[tdk])p.todosByDate[tdk]=[[],[],[]];return p.todosByDate[tdk];}
+function getTodos(){var p=cp();p.todosByDate=p.todosByDate||{};var tdk=S.todoDate||todayKey();if(!p.todosByDate[tdk])p.todosByDate[tdk]=[[],[],[],[]];while(p.todosByDate[tdk].length<4)p.todosByDate[tdk].push([]);return p.todosByDate[tdk];}
 var todoE=0,todoEditE=0,editC=-1,editI=-1,moveC=-1,moveI=-1;
 var todoColor='',todoEditColor='';
 var TODO_COLORS=['','#3B82F6','#10B981','#EF4444','#8B5CF6'];
@@ -1395,10 +1585,10 @@ function snapWeek(){
   var iso=isoWeek(ps2),thisWkey='iso-'+iso.year+'-w'+iso.week,thisGoal=(p.weekGoals||{})[thisWkey]||'';
   var pk2=ps2.getFullYear()+'-'+(ps2.getMonth()+1)+'-'+ps2.getDate();
   var pd=(p.pdca&&p.pdca[pk2])||{plan:[],doIt:'',check:'',act:''};
-  var tdk=S.todoDate||todayKey(),todos=((p.todosByDate||{})[tdk])||[[],[],[]];
+  var tdk=S.todoDate||todayKey(),todos=((p.todosByDate||{})[tdk])||[[],[],[],[]];
   var dailyKS=((p.dailyKeyScenes||{})[tdk])||'';
   var todayMemo=(p.dailyMemos&&p.dailyMemos['daily-'+tdk])||'';
-  var EL=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기'],EC=['e80','e20','ecut'];
+  var EL=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기','🔵 루틴'],EC=['e80','e20','ecut','eroutine'];
   var body='';
   body+='<div class="hd">📸 주간 캡처 <span>_you just shine</span></div>';
   body+='<div class="sub">'+(S.tabs[S.activeTab]||'')+' · '+fmd(ps2)+' ~ '+fmd(pe2)+' ('+iso.week+'주차) · '+ds+'</div>';
@@ -1407,7 +1597,7 @@ function snapWeek(){
   [{k:'plan',l:'📋 PLAN'},{k:'doIt',l:'▷ DO'},{k:'check',l:'◎ CHECK'},{k:'act',l:'★ ACT'}].forEach(function(col){var pdcv=col.k==='plan'?planToText(pd.plan):pd[col.k];body+='<div class="pc"><div class="pl">'+col.l+'</div>'+(pdcv?'<div class="pv">'+pdcv+'</div>':'<div class="pe">미작성</div>')+'</div>';});
   body+='</div></div>';
   body+='<div class="card"><div class="ct">✅ 오늘 할 일 ('+tdk+')</div><div class="eg">';
-  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
+  for(var c=0;c<4;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
   body+='</div></div>';
   body+='<div class="card"><div class="ct">📓 오늘의 기록 ('+tdk+')</div>';
   body+='<div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">✨ 오늘의 Key Scene</div><div style="font-size:13px;margin-bottom:10px;">'+(dailyKS||'<span style="color:#ddd">없음</span>')+'</div>';
@@ -1424,13 +1614,13 @@ function snapWeek(){
 function captureAll(){
   var p=cp(),now=new Date(),ds=now.getFullYear()+'.'+( now.getMonth()+1)+'.'+now.getDate();
   var pg=progCalc(p.startDate,p.endDate),dd=ddayCalc(p.endDate);
-  var tdk=S.todoDate||todayKey(),todos=((p.todosByDate||{})[tdk])||[[],[],[]];
+  var tdk=S.todoDate||todayKey(),todos=((p.todosByDate||{})[tdk])||[[],[],[],[]];
   var ksKey=S.calY+'-'+(S.calM+1);
   var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{left:'',right:''};
   var calMemo=(p.calMemos&&p.calMemos[ksKey])||'';
   var dailyKS=((p.dailyKeyScenes||{})[tdk])||'';
   var todayMemo=(p.dailyMemos&&p.dailyMemos['daily-'+tdk])||'';
-  var EL=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기'],EC=['e80','e20','ecut'];
+  var EL=['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기','🔵 루틴'],EC=['e80','e20','ecut','eroutine'];
   var wks3=getWeeks(S.wkY,S.wkM),wg=p.weekGoals||{};
   var ps3=pdcaStart(S.pdcaOff),pe3=new Date(ps3);pe3.setDate(ps3.getDate()+6);
   var psIso=isoWeek(ps3),pk2=ps3.getFullYear()+'-'+(ps3.getMonth()+1)+'-'+ps3.getDate();
@@ -1481,7 +1671,7 @@ function captureAll(){
 
   // 오늘 할일
   body+='<div class="card"><div class="ct">✅ 오늘 할 일 ('+tdk+')</div><div class="eg">';
-  for(var c=0;c<3;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
+  for(var c=0;c<4;c++){body+='<div class="ec '+EC[c]+'"><div class="el">'+EL[c]+'</div>';var its=todos[c]||[];if(!its.length)body+='<div style="font-size:11px;color:#ddd;">없음</div>';else its.forEach(function(it){body+='<div class="ti"><span>'+(it.done?'☑':'☐')+'</span><span class="'+(it.done?'dn':'')+'">'+( c===0&&it.priority?'🌟 ':'')+it.text+'</span></div>';});body+='</div>';}
   body+='</div></div>';
 
   // 오늘의 기록
@@ -1876,9 +2066,9 @@ function renderMobile() {
   if (mbTab === 0) {
     content += '<div class="mb-card">';
     content += '<div class="mb-date-row"><button class="mb-nav-btn" onclick="prevTodo();renderMobile()">◀</button><div class="mb-date-label">'+tdLbl+'</div><button class="mb-nav-btn" onclick="nextTodo();renderMobile()">▶</button></div>';
-    var MCAT = ['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기'];
-    var MCAT_D = ['3개 이내 핵심','필요하지만 가볍게','에너지 쓰지 말 것'];
-    for (var c = 0; c < 3; c++) {
+    var MCAT = ['🔥 80% 에너지','⚡ 20% 에너지','🌿 가지치기','🔵 루틴'];
+    var MCAT_D = ['3개 이내 핵심','필요하지만 가볍게','에너지 쓰지 말 것','매일 반복 습관'];
+    for (var c = 0; c < 4; c++) {
       var items = todos[c] || [];
       content += '<div class="mb-ecol"><div class="mb-ecol-hdr">'+MCAT[c]+' <span>'+MCAT_D[c]+'</span></div>';
       if (c === 0) {
