@@ -700,7 +700,7 @@ function render(){
   // 3개월 숫자 목표 (계층: 대목표 > 세부지표)
   var goals=p.goals||[];
   var topGoals=goals.filter(function(g){return !g.parentId;});
-  var pinnedGoals=topGoals.filter(function(g){return g.pinned;});
+  var pinnedGoals=topGoals.filter(function(g){return g.pinnedW;});
   var qKeys=getQuarterDateKeys(p.startDate,p.endDate);
   out+='<div style="border-top:1px solid rgba(255,255,255,.12);margin-top:14px;padding-top:12px;">';
   out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">';
@@ -716,13 +716,13 @@ function render(){
       var tg=topGoals[gi];
       var children=goals.filter(function(g){return g.parentId===tg.id;});
       // 대목표 그룹 박스
-      out+='<div class="goal-group'+(tg.pinned?' pinned':'')+'" data-gid="'+tg.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg.id+'\')">';
+      out+='<div class="goal-group'+(tg.pinnedQ?' pinned':'')+'" data-gid="'+tg.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg.id+'\')">';
       out+='<div class="goal-hdr-row">';
       out+='<span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg.id+'\')">⠿</span>';
       out+='<span style="font-size:10px;color:rgba(255,255,255,.5);">🎯</span>';
       out+='<span class="goal-hdr-name">'+esc(tg.name)+'</span>';
       out+='<button class="goal-add-btn-sm" onclick="openMetric(\''+tg.id+'\')">+ 지표</button>';
-      out+='<button class="goal-hdr-del" style="font-size:11px;color:'+(tg.pinned?'var(--pk)':'rgba(255,255,255,.25)')+'" onclick="toggleGoalPin(\''+tg.id+'\')" title="'+(tg.pinned?'핀 해제':'집중 목표로 설정')+'">📌</button>';
+      out+='<button class="goal-hdr-del" style="font-size:11px;color:'+(tg.pinnedQ?'var(--pk)':'rgba(255,255,255,.25)')+'" onclick="toggleGoalPin(\''+tg.id+'\',\'Q\')" title="'+(tg.pinnedQ?'핀 해제':'집중 목표로 설정')+'">📌</button>';
       out+='<button class="goal-hdr-del" style="font-size:11px;" onclick="openEditGoal(\''+tg.id+'\')">✏️</button>';
       out+='<button class="goal-hdr-del" onclick="delGoal(\''+tg.id+'\')">×</button>';
       out+='</div>';
@@ -740,8 +740,8 @@ function render(){
             var mBreak=getMonthBreakdown(m.id,p.startDate,p.endDate);
             if(mBreak.length>0){var mParts=[];for(var mi=0;mi<mBreak.length;mi++)mParts.push(mBreak[mi].label+' '+mBreak[mi].done);mBreakStr=mParts.join(' / ');}
           }
-          out+='<div class="mc-dark'+(m.pinned?' pinned':'')+'" data-mid="'+m.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m.id+'\')">';
-          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);display:flex;align-items:center;gap:4px;"><span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m.id+'\')">⠿</span>'+esc(m.name)+'<button class="goal-del-sm" style="color:'+(m.pinned?'var(--pk)':'rgba(255,255,255,.2)')+';font-size:10px;margin-left:auto;" onclick="toggleGoalPin(\''+m.id+'\')">📌</button><button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);" onclick="delMetric(\''+m.id+'\')">×</button></div>';
+          out+='<div class="mc-dark'+(m.pinnedQ?' pinned':'')+'" data-mid="'+m.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m.id+'\')">';
+          out+='<div class="mc-name" style="color:rgba(255,255,255,.85);display:flex;align-items:center;gap:4px;"><span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m.id+'\')">⠿</span>'+esc(m.name)+'<button class="goal-del-sm" style="color:'+(m.pinnedQ?'var(--pk)':'rgba(255,255,255,.2)')+';font-size:10px;margin-left:auto;" onclick="toggleGoalPin(\''+m.id+'\',\'Q\')">📌</button><button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);" onclick="delMetric(\''+m.id+'\')">×</button></div>';
           out+='<div class="mc-bar"><div class="mc-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m.id+'\')">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
           out+='<input class="mc-memo-inp" placeholder="3개월 메모" value="'+esc(m.memo||'')+'" data-gid="'+m.id+'" oninput="setQuarterMetricMemo(this)" style="color:rgba(255,255,255,.65);border-bottom-color:rgba(255,255,255,.15);" />';
@@ -822,8 +822,8 @@ function render(){
       var tg2=topGoals[gi];
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
       if(!ch2.length)continue;
-      out+='<div class="goal-group-month'+(tg2.pinned?' pinned':'')+'" data-gid="'+tg2.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg2.id+'\')">';
-      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg2.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span><button class="goal-del-sm" style="color:'+(tg2.pinned?'var(--pk)':'#ddd')+';font-size:12px;margin-left:auto;" onclick="toggleGoalPin(\''+tg2.id+'\')" title="'+(tg2.pinned?'핀 해제':'집중 목표로 설정')+'">📌</button></div>';
+      out+='<div class="goal-group-month'+(tg2.pinnedM?' pinned':'')+'" data-gid="'+tg2.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg2.id+'\')">';
+      out+='<div style="font-size:11px;font-weight:900;color:var(--dk);margin:0 0 7px;display:flex;align-items:center;gap:5px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg2.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg2.name)+'</span><button class="goal-del-sm" style="color:'+(tg2.pinnedM?'var(--pk)':'#ddd')+';font-size:12px;margin-left:auto;" onclick="toggleGoalPin(\''+tg2.id+'\',\'M\')" title="'+(tg2.pinnedM?'핀 해제':'집중 목표로 설정')+'">📌</button></div>';
       out+='<div class="metric-grid">';
       for(var ci=0;ci<ch2.length;ci++){
         var m2=ch2[ci];
@@ -832,8 +832,8 @@ function render(){
         var mDone=countGoalInDates(m2.id,mKeys);
         var mPct=mTgt>0?Math.min(100,Math.round(mDone/mTgt*100)):0;
         var mMemo2=(m2.monthMemos&&m2.monthMemos[mKey2])||'';
-        out+='<div class="mc-light'+(m2.pinned?' pinned':'')+'" data-mid="'+m2.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m2.id+'\')">';
-        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m2.id+'\')">⠿</span>'+esc(m2.name)+'<button class="goal-del-sm" style="color:'+(m2.pinned?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m2.id+'\')" title="핀">📌</button></div>';
+        out+='<div class="mc-light'+(m2.pinnedM?' pinned':'')+'" data-mid="'+m2.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m2.id+'\')">';
+        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m2.id+'\')">⠿</span>'+esc(m2.name)+'<button class="goal-del-sm" style="color:'+(m2.pinnedM?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m2.id+'\',\'M\')" title="핀">📌</button></div>';
         out+='<div class="mc-bar-light"><div class="mc-fill" style="width:'+mPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m2.id+'\')">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;">'+mPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">월<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)" style="width:28px;"/>'+(m2.quarterTarget?'<span style="color:#ddd;font-size:10px;"> / 3개월'+m2.quarterTarget+esc(m2.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="이달 메모" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
@@ -936,8 +936,8 @@ function render(){
       var tg3=topGoals[gi3];
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
       if(!ch3.length)continue;
-      out+='<div class="goal-group-week'+(tg3.pinned?' pinned':'')+'" data-gid="'+tg3.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg3.id+'\')">';
-      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg3.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span><button class="goal-del-sm" style="color:'+(tg3.pinned?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+tg3.id+'\')" title="핀">📌</button></div>';
+      out+='<div class="goal-group-week'+(tg3.pinnedW?' pinned':'')+'" data-gid="'+tg3.id+'" ondragover="gDO(event,\'goal\')" ondrop="gDrop(event,\'goal\',\''+tg3.id+'\')">';
+      out+='<div style="font-size:10px;font-weight:700;color:var(--dk);margin:0 0 6px;display:flex;align-items:center;gap:4px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'goal\',\''+tg3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'goal\',\''+tg3.id+'\')">⠿</span><span style="color:var(--pk);">🎯</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span><button class="goal-del-sm" style="color:'+(tg3.pinnedW?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+tg3.id+'\',\'W\')" title="핀">📌</button></div>';
       out+='<div class="metric-grid">';
       for(var ci3=0;ci3<ch3.length;ci3++){
         var m3=ch3[ci3];
@@ -948,8 +948,8 @@ function render(){
         var autoMTgt3=m3.quarterTarget?Math.round(m3.quarterTarget/3):0;
         var mTgt3=(m3.monthTargets&&m3.monthTargets[wMKey2]!=null)?m3.monthTargets[wMKey2]:autoMTgt3;
         var wMemo3=(m3.weekMemos&&m3.weekMemos[wKey2])||'';
-        out+='<div class="mc-week'+(m3.pinned?' pinned':'')+'" data-mid="'+m3.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m3.id+'\')">';
-        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'<button class="goal-del-sm" style="color:'+(m3.pinned?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m3.id+'\')" title="핀">📌</button></div>';
+        out+='<div class="mc-week'+(m3.pinnedW?' pinned':'')+'" data-mid="'+m3.id+'" ondragover="gDO(event,\'metric\')" ondrop="gDrop(event,\'metric\',\''+m3.id+'\')">';
+        out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'<button class="goal-del-sm" style="color:'+(m3.pinnedW?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m3.id+'\',\'W\')" title="핀">📌</button></div>';
         out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" onclick="showMetricTodos(\''+m3.id+'\')">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+wKey2+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
         out+='<input class="mc-memo-inp" placeholder="이번 주 메모" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+wKey2+'" oninput="setWeekMetricMemo(this)"/>';
@@ -1260,7 +1260,7 @@ function getMonthBreakdown(goalId,startDate,endDate){if(!startDate||!endDate)ret
 function openGoal(){document.getElementById('iGoalName').value='';show('mGoal');setTimeout(function(){document.getElementById('iGoalName').focus();},50);}
 function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();if(!name)return;var p=cp();p.goals=p.goals||[];p.goals.push({id:'g_'+Date.now(),name:name,parentId:null});hide('mGoal');save();render();}
 function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();render();}
-function toggleGoalPin(id){var p=cp();var gs=p.goals||[];for(var i=0;i<gs.length;i++){if(gs[i].id===id){gs[i].pinned=!gs[i].pinned;break;}}save();render();}
+function toggleGoalPin(id,view){var p=cp();var gs=p.goals||[];var fld='pinned'+(view||'Q');for(var i=0;i<gs.length;i++){if(gs[i].id===id){gs[i][fld]=!gs[i][fld];break;}}save();render();}
 var _metricParentId='';
 function openMetric(goalId){_metricParentId=goalId;var p=cp();var tg=(p.goals||[]).filter(function(g){return g.id===goalId;})[0];document.getElementById('mMetricGoalNm').textContent=tg?tg.name:'';document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';show('mMetric');setTimeout(function(){document.getElementById('iMetricName').focus();},50);}
 function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var memo=document.getElementById('iMetricMemo').value.trim();var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,memo:memo,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();render();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('iMetricMemo').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
@@ -1953,7 +1953,7 @@ function renderMobile() {
         var tg = topGoals[gi];
         var ch = goals.filter(function(g) { return g.parentId === tg.id; });
         if (!ch.length) continue;
-        content += '<div class="mb-goal-group'+(tg.pinned?' pinned':'')+'">'+'<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg.name)+(tg.pinned?'<span style="color:var(--pk);font-size:12px;margin-left:auto;">📌</span>':'')+'</div>';
+        content += '<div class="mb-goal-group'+(tg.pinnedW?' pinned':'')+'">'+'<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg.name)+(tg.pinnedW?'<span style="color:var(--pk);font-size:12px;margin-left:auto;">📌</span>':'')+'</div>';
         content += '<div class="mb-mc-grid">';
         for (var ci = 0; ci < ch.length; ci++) {
           var m = ch[ci];
@@ -1978,7 +1978,7 @@ function renderMobile() {
         var tg2 = topGoals[gi2];
         var ch2 = goals.filter(function(g) { return g.parentId === tg2.id; });
         if (!ch2.length) continue;
-        content += '<div class="mb-goal-group'+(tg2.pinned?' pinned':'')+'">'+'<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg2.name)+(tg2.pinned?'<span style="color:var(--pk);font-size:12px;margin-left:auto;">📌</span>':'')+'</div>';
+        content += '<div class="mb-goal-group'+(tg2.pinnedM?' pinned':'')+'">'+'<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg2.name)+(tg2.pinnedM?'<span style="color:var(--pk);font-size:12px;margin-left:auto;">📌</span>':'')+'</div>';
         content += '<div class="mb-mc-grid">';
         for (var ci2 = 0; ci2 < ch2.length; ci2++) {
           var m2 = ch2[ci2];
