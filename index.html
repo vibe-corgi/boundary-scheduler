@@ -2040,10 +2040,10 @@ function renderMobile() {
       var mbPgName2='';if(pitem.goalId){var mbPg2=goals.filter(function(g){return g.id===pitem.goalId;});if(mbPg2.length)mbPgName2=mbPg2[0].name;}
       content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+(mbPgName2?'<br/><span class="mb-todo-badge">📊'+esc(mbPgName2)+'</span>':'')+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
-      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" style="color:#F59E0B;" title="중요 해제">★</button>';
+      content += '<button class="mb-carry-btn" onclick="carryPlan(\''+pk2+'\','+pi+');renderMobile()" title="다음 주로 복사">→</button>';
       content += '</div>';
     }
-    if (mbImpCnt === 0) content += '<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정</div>';
+    if (mbImpCnt === 0) content += '<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">일반 항목을 드래그해서 중요로 이동</div>';
     content += '<div style="font-size:10px;font-weight:700;color:#999;letter-spacing:.5px;padding:4px 0 3px;border-bottom:1px solid rgba(21,101,192,.15);margin-top:6px;margin-bottom:3px;">📋 일반</div>';
     for (var pi = 0; pi < planItems.length; pi++) {
       var pitem = planItems[pi];
@@ -2053,7 +2053,7 @@ function renderMobile() {
       var mbPgName3='';if(pitem.goalId){var mbPg3=goals.filter(function(g){return g.id===pitem.goalId;});if(mbPg3.length)mbPgName3=mbPg3[0].name;}
       content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+(mbPgName3?'<br/><span class="mb-todo-badge">📊'+esc(mbPgName3)+'</span>':'')+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
-      content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" title="중요로">☆</button>';
+      content += '<button class="mb-carry-btn" onclick="carryPlan(\''+pk2+'\','+pi+');renderMobile()" title="다음 주로 복사">→</button>';
       content += '</div>';
     }
     content += '<input class="mb-qi" placeholder="+ Plan 추가 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getPlanItems(\''+pk2+'\').push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
