@@ -191,6 +191,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .plan-sec-over{background:rgba(21,101,192,.06);border-radius:7px;}
 .plan-item.plan-imp .todo-txt{font-weight:700;}
 .plan-item.plan-over-top{border-top:2px solid #1565C0;}
+.plan-goal-sel{font-size:10px;border:none;background:transparent;color:#bbb;border-radius:4px;padding:1px 2px;cursor:pointer;max-width:90px;min-width:22px;flex-shrink:0;}
+.plan-goal-sel.linked{background:#fff0f5;color:var(--pk);font-weight:600;}
 .tc-dot{display:inline-block;width:18px;height:18px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
 .tc-dot:hover{transform:scale(1.15);}
 .ev-col-dot{display:inline-block;width:16px;height:16px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
@@ -884,6 +886,7 @@ function render(){
     out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
     if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
     else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;font-weight:700;">'+esc(pitem.text)+'</span>';}
+    out+=_pgSel(pk2,pi,pitem.goalId||'');
     out+='<button class="ic-btn" title="중요 해제" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#F59E0B;font-size:15px;line-height:1;">★</button>';
     out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
@@ -901,6 +904,7 @@ function render(){
     out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
     if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
     else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';}
+    out+=_pgSel(pk2,pi,pitem.goalId||'');
     out+='<button class="ic-btn" title="중요로 이동" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#ccc;font-size:15px;line-height:1;">☆</button>';
     out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
@@ -1260,6 +1264,8 @@ function getMonthBreakdown(goalId,startDate,endDate){if(!startDate||!endDate)ret
 function openGoal(){document.getElementById('iGoalName').value='';show('mGoal');setTimeout(function(){document.getElementById('iGoalName').focus();},50);}
 function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();if(!name)return;var p=cp();p.goals=p.goals||[];p.goals.push({id:'g_'+Date.now(),name:name,parentId:null});hide('mGoal');save();render();}
 function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();render();}
+function setPlanGoal(pk,idx,goalId){var p=cp();if(!p.pdca)p.pdca={};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};var plan=p.pdca[pk].plan||[];if(plan[idx]){if(goalId)plan[idx].goalId=goalId;else delete plan[idx].goalId;}save();render();}
+function _pgSel(pk,pi,goalId){var g=cp().goals||[];var tg=g.filter(function(x){return !x.parentId;});var h='<select class="plan-goal-sel'+(goalId?' linked':'')+'" onclick="event.stopPropagation()" onchange="setPlanGoal(\''+pk+'\','+pi+',this.value)" title="목표 연결"><option value="">'+(goalId?'✕ 해제':'🎯')+'</option>';for(var i=0;i<tg.length;i++){var ch=g.filter(function(x){return x.parentId===tg[i].id;});if(!ch.length)continue;h+='<optgroup label="'+esc(tg[i].name)+'">';for(var j=0;j<ch.length;j++){h+='<option value="'+ch[j].id+'"'+(goalId===ch[j].id?' selected':'')+'>'+esc(ch[j].name)+'</option>';}h+='</optgroup>';}return h+'</select>';}
 function toggleGoalPin(id,view){var p=cp();var gs=p.goals||[];var fld='pinned'+(view||'Q');for(var i=0;i<gs.length;i++){if(gs[i].id===id){gs[i][fld]=!gs[i][fld];break;}}save();render();}
 var _metricParentId='';
 function openMetric(goalId){_metricParentId=goalId;var p=cp();var tg=(p.goals||[]).filter(function(g){return g.id===goalId;})[0];document.getElementById('mMetricGoalNm').textContent=tg?tg.name:'';document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';show('mMetric');setTimeout(function(){document.getElementById('iMetricName').focus();},50);}
@@ -2027,7 +2033,8 @@ function renderMobile() {
       if (!pitem.important) continue;
       content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
-      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      var mbPgName2='';if(pitem.goalId){var mbPg2=goals.filter(function(g){return g.id===pitem.goalId;});if(mbPg2.length)mbPgName2=mbPg2[0].name;}
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="font-weight:700;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+(mbPgName2?'<br/><span class="mb-todo-badge">📊'+esc(mbPgName2)+'</span>':'')+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
       content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" style="color:#F59E0B;" title="중요 해제">★</button>';
       content += '</div>';
@@ -2039,7 +2046,8 @@ function renderMobile() {
       if (pitem.important) continue;
       content += '<div class="mb-plan-item" id="mbp-'+pi+'" data-drag-plan="1" data-drag-idx="'+pi+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'plan\',0,'+pi+',\''+pk2+'\')">';
       content += '<input type="checkbox" class="mb-plan-cb"'+(pitem.done?' checked':'')+' onchange="getPlanItems(\''+pk2+'\')['+pi+'].done=this.checked;save();renderMobile()"/>';
-      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+'</span>';
+      var mbPgName3='';if(pitem.goalId){var mbPg3=goals.filter(function(g){return g.id===pitem.goalId;});if(mbPg3.length)mbPgName3=mbPg3[0].name;}
+      content += '<span class="mb-plan-txt'+(pitem.done?' done':'')+'" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'plan\',0,'+pi+',\''+pk2+'\')" data-raw="'+esc(pitem.text)+'">'+esc(pitem.text)+(mbPgName3?'<br/><span class="mb-todo-badge">📊'+esc(mbPgName3)+'</span>':'')+'</span>';
       content += '<button class="mb-edit-btn" onclick="mbEditPlan(\''+pk2+'\','+pi+')">✏️</button>';
       content += '<button class="mb-carry-btn" onclick="togglePlanImportant(\''+pk2+'\','+pi+');renderMobile()" title="중요로">☆</button>';
       content += '</div>';
