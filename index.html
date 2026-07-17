@@ -191,8 +191,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .plan-sec-over{background:rgba(21,101,192,.06);border-radius:7px;}
 .plan-item.plan-imp .todo-txt{font-weight:700;}
 .plan-item.plan-over-top{border-top:2px solid #1565C0;}
-.plan-goal-sel{font-size:10px;border:none;background:transparent;color:#bbb;border-radius:4px;padding:1px 2px;cursor:pointer;max-width:90px;min-width:22px;flex-shrink:0;}
-.plan-goal-sel.linked{background:#fff0f5;color:var(--pk);font-weight:600;}
+.plan-goal-sel{font-size:10px;border:none;background:transparent;color:#bbb;padding:0;cursor:pointer;display:block;margin-top:2px;max-width:130px;}
+.plan-goal-sel.linked{color:var(--pk);font-weight:600;}
 .tc-dot{display:inline-block;width:18px;height:18px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
 .tc-dot:hover{transform:scale(1.15);}
 .ev-col-dot{display:inline-block;width:16px;height:16px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color .1s,transform .1s;flex-shrink:0;}
@@ -884,15 +884,16 @@ function render(){
     var isEditing=(planEditPk===pk2&&planEditIdx===pi);
     out+='<div class="plan-item plan-imp'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'important\')">';
     out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    out+='<div style="flex:1;min-width:0;">';
     if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
-    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;font-weight:700;">'+esc(pitem.text)+'</span>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;display:block;font-weight:700;">'+esc(pitem.text)+'</span>';}
     out+=_pgSel(pk2,pi,pitem.goalId||'');
-    out+='<button class="ic-btn" title="중요 해제" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#F59E0B;font-size:15px;line-height:1;">★</button>';
+    out+='</div>';
     out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
     out+='</div>';
   }
-  if(impCnt===0)out+='<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">☆ 버튼으로 중요 항목 지정 (최대 5개)</div>';
+  if(impCnt===0)out+='<div style="font-size:11px;color:#ccc;text-align:center;padding:6px 0;">일반 항목을 드래그해서 중요로 이동</div>';
   out+='</div>';
   out+='<div class="plan-section" id="planSec_nor_'+pk2+'" ondragover="planSectionOver(event,\'normal\',\''+pk2+'\')" ondrop="planSectionDrop(event,\'normal\',\''+pk2+'\')">';
   out+='<div class="plan-sec-hdr">📋 일반</div>';
@@ -902,10 +903,11 @@ function render(){
     var isEditing=(planEditPk===pk2&&planEditIdx===pi);
     out+='<div class="plan-item'+(planDragPk===pk2&&planDragIdx===pi?' plan-dragging':'')+'" draggable="true" id="pitem-'+pk2+'-'+pi+'" ondragstart="planDragStart(\''+pk2+'\','+pi+',event)" ondragend="planDragEnd()" ondragover="planDragOver(event,\''+pk2+'\','+pi+')" ondrop="planDrop(\''+pk2+'\','+pi+',event,\'normal\')">';
     out+='<input type="checkbox" class="todo-cb" style="accent-color:#1565C0;"'+(pitem.done?' checked':'')+' onchange="event.stopPropagation();togglePlan(\''+pk2+'\','+pi+',this.checked)"/>';
+    out+='<div style="flex:1;min-width:0;">';
     if(isEditing){out+='<input class="plan-edit-inp" id="planEditInp" value="'+esc(pitem.text)+'" onkeydown="if(event.key===\'Enter\'){savePlanEdit(\''+pk2+'\','+pi+',this.value);}if(event.key===\'Escape\'){planEditPk=\'\';planEditIdx=-1;render();}" onblur="savePlanEdit(\''+pk2+'\','+pi+',this.value)" onclick="event.stopPropagation()"/>';}
-    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;flex:1;">'+esc(pitem.text)+'</span>';}
+    else{out+='<span class="todo-txt'+(pitem.done?' done':'')+'" onclick="event.stopPropagation();openPlanEdit(\''+pk2+'\','+pi+')" style="cursor:text;display:block;">'+esc(pitem.text)+'</span>';}
     out+=_pgSel(pk2,pi,pitem.goalId||'');
-    out+='<button class="ic-btn" title="중요로 이동" onclick="event.stopPropagation();togglePlanImportant(\''+pk2+'\','+pi+')" style="color:#ccc;font-size:15px;line-height:1;">☆</button>';
+    out+='</div>';
     out+='<button class="ic-btn" title="내일 할일에도 추가" onclick="event.stopPropagation();carryPlan(\''+pk2+'\','+pi+')">→</button>';
     out+='<button class="todo-del" onclick="event.stopPropagation();delPlan(\''+pk2+'\','+pi+')">×</button>';
     out+='</div>';
