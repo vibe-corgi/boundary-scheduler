@@ -156,7 +156,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .ecut .e-lbl{color:#aaa;}
 .eroutine .e-lbl{color:#7C3AED;}
 /* PDS Timeline */
-.pds-split{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.pds-split{display:block;}
 .pds-panel{overflow:hidden;}
 .pds-panel-hdr{padding:10px 14px;border-bottom:1.5px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
 .pds-tl-scroll{height:420px;overflow-y:auto;overflow-x:hidden;position:relative;}
@@ -169,7 +169,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .pds-slot.pds-sel{background:rgba(255,45,120,.15)!important;}
 .pds-block{position:absolute;left:43px;right:4px;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;z-index:4;transition:opacity .1s;}
 .pds-block:hover{opacity:.82;}
-.pds-record{padding:14px 16px;height:420px;overflow-y:auto;}
+.pds-record{padding:14px 16px;}
 /* PDS 주간 뷰 */
 .pds-week-wrap{display:flex;height:420px;overflow-y:auto;overflow-x:hidden;}
 .pds-week-hlabels{width:28px;flex-shrink:0;position:relative;}
@@ -1244,7 +1244,7 @@ function render(){
     return '<button class="nav-btn" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;'+(isAct?'color:var(--pk);background:var(--pkl);':'color:#aaa;')+'" onclick="S.pdsView=\''+key+'\';render()">'+label+'</button>';
   };
   out+='<div class="pds-panel-hdr" style="gap:4px;">';
-  out+='<span class="ctitle" style="margin-right:4px;">⏱️ PDS</span>';
+  out+='<span class="ctitle" style="margin-right:4px;">⏱️ Scheduler</span>';
   out+=tabBtn('day','일간');
   out+=tabBtn('week','주간');
   out+=tabBtn('summary','종합');
@@ -1264,10 +1264,20 @@ function render(){
   out+='</div>';
 
   if(pv==='day'){
-    // ── 일간 뷰 ──
+    // ── 일간 뷰 ── PLAN | TIME BAR | DO
+    var doGrid=(p.doGrid&&p.doGrid[tdk])||{};
     out+='<div class="pds-split">';
-    out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
-    out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
+    // Sub-header
+    out+='<div style="display:grid;grid-template-columns:1fr 30px 1fr;border-bottom:1.5px solid #f0f0f0;">';
+    out+='<div style="padding:5px 8px 4px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:1px;border-right:1px solid #f0f0f0;">📋 PLAN</div>';
+    out+='<div style="background:#fafafa;border-right:1px solid #f0f0f0;"></div>';
+    out+='<div style="padding:5px 8px 4px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:1px;">✅ DO <span style="font-weight:400;opacity:.6;font-size:8px;">10분 단위</span></div>';
+    out+='</div>';
+    // Scroll wrapper (all 3 panels scroll together)
+    out+='<div style="height:420px;overflow-y:auto;overflow-x:hidden;" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
+    out+='<div style="display:grid;grid-template-columns:1fr 30px 1fr;">';
+    // ── PLAN panel ──
+    out+='<div style="position:relative;border-right:1px solid #e8e8e8;">';
     out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
     for(var ph=0;ph<PDS_TH;ph++){
       var ptop=ph*6*PDS_SL;
@@ -1293,9 +1303,39 @@ function render(){
       if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
       out+='</div>';
     }
-    out+='</div></div></div>';
-    out+='<div class="pds-panel">';
-    out+='<div class="pds-panel-hdr" style="position:sticky;top:0;z-index:5;background:#fff;border-top:1px solid #f0f0f0;"><span class="ctitle">📓 기록 & 통계</span></div>';
+    out+='</div>';  // close tl-inner
+    out+='</div>';  // close PLAN panel
+    // ── CENTER time bar ──
+    out+='<div style="position:relative;background:#fafafa;border-right:1px solid #e8e8e8;">';
+    out+='<div style="height:'+(PDS_TOTAL*PDS_SL)+'px;position:relative;">';
+    for(var ph=0;ph<PDS_TH;ph++){
+      out+='<div style="position:absolute;top:'+(ph*6*PDS_SL)+'px;left:0;right:0;border-top:1px solid #e0e0e0;pointer-events:none;"></div>';
+      out+='<div style="position:absolute;top:'+(ph*6*PDS_SL+1)+'px;width:100%;font-size:7px;font-weight:700;color:#bbb;text-align:center;line-height:1;user-select:none;">'+pad2(ph)+'</div>';
+    }
+    out+='</div>';
+    out+='</div>';  // close center
+    // ── DO panel ──
+    out+='<div style="position:relative;">';
+    out+='<div style="height:'+(PDS_TOTAL*PDS_SL)+'px;position:relative;">';
+    for(var ph=0;ph<PDS_TH;ph++){
+      out+='<div style="position:absolute;top:'+(ph*6*PDS_SL)+'px;left:0;right:0;border-top:1px solid #e8e8e8;pointer-events:none;z-index:1;"></div>';
+    }
+    for(var pm=1;pm<6;pm++){
+      out+='<div style="position:absolute;top:0;bottom:0;left:'+(pm/6*100).toFixed(2)+'%;border-left:1px solid #f0f0f0;pointer-events:none;z-index:1;"></div>';
+    }
+    for(var ph=0;ph<PDS_TH;ph++){
+      for(var pm=0;pm<6;pm++){
+        var slot=ph*6+pm;
+        var isFilled=!!(doGrid&&doGrid[slot]);
+        out+='<div onclick="toggleDoCell(this,\''+tdk+'\','+slot+')" title="'+pad2(ph)+':'+pad2(pm*10)+'" style="position:absolute;top:'+(ph*6*PDS_SL)+'px;height:'+(6*PDS_SL)+'px;left:'+(pm/6*100).toFixed(2)+'%;width:'+(100/6).toFixed(2)+'%;background:'+(isFilled?'rgba(74,108,247,0.7)':'transparent')+';cursor:pointer;z-index:2;transition:background .08s;"></div>';
+      }
+    }
+    out+='</div>';  // close do inner
+    out+='</div>';  // close DO panel
+    out+='</div>';  // close 3-col grid
+    out+='</div>';  // close scroll wrapper
+    // ── 기록 & 통계 (scroll 아래) ──
+    out+='<div style="border-top:1.5px solid #f0f0f0;">';
     out+='<div class="pds-record">';
     out+='<div style="border:1px solid #e9d5ff;border-radius:10px;overflow:hidden;margin-bottom:10px;">';
     out+='<div style="padding:10px 12px;">';
@@ -1336,8 +1376,9 @@ function render(){
     }
     out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 5px;">📝 기록</div>';
     out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
-    out+='</div></div>';
-    out+='</div>';
+    out+='</div>';  // close pds-record
+    out+='</div>';  // close border-top div
+    out+='</div>';  // close pds-split
 
   } else if(pv==='week'){
     // ── 주간 뷰 ──
@@ -1982,6 +2023,7 @@ function openPdsAcc(mode, weekOff){
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
 function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
 function setDailyKeySceneRetro(el){var p=cp();p.dailyKeySceneRetros=p.dailyKeySceneRetros||{};p.dailyKeySceneRetros[el.dataset.ks3]=el.value;save();}
+function toggleDoCell(el,dateKey,slot){var p=cp();if(!p.doGrid)p.doGrid={};if(!p.doGrid[dateKey])p.doGrid[dateKey]={};var v=!p.doGrid[dateKey][slot];p.doGrid[dateKey][slot]=v;el.style.background=v?'rgba(74,108,247,0.7)':'transparent';save();}
 function quickAddEv(e,ck){if(e.key!=='Enter')return;var inp=document.getElementById('evQuickInp'),t=inp.value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[ck])p.events[ck]=[];p.events[ck].push({text:t,p:1});inp.value='';save();render();setTimeout(function(){var el=document.getElementById('evQuickInp');if(el)el.focus();},50);}
 function calDragStart(ck,i,e){calDragKey=ck;calDragIdx=i;e.dataTransfer.effectAllowed='move';}
 function calDragEnd(){document.querySelectorAll('.cal-cell.drag-over').forEach(function(el){el.classList.remove('drag-over');});}
