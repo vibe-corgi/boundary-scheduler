@@ -2885,11 +2885,17 @@ function renderMobile() {
     var dailyMemo = (p.dailyMemos && p.dailyMemos[dailyMemoK]) || '';
     content += '<div class="mb-card">';
     content += '<div class="mb-date-row"><button class="mb-nav-btn" onclick="prevTodo();renderMobile()">◀</button><div class="mb-date-label">'+tdLbl+'</div><button class="mb-nav-btn" onclick="nextTodo();renderMobile()">▶</button></div>';
-    content += '<div class="mb-keyscene-box"><div class="mb-keyscene-label">✨ 오늘의 Key Scene</div>';
-    content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." oninput="p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[\''+tDayK+'\']=this.value;save()">'+esc(dailyKS)+'</textarea>';
+    var dailyRetro = ((p.dailyKeySceneRetros || {})[tDayK]) || '';
+    content += '<div style="background:linear-gradient(135deg,#fff5f8,#fff0fa);border:1.5px solid #ffd6e7;border-radius:14px;overflow:hidden;margin-bottom:12px;">';
+    content += '<div style="padding:14px;"><div class="mb-keyscene-label">✨ 오늘의 Key Scene</div>';
+    content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." oninput="ar(this);p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[\''+tDayK+'\']=this.value;save()">'+esc(dailyKS)+'</textarea>';
     content += '</div>';
+    content += '<div style="border-top:2px solid rgba(255,100,138,.25);padding:12px 14px;background:rgba(255,255,255,.6);">';
+    content += '<div style="font-size:10px;font-weight:700;color:rgba(255,100,138,.7);letter-spacing:.5px;margin-bottom:8px;">📝 회고</div>';
+    content += '<textarea class="mb-ta" placeholder="실제로 어땠나요?" data-ks3="'+tDayK+'" oninput="setDailyKeySceneRetro(this)">'+esc(dailyRetro)+'</textarea>';
+    content += '</div></div>';
     content += '<div class="mb-card-title">📓 오늘의 기록</div>';
-    content += '<textarea class="mb-ta" style="min-height:120px;" placeholder="오늘 하루 기록..." oninput="p.dailyMemos=p.dailyMemos||{};p.dailyMemos[\''+dailyMemoK+'\']=this.value;save()">'+esc(dailyMemo)+'</textarea>';
+    content += '<textarea class="mb-ta" style="min-height:120px;" placeholder="오늘 하루 기록..." oninput="ar(this);p.dailyMemos=p.dailyMemos||{};p.dailyMemos[\''+dailyMemoK+'\']=this.value;save()">'+esc(dailyMemo)+'</textarea>';
     content += '</div>';
   }
 
@@ -2961,10 +2967,20 @@ function renderMobile() {
     var wksD2 = (p.weekKeyScenes && p.weekKeyScenes[wksKey2]) || { left: '', right: '' };
     content += '<div class="mb-card">';
     content += '<div style="font-size:12px;font-weight:700;color:var(--dk);margin-bottom:10px;">🗓️ 이번 주 끝점 & Key Scene</div>';
-    content += '<div class="mb-keyscene-box" style="margin-bottom:8px;"><div class="mb-keyscene-label" style="color:var(--pk);">🎯 끝점 — 이번 주 끝에 원하는 모습</div>';
-    content += '<textarea class="mb-ta" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.left)+'</textarea></div>';
-    content += '<div class="mb-keyscene-box"><div class="mb-keyscene-label">✨ Key Scene — 이번 주 핵심 장면</div>';
-    content += '<textarea class="mb-ta" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.right)+'</textarea></div>';
+    content += '<div style="background:var(--pkl);border:1.5px solid #ffd6e7;border-radius:14px;overflow:hidden;margin-bottom:8px;">';
+    content += '<div style="padding:12px;"><div class="mb-keyscene-label" style="color:var(--pk);">🎯 끝점 — 이번 주 끝에 원하는 모습</div>';
+    content += '<textarea class="mb-ta" style="background:transparent;" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.left)+'</textarea></div>';
+    content += '<div style="border-top:2px solid rgba(255,100,138,.25);padding:10px 12px;background:rgba(255,255,255,.5);">';
+    content += '<div style="font-size:10px;font-weight:700;color:rgba(255,100,138,.7);letter-spacing:.5px;margin-bottom:6px;">📝 회고</div>';
+    content += '<textarea class="mb-ta" style="background:transparent;" placeholder="실제로 어땠나요?" oninput="setWeekKeyScene(\'leftR\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.leftR||'')+'</textarea>';
+    content += '</div></div>';
+    content += '<div style="background:#f0f4ff;border:1.5px solid #c7d7ff;border-radius:14px;overflow:hidden;margin-bottom:8px;">';
+    content += '<div style="padding:12px;"><div class="mb-keyscene-label" style="color:#7C3AED;">✨ Key Scene — 이번 주 핵심 장면</div>';
+    content += '<textarea class="mb-ta" style="background:transparent;" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.right)+'</textarea></div>';
+    content += '<div style="border-top:2px solid rgba(124,58,237,.2);padding:10px 12px;background:rgba(255,255,255,.5);">';
+    content += '<div style="font-size:10px;font-weight:700;color:rgba(124,58,237,.6);letter-spacing:.5px;margin-bottom:6px;">📝 회고</div>';
+    content += '<textarea class="mb-ta" style="background:transparent;" placeholder="실제로 어땠나요?" oninput="setWeekKeyScene(\'rightR\',this)" data-wks="'+wksKey2+'">'+esc(wksD2.rightR||'')+'</textarea>';
+    content += '</div></div>';
     content += '</div>';
     content += '<div class="mb-card">';
     content += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">';
