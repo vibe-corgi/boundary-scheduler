@@ -757,6 +757,9 @@ function render(){
   out+='<div class="tab-row">';
   for(var i=0;i<S.tabs.length;i++){var a=i===S.activeTab;out+='<div class="chip'+(a?' act':'')+'"><button class="chip-nm" onclick="switchTab('+i+')">'+esc(S.tabs[i])+'</button><button class="chip-ic" onclick="openRen('+i+')">✏️</button><button class="chip-ic" onclick="openDel('+i+')">✕</button></div>';}
   out+='<button class="btn-dash" onclick="openAdd()">+ 프로젝트 추가</button></div>';
+  var goals=p.goals||[];
+  var topGoals=goals.filter(function(g){return !g.parentId;});
+  var pinnedGoals=topGoals.filter(function(g){return g.pinnedW;});
   // ── 섹션 1: 계획 ──
   out+='<div class="sec-hdr" onclick="toggleCol(\'sec1\')"><span class="sec-hdr-title">📋 계획</span><span class="sec-hdr-toggle">'+(S.collapsed.sec1?'▶':'▼')+'</span></div>';
   if(!S.collapsed.sec1){
@@ -816,9 +819,6 @@ function render(){
   out+='</div></div><div class="prog-bg"><div class="prog-fill" style="width:'+pg.pct+'%"></div></div>';
   out+='<div class="prog-meta"><span class="prog-pct">'+pg.pct+'% 진행</span><span class="prog-d">'+pg.ed+' / '+pg.days+'일</span></div>';
   // 3개월 숫자 목표 (계층: 대목표 > 세부지표)
-  var goals=p.goals||[];
-  var topGoals=goals.filter(function(g){return !g.parentId;});
-  var pinnedGoals=topGoals.filter(function(g){return g.pinnedW;});
   var qKeys=getQuarterDateKeys(p.startDate,p.endDate);
   out+='<div style="border-top:1px solid rgba(255,255,255,.12);margin-top:14px;padding-top:12px;">';
   out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:'+(S.collapsed.numGoal?'0':'10px')+'">';
