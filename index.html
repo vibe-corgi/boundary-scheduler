@@ -427,7 +427,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div class="overlay" id="mAdd" style="display:none"><div class="modal"><h3>📂 새 프로젝트 추가</h3><input class="m-inp" id="iAdd" placeholder="프로젝트 이름"/><div class="act-row"><button class="btn-cancel" onclick="hide('mAdd')">취소</button><button class="btn-ok" onclick="doAdd()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mRen" style="display:none"><div class="modal"><h3>✏️ 이름 수정</h3><input class="m-inp" id="iRen"/><div class="act-row"><button class="btn-cancel" onclick="hide('mRen')">취소</button><button class="btn-ok" onclick="doRen()">수정 ✓</button></div></div></div>
 <div class="overlay" id="mDel" style="display:none"><div class="modal"><h3>🗑 프로젝트 삭제</h3><div class="modal-sub">"<span class="del-nm" id="delNm"></span>" 을 삭제할까요?</div><div class="act-row"><button class="btn-cancel" onclick="hide('mDel')">취소</button><button class="btn-red" onclick="doDel()">삭제</button></div></div></div>
-<div class="overlay" id="mTodo" style="display:none"><div class="modal"><h3>✅ 할 일 추가</h3><input class="m-inp" id="iTodo" placeholder="할 일 입력"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn sel" id="tp0" onclick="setTP(0)">🔥 80%</button><button class="pbtn" id="tp1" onclick="setTP(1)">⚡ 20%</button><button class="pbtn" id="tp2" onclick="setTP(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(선택 — 완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tc0" style="background:#FF3E8A;border-color:#333;" onclick="setTodoColor('')" title="기본"></span><span class="tc-dot" id="tc1" style="background:#3B82F6;" onclick="setTodoColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tc2" style="background:#10B981;" onclick="setTodoColor('#10B981')" title="초록"></span><span class="tc-dot" id="tc3" style="background:#EF4444;" onclick="setTodoColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tc4" style="background:#8B5CF6;" onclick="setTodoColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodo')">취소</button><button class="btn-ok" onclick="doAddTodo()">추가 ✓</button></div></div></div>
+<div class="overlay" id="mTodo" style="display:none"><div class="modal"><h3>✅ 할 일 추가</h3><input class="m-inp" id="iTodo" placeholder="할 일 입력"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn sel" id="tp0" onclick="setTP(0)">🔥 80%</button><button class="pbtn" id="tp1" onclick="setTP(1)">⚡ 20%</button><button class="pbtn" id="tp2" onclick="setTP(2)">🌿 가지치기</button><button class="pbtn" id="tp3" onclick="setTP(3)">🔵 루틴</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(선택 — 완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tc0" style="background:#FF3E8A;border-color:#333;" onclick="setTodoColor('')" title="기본"></span><span class="tc-dot" id="tc1" style="background:#3B82F6;" onclick="setTodoColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tc2" style="background:#10B981;" onclick="setTodoColor('#10B981')" title="초록"></span><span class="tc-dot" id="tc3" style="background:#EF4444;" onclick="setTodoColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tc4" style="background:#8B5CF6;" onclick="setTodoColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodo')">취소</button><button class="btn-ok" onclick="doAddTodo()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mGoal" style="display:none"><div class="modal"><h3>🎯 대목표 추가</h3><div class="modal-sub">달성하고 싶은 큰 목표를 입력하세요. 세부 지표는 아래에서 추가해요.</div><input class="m-inp" id="iGoalName" placeholder="대목표 이름 (예: 마라톤 완주, SNS 성장, 독서 습관)"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoal')">취소</button><button class="btn-ok" onclick="doAddGoal()">추가 ✓</button></div></div></div>
 <div class="overlay" id="mMetric" style="display:none"><div class="modal"><h3>📊 세부 지표 추가</h3>
 <div style="font-size:11px;font-weight:700;color:var(--pk);margin-bottom:10px;">🎯 대목표: <span id="mMetricGoalNm" style="color:#555;font-weight:600;"></span></div>
@@ -449,10 +449,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
   <button class="btn-cancel" style="border-color:var(--pk);color:var(--pk);" onclick="doAddMetric(true)">추가하고 계속 +</button>
   <button class="btn-ok" onclick="doAddMetric(false)">추가 ✓</button>
 </div></div></div>
-<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn" id="tpe0" onclick="setTPE(0)">🔥 80%</button><button class="pbtn" id="tpe1" onclick="setTPE(1)">⚡ 20%</button><button class="pbtn" id="tpe2" onclick="setTPE(2)">🌿 가지치기</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tce0" style="background:#FF3E8A;" onclick="setTodoEditColor('')" title="기본"></span><span class="tc-dot" id="tce1" style="background:#3B82F6;" onclick="setTodoEditColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tce2" style="background:#10B981;" onclick="setTodoEditColor('#10B981')" title="초록"></span><span class="tc-dot" id="tce3" style="background:#EF4444;" onclick="setTodoEditColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tce4" style="background:#8B5CF6;" onclick="setTodoEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mTodoEdit" style="display:none"><div class="modal"><h3>✏️ 할 일 수정</h3><input class="m-inp" id="iTodoEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">에너지 분류</div><div class="prow"><button class="pbtn" id="tpe0" onclick="setTPE(0)">🔥 80%</button><button class="pbtn" id="tpe1" onclick="setTPE(1)">⚡ 20%</button><button class="pbtn" id="tpe2" onclick="setTPE(2)">🌿 가지치기</button><button class="pbtn" id="tpe3" onclick="setTPE(3)">🔵 루틴</button></div><div style="font-size:12px;color:#aaa;margin-bottom:6px;">📊 목표 연결 <span style="font-size:10px;color:#ccc;">(완료 시 자동 카운트)</span></div><select class="goal-sel" id="todoEditGoalSel"><option value="">연결 안함</option></select><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="tc-dot" id="tce0" style="background:#FF3E8A;" onclick="setTodoEditColor('')" title="기본"></span><span class="tc-dot" id="tce1" style="background:#3B82F6;" onclick="setTodoEditColor('#3B82F6')" title="파랑"></span><span class="tc-dot" id="tce2" style="background:#10B981;" onclick="setTodoEditColor('#10B981')" title="초록"></span><span class="tc-dot" id="tce3" style="background:#EF4444;" onclick="setTodoEditColor('#EF4444')" title="빨강"></span><span class="tc-dot" id="tce4" style="background:#8B5CF6;" onclick="setTodoEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="hide('mTodoEdit')">취소</button><button class="btn-ok" onclick="doEditTodo()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mGoalEdit" style="display:none"><div class="modal"><h3>✏️ 대목표 수정</h3><input class="m-inp" id="iGoalEditName" placeholder="대목표 이름"/><div class="act-row"><button class="btn-cancel" onclick="hide('mGoalEdit')">취소</button><button class="btn-ok" onclick="doEditGoal()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMetricEdit" style="display:none"><div class="modal"><h3>✏️ 세부 지표 수정</h3><input class="m-inp" id="iMetricEditName" placeholder="지표 이름"/><div style="display:flex;gap:8px;"><input class="m-inp" type="number" id="iMetricEditQTarget" placeholder="3개월 횟수 목표" style="flex:1;"/><input class="m-inp" id="iMetricEditUnit" placeholder="단위 (회, 일, 권)" style="flex:1;"/></div><input class="m-inp" id="iMetricEditMemo" placeholder="메모 (예: 총 300km, 12권 완독, 매일 30분)" style="font-size:12px;color:#888;"/><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricEdit')">취소</button><button class="btn-ok" onclick="doEditMetric()">저장 ✓</button></div></div></div>
-<div class="overlay" id="mMove" style="display:none"><div class="modal"><h3>↔ 카테고리 이동</h3><div style="font-size:13px;font-weight:600;color:var(--dk);margin-bottom:14px;" id="moveTxt"></div><button class="mv-btn" id="mcb0" onclick="doMove(0)">🔥 80% 에너지</button><button class="mv-btn" id="mcb1" onclick="doMove(1)">⚡ 20% 에너지</button><button class="mv-btn" id="mcb2" onclick="doMove(2)">🌿 가지치기</button><button class="btn-cancel" style="width:100%;margin-top:4px;" onclick="hide('mMove')">취소</button></div></div>
+<div class="overlay" id="mMove" style="display:none"><div class="modal"><h3>↔ 카테고리 이동</h3><div style="font-size:13px;font-weight:600;color:var(--dk);margin-bottom:14px;" id="moveTxt"></div><button class="mv-btn" id="mcb0" onclick="doMove(0)">🔥 80% 에너지</button><button class="mv-btn" id="mcb1" onclick="doMove(1)">⚡ 20% 에너지</button><button class="mv-btn" id="mcb2" onclick="doMove(2)">🌿 가지치기</button><button class="mv-btn" id="mcb3" onclick="doMove(3)">🔵 루틴</button><button class="btn-cancel" style="width:100%;margin-top:4px;" onclick="hide('mMove')">취소</button></div></div>
 <div class="overlay" id="mEv" style="display:none">
   <div class="modal" style="max-width:420px;">
     <h3>📅 <span id="evDateLbl"></span></h3>
@@ -468,36 +468,49 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </div>
 <div class="overlay" id="mEvEdit" style="display:none"><div class="modal"><h3>✏️ 일정 수정</h3><input class="m-inp" id="iEvEdit"/><div style="font-size:12px;color:#aaa;margin-bottom:8px;">우선순위</div><div class="prow"><button class="pbtn sel" id="ee1" onclick="setEE(1)">① 1순위</button><button class="pbtn" id="ee2" onclick="setEE(2)">② 2순위</button><button class="pbtn" id="ee3" onclick="setEE(3)">③ 3순위</button></div><div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px;"><span style="font-size:12px;color:#aaa;">🎨 색상:</span><span class="ev-col-dot" id="ece0" style="background:#FF3E8A;" onclick="setEvEditColor('')" title="핫핑크"></span><span class="ev-col-dot" id="ece1" style="background:#FF8C69;" onclick="setEvEditColor('#FF8C69')" title="살몬"></span><span class="ev-col-dot" id="ece2" style="background:#22C55E;" onclick="setEvEditColor('#22C55E')" title="초록"></span><span class="ev-col-dot" id="ece3" style="background:#3B82F6;" onclick="setEvEditColor('#3B82F6')" title="파랑"></span><span class="ev-col-dot" id="ece4" style="background:#9CA3AF;" onclick="setEvEditColor('#9CA3AF')" title="회색"></span><span class="ev-col-dot" id="ece5" style="background:#8B5CF6;" onclick="setEvEditColor('#8B5CF6')" title="보라"></span></div><div class="act-row"><button class="btn-cancel" onclick="delEvEdit()" style="color:#e53e3e;border-color:#e53e3e;">🗑 삭제</button><button class="btn-cancel" onclick="hide('mEvEdit')">취소</button><button class="btn-ok" onclick="doEditEv()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mMetricDiag" style="display:none"><div class="modal" style="max-width:460px;"><h3>📊 <span id="mmdTitle"></span> 연결 할일</h3><div id="mmdList" style="max-height:320px;overflow-y:auto;margin-bottom:14px;font-size:13px;"></div><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricDiag')">닫기</button></div></div></div>
-<div class="overlay" id="mPdsCreate" style="display:none"><div class="modal" style="max-width:380px;">
-<h3 id="pdsCreateTitle">⏱️ 타임블록 추가</h3>
+<div class="overlay" id="mPdsCreate" style="display:none"><div class="modal" style="max-width:400px;">
+<h3>⏱️ 타임블록 추가</h3>
 <div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:12px;" id="pdsNewTime"></div>
 <input type="hidden" id="pdsNewDk"/><input type="hidden" id="pdsNewS"/><input type="hidden" id="pdsNewE"/>
 <input class="m-inp" id="pdsNewLbl" placeholder="할 일 / 활동명 (선택)"/>
+<textarea class="m-inp" id="pdsNewMemo" placeholder="간략한 메모 (마우스오버 시 표시)" style="min-height:52px;resize:none;font-size:12px;margin-top:6px;"></textarea>
 <div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCat" value="e80" checked style="display:none;" onchange="pdsCatSel()"> 🔥 80% 에너지</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCat" value="e20" style="display:none;" onchange="pdsCatSel()"> ⚡ 20% 에너지</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCat" value="ecut" style="display:none;" onchange="pdsCatSel()"> 🌿 가지치기</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCat" value="eroutine" style="display:none;" onchange="pdsCatSel()"> 🔵 루틴</label>
+<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;" id="pdsCatRow">
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCat" value="e80" checked style="display:none;" onchange="pdsCatSel()"> 🔥 80%</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCat" value="e20" style="display:none;" onchange="pdsCatSel()"> ⚡ 20%</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCat" value="ecut" style="display:none;" onchange="pdsCatSel()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCat" value="eroutine" style="display:none;" onchange="pdsCatSel()"> 🔵 루틴</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #9CA3AF;font-size:11px;font-weight:700;color:#9CA3AF;"><input type="radio" name="pdsCat" value="eother" style="display:none;" onchange="pdsCatSel()"> ⬜ 기타</label>
 </div>
 <input class="m-inp" id="pdsNewTags" placeholder="#해시태그 #여러개 공백으로 구분"/>
 <div class="act-row"><button class="btn-cancel" onclick="hide('mPdsCreate')">취소</button><button class="btn-ok" onclick="pdsSave()">저장 ✓</button></div>
 </div></div>
-<div class="overlay" id="mPdsEdit" style="display:none"><div class="modal" style="max-width:380px;">
+<div class="overlay" id="mPdsEdit" style="display:none"><div class="modal" style="max-width:400px;">
 <h3>⏱️ 타임블록 수정</h3>
 <div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:10px;" id="pdsEditTime"></div>
 <input type="hidden" id="pdsEditDk"/><input type="hidden" id="pdsEditId"/>
 <input class="m-inp" id="pdsEditLbl" placeholder="할 일 / 활동명"/>
+<textarea class="m-inp" id="pdsEditMemo" placeholder="간략한 메모 (마우스오버 시 표시)" style="min-height:52px;resize:none;font-size:12px;margin-top:6px;"></textarea>
 <div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCatE" value="e80" style="display:none;" onchange="pdsCatSelE()"> 🔥 80% 에너지</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCatE" value="e20" style="display:none;" onchange="pdsCatSelE()"> ⚡ 20% 에너지</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCatE" value="ecut" style="display:none;" onchange="pdsCatSelE()"> 🌿 가지치기</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCatE" value="eroutine" style="display:none;" onchange="pdsCatSelE()"> 🔵 루틴</label>
+<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCatE" value="e80" style="display:none;" onchange="pdsCatSelE()"> 🔥 80%</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCatE" value="e20" style="display:none;" onchange="pdsCatSelE()"> ⚡ 20%</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCatE" value="ecut" style="display:none;" onchange="pdsCatSelE()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #8B5CF6;font-size:11px;font-weight:700;color:#8B5CF6;"><input type="radio" name="pdsCatE" value="eroutine" style="display:none;" onchange="pdsCatSelE()"> 🔵 루틴</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #9CA3AF;font-size:11px;font-weight:700;color:#9CA3AF;"><input type="radio" name="pdsCatE" value="eother" style="display:none;" onchange="pdsCatSelE()"> ⬜ 기타</label>
 </div>
 <input class="m-inp" id="pdsEditTags" placeholder="#해시태그"/>
 <div class="act-row"><button class="btn-cancel" onclick="hide('mPdsEdit')">취소</button><button class="btn-red" onclick="pdsDelBlock()">삭제</button><button class="btn-ok" onclick="pdsUpdate()">저장 ✓</button></div>
 </div></div>
+<!-- 누적 해시태그 월별 모달 -->
+<div class="overlay" id="mPdsAcc" style="display:none"><div class="modal" style="max-width:480px;max-height:80vh;display:flex;flex-direction:column;">
+<h3>📈 해시태그 누적 집계</h3>
+<div style="font-size:11px;color:#aaa;margin-bottom:12px;" id="pdsAccPeriod"></div>
+<div id="pdsAccBody" style="overflow-y:auto;flex:1;"></div>
+<div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mPdsAcc')">닫기</button></div>
+</div></div>
+<!-- PDS 호버 툴팁 -->
+<div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;"></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
@@ -1099,8 +1112,8 @@ function render(){
   var pdsBlocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
   var PDS_SH=0,PDS_TH=24,PDS_SL=14; // 00:00~24:00, slotHeight(px)
   var PDS_TOTAL=PDS_TH*6; // 144 slots
-  var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6'};
-  var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴'};
+  var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
+  var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴',eother:'⬜ 기타'};
   // 오늘 카테고리별 분 집계
   var pdsCatM={e80:0,e20:0,ecut:0,eroutine:0};
   for(var bi2=0;bi2<pdsBlocks.length;bi2++){var bl2=pdsBlocks[bi2];pdsCatM[bl2.cat]=(pdsCatM[bl2.cat]||0)+(bl2.end-bl2.start);}
@@ -1108,20 +1121,12 @@ function render(){
   var pdsTagM={};
   for(var bi3=0;bi3<pdsBlocks.length;bi3++){var bl3=pdsBlocks[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);});}
   var pdsTagSorted=Object.keys(pdsTagM).sort(function(a,b){return pdsTagM[b]-pdsTagM[a];});
-  // 3개월 누적 해시태그 집계
-  var accTagM={};
-  if(p.startDate&&p.endDate){
-    var sd=new Date(p.startDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3')),ed=new Date(p.endDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
-    var dc=new Date(sd);
-    while(dc<=ed){var dk2=dc.getFullYear()+'-'+(dc.getMonth()+1)+'-'+dc.getDate();var db=(p.timeBlocks&&p.timeBlocks[dk2])||[];db.forEach(function(b){(b.tags||[]).forEach(function(t){accTagM[t]=(accTagM[t]||0)+(b.end-b.start);});});dc.setDate(dc.getDate()+1);}
-  }
-  var accTagSorted=Object.keys(accTagM).sort(function(a,b){return accTagM[b]-accTagM[a];});
-  var accTotal=accTagSorted.reduce(function(s,t){return s+accTagM[t];},0);
+  // (누적 집계는 📈 버튼 → openPdsAcc() 모달에서 월별로 표시)
   out+='<div class="card" style="padding:0;overflow:hidden;">';
   out+='<div class="pds-split">';
   // ── LEFT: PDS 타임라인 (00:00 ~ 24:00) ──
   out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
-  out+='<div class="pds-panel-hdr"><span class="ctitle">⏱️ PDS 타임라인</span><span style="font-size:10px;color:#bbb;margin-left:auto;">드래그로 블록 생성</span></div>';
+  out+='<div class="pds-panel-hdr"><span class="ctitle">⏱️ PDS 타임라인</span><button class="nav-btn" style="margin-left:auto;" onclick="prevTodo();render()">◀</button><span style="font-size:11px;font-weight:700;color:var(--dk);padding:0 4px;">'+tdLbl+'</span><button class="nav-btn" onclick="nextTodo();render()">▶</button><button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc()" title="누적 집계">📈</button></div>';
   out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
   out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
   for(var ph=0;ph<PDS_TH;ph++){
@@ -1138,8 +1143,12 @@ function render(){
     var bFrom=bl.start/10, bTo=bl.end/10;
     if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
     var bH=(bTo-bFrom)*PDS_SL;
-    var bCol=PDS_COLORS[bl.cat]||'#aaa';
-    out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" title="'+esc(bl.label||'')+(bl.tags&&bl.tags.length?' '+bl.tags.join(' '):'')+(bH>=28?' (클릭: 수정/삭제)':'')+'">';
+    var bCol=PDS_COLORS[bl.cat]||'#9CA3AF';
+    var bTipParts=[bl.label||''];
+    if(bl.tags&&bl.tags.length)bTipParts.push(bl.tags.join(' '));
+    if(bl.memo)bTipParts.push('\n'+bl.memo);
+    var bTip=bTipParts.filter(Boolean).join('  ');
+    out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(bTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()">';
     out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(bl.label||'')+'</span>';
     if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
     out+='</div>';
@@ -1180,21 +1189,7 @@ function render(){
     }
     out+='</div>';
   }
-  // 3개월 누적 해시태그
-  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📈 3개월 누적 해시태그</div>';
-  if(accTagSorted.length===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 기록하면 누적됩니다</div>';}
-  else{
-    for(var ai=0;ai<Math.min(accTagSorted.length,8);ai++){
-      var at=accTagSorted[ai],am=accTagM[at];
-      var apct=accTotal>0?Math.round(am/accTotal*100):0;
-      out+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">';
-      out+='<div style="font-size:11px;font-weight:700;color:var(--pk);width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(at)+'</div>';
-      out+='<div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+apct+'%;background:var(--pk);border-radius:3px;opacity:.7;"></div></div>';
-      out+='<div style="font-size:10px;font-weight:700;width:46px;text-align:right;font-variant-numeric:tabular-nums;color:#888;">'+fmtMins(am)+'</div>';
-      out+='</div>';
-    }
-    if(accTagSorted.length>8)out+='<div style="font-size:10px;color:#bbb;margin-top:2px;">+ '+(accTagSorted.length-8)+'개 더</div>';
-  }
+  // 누적 집계는 헤더 📈 버튼으로 별도 모달에서 확인
   // 기록 메모
   out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 5px;">📝 기록</div>';
   out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
@@ -1369,20 +1364,21 @@ function pdsHighlight(a,b){
     el.classList.toggle('pds-sel',s>=a&&s<=b);
   });
 }
+var _PDS_ALL_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
 function pdsCatSel(){
   var v=document.querySelector('input[name="pdsCat"]:checked').value;
   document.querySelectorAll('input[name="pdsCat"]').forEach(function(r){
     var lbl=r.parentElement;
-    lbl.style.opacity=r.value===v?'1':'0.45';
-    lbl.style.background=r.value===v?(PDS_COLORS[r.value]+'22'):'transparent';
+    lbl.style.opacity=r.value===v?'1':'0.42';
+    lbl.style.background=r.value===v?((_PDS_ALL_COLORS[r.value]||'#9CA3AF')+'22'):'transparent';
   });
 }
 function pdsCatSelE(){
   var v=document.querySelector('input[name="pdsCatE"]:checked').value;
   document.querySelectorAll('input[name="pdsCatE"]').forEach(function(r){
     var lbl=r.parentElement;
-    lbl.style.opacity=r.value===v?'1':'0.45';
-    lbl.style.background=r.value===v?(PDS_COLORS[r.value]+'22'):'transparent';
+    lbl.style.opacity=r.value===v?'1':'0.42';
+    lbl.style.background=r.value===v?((_PDS_ALL_COLORS[r.value]||'#9CA3AF')+'22'):'transparent';
   });
 }
 function pdsSave(){
@@ -1390,15 +1386,17 @@ function pdsSave(){
   var s=+document.getElementById('pdsNewS').value;
   var e2=+document.getElementById('pdsNewE').value;
   var lbl=document.getElementById('pdsNewLbl').value.trim();
+  var memo=document.getElementById('pdsNewMemo').value.trim();
   var cat=document.querySelector('input[name="pdsCat"]:checked').value;
   var tagsRaw=document.getElementById('pdsNewTags').value;
   var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t.length>1&&t.startsWith('#');});
-  var catLabels={e80:'80% 에너지',e20:'20% 에너지',ecut:'가지치기',eroutine:'루틴'};
+  var catLabels={e80:'80% 에너지',e20:'20% 에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
   var p=cp();p.timeBlocks=p.timeBlocks||{};p.timeBlocks[dk]=p.timeBlocks[dk]||[];
-  p.timeBlocks[dk].push({id:Date.now()+'',start:s,end:e2,cat:cat,label:lbl||(catLabels[cat]||''),tags:tags});
+  var obj={id:Date.now()+'',start:s,end:e2,cat:cat,label:lbl||(catLabels[cat]||''),tags:tags};
+  if(memo)obj.memo=memo;
+  p.timeBlocks[dk].push(obj);
   save();hide('mPdsCreate');render();
-  // 8시로 스크롤 복원
-  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=8*6*PDS_SL;},60);
 }
 function pdsEditBlock(dk,id){
   var p=cp();var blocks=(p.timeBlocks&&p.timeBlocks[dk])||[];
@@ -1407,11 +1405,11 @@ function pdsEditBlock(dk,id){
   document.getElementById('pdsEditDk').value=dk;
   document.getElementById('pdsEditId').value=id;
   document.getElementById('pdsEditLbl').value=bl.label||'';
+  document.getElementById('pdsEditMemo').value=bl.memo||'';
   document.getElementById('pdsEditTags').value=(bl.tags||[]).join(' ');
   var h1=Math.floor(bl.start/60),m1=bl.start%60,h2=Math.floor(bl.end/60),m2=bl.end%60;
   document.getElementById('pdsEditTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+((bl.end-bl.start))+'분)';
-  var rads=document.querySelectorAll('input[name="pdsCatE"]');
-  rads.forEach(function(r){r.checked=(r.value===bl.cat);});
+  document.querySelectorAll('input[name="pdsCatE"]').forEach(function(r){r.checked=(r.value===bl.cat);});
   pdsCatSelE();
   show('mPdsEdit');
   setTimeout(function(){var el=document.getElementById('pdsEditLbl');if(el)el.focus();},50);
@@ -1420,13 +1418,14 @@ function pdsUpdate(){
   var dk=document.getElementById('pdsEditDk').value;
   var id=document.getElementById('pdsEditId').value;
   var lbl=document.getElementById('pdsEditLbl').value.trim();
+  var memo=document.getElementById('pdsEditMemo').value.trim();
   var cat=document.querySelector('input[name="pdsCatE"]:checked').value;
   var tagsRaw=document.getElementById('pdsEditTags').value;
   var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t.length>1&&t.startsWith('#');});
   var p=cp();var blocks=(p.timeBlocks&&p.timeBlocks[dk])||[];
-  for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){blocks[i].label=lbl;blocks[i].cat=cat;blocks[i].tags=tags;break;}}
+  for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){blocks[i].label=lbl;blocks[i].cat=cat;blocks[i].tags=tags;if(memo)blocks[i].memo=memo;else delete blocks[i].memo;break;}}
   save();hide('mPdsEdit');render();
-  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=8*6*PDS_SL;},60);
 }
 function pdsDelBlock(){
   var dk=document.getElementById('pdsEditDk').value;
@@ -1434,7 +1433,75 @@ function pdsDelBlock(){
   var p=cp();if(!p.timeBlocks||!p.timeBlocks[dk])return;
   p.timeBlocks[dk]=p.timeBlocks[dk].filter(function(b){return b.id!==id;});
   save();hide('mPdsEdit');render();
-  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=(8-PDS_SH)*6*PDS_SL;},60);
+  setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=8*6*PDS_SL;},60);
+}
+function pdsShowTip(e,txt){
+  var t=document.getElementById('pdsTooltip');if(!t||!txt)return;
+  t.textContent=txt.replace(/\\n/g,'\n');
+  t.style.display='block';
+  t.style.left=(e.clientX+14)+'px';
+  t.style.top=Math.max(8,e.clientY-10)+'px';
+}
+function pdsHideTip(){var t=document.getElementById('pdsTooltip');if(t)t.style.display='none';}
+function openPdsAcc(){
+  var p=cp();
+  if(!p.startDate||!p.endDate){alert('3개월 바운더리 시작/종료일을 먼저 설정해주세요.');return;}
+  var sd=new Date(p.startDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+  var ed=new Date(p.endDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+  document.getElementById('pdsAccPeriod').textContent=p.startDate+' ~ '+p.endDate;
+  var months={};
+  var dc=new Date(sd);
+  while(dc<=ed){
+    var dkA=dc.getFullYear()+'-'+(dc.getMonth()+1)+'-'+dc.getDate();
+    var mk=dc.getFullYear()+'-'+(dc.getMonth()+1);
+    var dayBl=(p.timeBlocks&&p.timeBlocks[dkA])||[];
+    if(!months[mk])months[mk]={y:dc.getFullYear(),m:dc.getMonth()+1,tags:{},catM:{},total:0};
+    dayBl.forEach(function(b){
+      var mins=b.end-b.start;
+      months[mk].total+=mins;
+      months[mk].catM[b.cat]=(months[mk].catM[b.cat]||0)+mins;
+      (b.tags||[]).forEach(function(tg){months[mk].tags[tg]=(months[mk].tags[tg]||0)+mins;});
+    });
+    dc.setDate(dc.getDate()+1);
+  }
+  var catColors={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
+  var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
+  var mKeys=Object.keys(months).sort();
+  var html='';
+  for(var mi=0;mi<mKeys.length;mi++){
+    var mk2=mKeys[mi],mo=months[mk2];
+    html+='<div style="margin-bottom:18px;">';
+    html+='<div style="font-size:13px;font-weight:800;color:var(--dk);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--pkl);">📅 '+mo.y+'년 '+mo.m+'월 <span style="font-size:11px;font-weight:400;color:#aaa;">총 '+fmtMins(mo.total)+'</span></div>';
+    if(mo.total>0){
+      html+='<div style="display:flex;gap:3px;margin-bottom:8px;height:8px;border-radius:4px;overflow:hidden;">';
+      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){
+        var cm=mo.catM[ck]||0;if(!cm)return;
+        var pct=Math.round(cm/mo.total*100);
+        html+='<div style="height:100%;width:'+pct+'%;background:'+catColors[ck]+';min-width:3px;" title="'+catNames[ck]+' '+fmtMins(cm)+'"></div>';
+      });
+      html+='</div>';
+      html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">';
+      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){
+        var cm=mo.catM[ck]||0;if(!cm)return;
+        html+='<span style="font-size:10px;font-weight:700;color:'+catColors[ck]+';">'+catNames[ck]+' '+fmtMins(cm)+'</span>';
+      });
+      html+='</div>';
+    }
+    var tgs=Object.keys(mo.tags).sort(function(a,b){return mo.tags[b]-mo.tags[a];});
+    if(tgs.length===0){html+='<div style="font-size:11px;color:#ddd;">해시태그 없음</div>';}
+    else{
+      html+='<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+      tgs.forEach(function(tg){
+        var tm=mo.tags[tg];
+        html+='<span style="font-size:11px;font-weight:700;padding:3px 9px;background:#f5f5ff;border:1.5px solid #ddd6fe;border-radius:20px;color:#7C3AED;">'+esc(tg)+' <span style="color:#aaa;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+      });
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  if(!mKeys.length)html='<div style="font-size:13px;color:#aaa;text-align:center;padding:20px;">아직 기록된 타임블록이 없습니다.</div>';
+  document.getElementById('pdsAccBody').innerHTML=html;
+  show('mPdsAcc');
 }
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
 function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
@@ -1483,8 +1550,8 @@ function setTodoColor(c){todoColor=c;TODO_COLORS.forEach(function(v,i){var el=do
 function setTodoEditColor(c){todoEditColor=c;TODO_COLORS.forEach(function(v,i){var el=document.getElementById('tce'+i);if(el)el.style.borderColor=(v===c)?'#333':'transparent';});}
 function _buildGoalSel(selId,selectedId){var p=cp(),allG=p.goals||[];var topG=allG.filter(function(g){return !g.parentId;});var sel=document.getElementById(selId);sel.innerHTML='<option value="">연결 안함</option>';for(var ti=0;ti<topG.length;ti++){var tg=topG[ti];var ch=allG.filter(function(g){return g.parentId===tg.id;});if(!ch.length)continue;sel.innerHTML+='<optgroup label="🎯 '+tg.name+'">';for(var ci=0;ci<ch.length;ci++){sel.innerHTML+='<option value="'+ch[ci].id+'"'+(selectedId===ch[ci].id?' selected':'')+'>'+ch[ci].name+(ch[ci].unit?' ('+ch[ci].unit+'/ 회)':'')+'</option>';}sel.innerHTML+='</optgroup>';}}
 function openTodo(){todoE=0;todoColor='';setTP(0);document.getElementById('iTodo').value='';_buildGoalSel('todoGoalSel','');show('mTodo');setTimeout(function(){setTodoColor('');document.getElementById('iTodo').focus();},50);}
-function setTP(i){todoE=i;for(var n=0;n<3;n++)document.getElementById('tp'+n).className='pbtn'+(n===i?' sel':'');}
-function setTPE(i){todoEditE=i;for(var n=0;n<3;n++)document.getElementById('tpe'+n).className='pbtn'+(n===i?' sel':'');}
+function setTP(i){todoE=i;for(var n=0;n<4;n++){var el=document.getElementById('tp'+n);if(el)el.className='pbtn'+(n===i?' sel':'');}}
+function setTPE(i){todoEditE=i;for(var n=0;n<4;n++){var el=document.getElementById('tpe'+n);if(el)el.className='pbtn'+(n===i?' sel':'');}}
 function doAddTodo(){var t=document.getElementById('iTodo').value.trim();if(!t)return;var gid=document.getElementById('todoGoalSel').value||null;if(todoE===0&&getTodos()[0].length>=3){alert('80% 에너지는 최대 3개까지 등록할 수 있어요.');return;}var item={text:t,done:false};if(gid)item.goalId=gid;if(todoColor)item.color=todoColor;getTodos()[todoE].push(item);todoColor='';hide('mTodo');save();render();}
 function quickTodo(){var el=document.getElementById('qInp'),t=el.value.trim();if(!t)return;getTodos()[2].push({text:t,done:false});el.value='';save();render();}
 function toggleTodoPriority(c,i){var items=getTodos()[c];var newPri=!items[i].priority;for(var j=0;j<items.length;j++)delete items[j].priority;if(newPri)items[i].priority=true;save();render();}
@@ -2644,7 +2711,7 @@ document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;var pairs=[['mAdd',doAdd],['mRen',doRen],['mTodo',doAddTodo],['mTodoEdit',doEditTodo],['mEvEdit',doEditEv],['mGoal',doAddGoal],['mGoalEdit',doEditGoal],['mMetricEdit',doEditMetric]];for(var i=0;i<pairs.length;i++){if(document.getElementById(pairs[i][0]).style.display!=='none'){pairs[i][1]();return;}}
 },true);
 // 오버레이 닫기
-['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit'].forEach(function(id){document.getElementById(id).addEventListener('click',function(e){if(e.target===this)hide(id);});});
+['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit','mPdsCreate','mPdsEdit','mPdsAcc'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)hide(id);});});
 // 자동완성 끄기
 document.querySelectorAll('.m-inp, input[class*="m-inp"]').forEach(function(el){el.setAttribute('autocomplete','off');});
 // Firebase 로그인 후 자동으로 render() 호출됨
