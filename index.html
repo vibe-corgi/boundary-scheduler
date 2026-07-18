@@ -1272,81 +1272,59 @@ function render(){
   out+='</div>';
 
   if(pv==='day'){
-    // ── 일간 뷰 ── LEFT: PLAN|TIMEBAR|DO  RIGHT: 기록/통계
+    // ── 일간 뷰 ── LEFT: 가로 그리드(PLAN|시간바|DO)  RIGHT: 기록/통계
     var doBlocks=(p.doBlocks&&p.doBlocks[tdk])||[];
+    var PDS_GH=17; // row height per hour (px)
+    // build slot maps for display
+    var planSlotMap={};
+    for(var bi=0;bi<pdsBlocks.length;bi++){var bl2=pdsBlocks[bi];var sf=Math.floor(bl2.start/10),st=Math.floor(bl2.end/10);for(var ss=sf;ss<st;ss++)planSlotMap[ss]=bl2;}
+    var doSlotMap={};
+    for(var di=0;di<doBlocks.length;di++){var dl2=doBlocks[di];var df=Math.floor(dl2.start/10),dt=Math.floor(dl2.end/10);for(var ss=df;ss<dt;ss++)doSlotMap[ss]=dl2;}
     out+='<div class="pds-split">';
-    // ── LEFT panel: 3-col PLAN|TIMEBAR|DO ──
+    // ── LEFT panel: PLAN|시간바|DO 가로 그리드 ──
     out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
     out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;border-bottom:1px solid #f0f0f0;">';
     out+='<div style="padding:4px 7px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;border-right:1px solid #f0f0f0;">📋 PLAN</div>';
     out+='<div style="background:#fafafa;border-right:1px solid #f0f0f0;"></div>';
     out+='<div style="padding:4px 7px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;">✅ DO</div>';
     out+='</div>';
-    out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\');pdsDoSlotUp(event,\''+tdk+'\')">';
-    out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;">';
-    // PLAN column
-    out+='<div style="position:relative;border-right:1px solid #e8e8e8;">';
-    out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
-    for(var ph=0;ph<PDS_TH;ph++){
-      var ptop=ph*6*PDS_SL;
-      out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+pad2(ph)+'</div>';
-      out+='<div class="pds-hour-border" style="top:'+ptop+'px;"></div>';
-      for(var pm=1;pm<6;pm++){out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';}
-    }
-    for(var ps=0;ps<PDS_TOTAL;ps++){
-      out+='<div class="pds-slot" data-slot="'+ps+'" style="top:'+(ps*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsSlotDown(event,\''+tdk+'\','+ps+')" onmousemove="pdsSlotMove(event,'+ps+')"></div>';
-    }
-    for(var bi=0;bi<pdsBlocks.length;bi++){
-      var bl=pdsBlocks[bi];
-      var bFrom=bl.start/10,bTo=bl.end/10;
-      if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
-      var bH=(bTo-bFrom)*PDS_SL;
-      var bCol=PDS_COLORS[bl.cat]||'#9CA3AF';
-      var bTipParts=[bl.label||''];
-      if(bl.tags&&bl.tags.length)bTipParts.push(bl.tags.join(' '));
-      if(bl.memo)bTipParts.push('\n'+bl.memo);
-      var bTip=bTipParts.filter(Boolean).join('  ');
-      out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(bTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()">';
-      out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(bl.label||'')+'</span>';
-      if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
+    // grid wrapper (no scroll needed: 24 × 17px = 408px)
+    out+='<div style="overflow:hidden;" id="pdsTlScroll" onmouseup="gridCellUp(event,\''+tdk+'\')" onmouseleave="gridCellLeave()">';
+    out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;user-select:none;">';
+    // ── PLAN 가로 그리드 ──
+    out+='<div style="border-right:1px solid #e8e8e8;">';
+    for(var gh=0;gh<PDS_TH;gh++){
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+      for(var gm=0;gm<6;gm++){
+        var slot=gh*6+gm;
+        var pbl=planSlotMap[slot];
+        var pbg=pbl?(PDS_COLORS[pbl.cat]||'#9CA3AF'):'transparent';
+        var ptip=pbl?(pad2(gh)+':'+pad2(gm*10)+' '+esc(pbl.label||'')):(pad2(gh)+':'+pad2(gm*10));
+        out+='<div data-plan-cell="1" data-slot="'+slot+'" title="'+ptip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+      }
       out+='</div>';
     }
-    out+='</div></div>';
-    // CENTER time bar
-    out+='<div style="position:relative;background:#fafafa;border-right:1px solid #e8e8e8;">';
-    out+='<div style="height:'+(PDS_TOTAL*PDS_SL)+'px;position:relative;">';
-    for(var ph=0;ph<PDS_TH;ph++){
-      out+='<div style="position:absolute;top:'+(ph*6*PDS_SL)+'px;left:0;right:0;border-top:1px solid #e0e0e0;pointer-events:none;"></div>';
-      out+='<div style="position:absolute;top:'+(ph*6*PDS_SL+1)+'px;width:100%;font-size:7px;font-weight:700;color:#bbb;text-align:center;line-height:1;user-select:none;">'+pad2(ph)+'</div>';
+    out+='</div>';
+    // ── CENTER 시간 바 ──
+    out+='<div style="background:#fafafa;border-right:1px solid #e8e8e8;">';
+    for(var gh=0;gh<PDS_TH;gh++){
+      out+='<div style="height:'+PDS_GH+'px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(0,0,0,.05);font-size:7px;font-weight:700;color:#bbb;pointer-events:none;">'+pad2(gh)+'</div>';
     }
-    out+='</div></div>';
-    // DO column (same mechanics as PLAN)
-    out+='<div style="position:relative;">';
-    out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
-    for(var ph=0;ph<PDS_TH;ph++){
-      var ptop2=ph*6*PDS_SL;
-      out+='<div class="pds-do-hour-border" style="top:'+ptop2+'px;"></div>';
-      for(var pm=1;pm<6;pm++){out+='<div class="pds-do-min-border" style="top:'+(ptop2+pm*PDS_SL)+'px;"></div>';}
-    }
-    for(var ds=0;ds<PDS_TOTAL;ds++){
-      out+='<div class="pds-do-slot" data-slot="'+ds+'" style="top:'+(ds*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsDoSlotDown(event,\''+tdk+'\','+ds+')" onmousemove="pdsDoSlotMove(event,'+ds+')"></div>';
-    }
-    for(var dbi=0;dbi<doBlocks.length;dbi++){
-      var dbl=doBlocks[dbi];
-      var dFrom=dbl.start/10,dTo=dbl.end/10;
-      if(dFrom<0||dTo>PDS_TOTAL||dFrom>=dTo)continue;
-      var dH=(dTo-dFrom)*PDS_SL;
-      var dCol=PDS_COLORS[dbl.cat]||'#9CA3AF';
-      var dTipParts=[dbl.label||''];
-      if(dbl.tags&&dbl.tags.length)dTipParts.push(dbl.tags.join(' '));
-      if(dbl.memo)dTipParts.push('\n'+dbl.memo);
-      var dTip=dTipParts.filter(Boolean).join('  ');
-      out+='<div class="pds-do-block" style="top:'+(dFrom*PDS_SL)+'px;height:'+dH+'px;background:'+dCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+dbl.id+'\',\'do\')" onmouseenter="pdsShowTip(event,\''+esc(dTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()">';
-      out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(dbl.label||'')+'</span>';
-      if(dH>26&&dbl.tags&&dbl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(dbl.tags.join(' '))+'</span>';
+    out+='</div>';
+    // ── DO 가로 그리드 ──
+    out+='<div>';
+    for(var gh=0;gh<PDS_TH;gh++){
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+      for(var gm=0;gm<6;gm++){
+        var slot=gh*6+gm;
+        var dbl2=doSlotMap[slot];
+        var dbg=dbl2?(PDS_COLORS[dbl2.cat]||'#9CA3AF'):'transparent';
+        var dtip=dbl2?(pad2(gh)+':'+pad2(gm*10)+' '+esc(dbl2.label||'')):(pad2(gh)+':'+pad2(gm*10));
+        out+='<div data-do-cell="1" data-slot="'+slot+'" title="'+dtip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+      }
       out+='</div>';
     }
-    out+='</div></div>';
+    out+='</div>';
     out+='</div></div></div>';
     // ── RIGHT panel: 기록 & 통계 ──
     out+='<div class="pds-panel">';
@@ -2046,6 +2024,51 @@ function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p
 function setDailyKeySceneRetro(el){var p=cp();p.dailyKeySceneRetros=p.dailyKeySceneRetros||{};p.dailyKeySceneRetros[el.dataset.ks3]=el.value;save();}
 var _pdsMode='plan';
 var _pdsdo={down:false,dk:'',startSlot:0,endSlot:0};
+// ── 가로 그리드 드래그 (PLAN/DO 공통) ──
+var _grid={down:false,src:'plan',tdk:'',start:-1,end:-1};
+function gridCellDown(e,tdk,slot,src){e.preventDefault();_grid={down:true,src:src,tdk:tdk,start:slot,end:slot};gridHighlight(slot,slot,src);}
+function gridCellMove(e,slot,src){if(!_grid.down||_grid.src!==src||slot===_grid.end)return;_grid.end=slot;gridHighlight(_grid.start,slot,src);}
+function gridCellLeave(){/* keep highlight until mouseup */}
+function gridHighlight(s1,s2,src){
+  var from=Math.min(s1,s2),to=Math.max(s1,s2);
+  var attr=src==='do'?'data-do-cell':'data-plan-cell';
+  document.querySelectorAll('['+attr+']').forEach(function(el){
+    var s=+el.dataset.slot;
+    if(s>=from&&s<=to){el.style.outline='2px solid rgba(255,45,120,.6)';el.style.outlineOffset='-1px';}
+    else{el.style.outline='';}
+  });
+}
+function gridClearHighlight(){
+  document.querySelectorAll('[data-plan-cell],[data-do-cell]').forEach(function(el){el.style.outline='';});
+}
+function gridCellUp(e,tdk){
+  if(!_grid.down)return;
+  var src=_grid.src;_grid.down=false;
+  gridClearHighlight();
+  var from=Math.min(_grid.start,_grid.end),to=Math.max(_grid.start,_grid.end);
+  // single click on existing block → edit
+  if(from===to){
+    var p=cp();
+    var blocks=(src==='do'?(p.doBlocks&&p.doBlocks[tdk]):( p.timeBlocks&&p.timeBlocks[tdk]))||[];
+    for(var i=0;i<blocks.length;i++){
+      var bf=Math.floor(blocks[i].start/10),bt=Math.floor(blocks[i].end/10);
+      if(from>=bf&&from<bt){pdsEditBlock(tdk,blocks[i].id,src);return;}
+    }
+  }
+  var sMin=from*10,eMin=(to+1)*10;
+  var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
+  _pdsMode=src;
+  document.getElementById('pdsNewDk').value=tdk;
+  document.getElementById('pdsNewS').value=sMin;
+  document.getElementById('pdsNewE').value=eMin;
+  document.getElementById('pdsNewTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+(eMin-sMin)+'분)';
+  document.getElementById('pdsNewLbl').value='';
+  document.getElementById('pdsNewTags').value='';
+  if(document.getElementById('pdsNewMemo'))document.getElementById('pdsNewMemo').value='';
+  var rads=document.querySelectorAll('input[name="pdsCat"]');rads[0].checked=true;pdsCatSel();
+  show('mPdsCreate');
+  setTimeout(function(){var el=document.getElementById('pdsNewLbl');if(el)el.focus();},50);
+}
 function pdsDoSlotDown(e,dk,slot){e.preventDefault();_pdsdo={down:true,dk:dk,startSlot:slot,endSlot:slot};pdsDoHighlight(slot,slot);}
 function pdsDoSlotMove(e,slot){if(!_pdsdo.down)return;_pdsdo.endSlot=slot;pdsDoHighlight(_pdsdo.startSlot,slot);}
 function pdsDoSlotLeave(){}
