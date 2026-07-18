@@ -390,7 +390,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mb-drag-faded{opacity:.25!important;}
 .mb-qi{width:100%;border:none;border-bottom:1.5px solid #eee;outline:none;padding:10px 0;font-size:14px;font-family:inherit;color:var(--dk);background:transparent;margin-top:8px;}
 .mb-qi:focus{border-bottom-color:var(--pk);}
-.mb-ta{width:100%;border:1.5px solid #eee;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;color:var(--dk);resize:none;outline:none;min-height:80px;line-height:1.6;box-sizing:border-box;}
+.mb-ta{width:100%;border:1.5px solid #eee;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;color:var(--dk);resize:none;outline:none;min-height:80px;line-height:1.6;box-sizing:border-box;overflow:hidden;}
 .mb-ta:focus{border-color:var(--pk);}
 .mb-keyscene-box{background:linear-gradient(135deg,#fff5f8,#fff0fa);border:1.5px solid #ffd6e7;border-radius:14px;padding:14px;margin-bottom:12px;}
 .mb-keyscene-label{font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:8px;}
@@ -3042,6 +3042,7 @@ function renderMobile() {
   bottomnav += '</div>';
 
   el.innerHTML = '<div class="mb-shell">' + topbar + '<div class="mb-content">' + content + '</div>' + bottomnav + '</div>';
+  document.querySelectorAll('.mb-ta').forEach(function(t){ar(t);});
 }
 // ── 모바일 편집 ──────────────────────────────────────────────
 function mbEditTodo(c, i) {
