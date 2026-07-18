@@ -945,7 +945,7 @@ function render(){
   out+='</div>';
   var memoKey=S.calY+'-'+(S.calM+1);
   out+='<div class="cal-memo-box">';
-  out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleCol('calMemo')">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleCol(\'calMemo\')">';
   out+='<div class="cal-memo-lbl" style="margin-bottom:0;">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
   out+='<span style="font-size:12px;color:#bbb;padding:2px 6px;user-select:none;">'+(S.collapsed.calMemo?'▶':'▼')+'</span>';
   out+='</div>';
@@ -956,7 +956,7 @@ function render(){
   // 이달의 목표달성 (메모 아래로 이동)
   if(topGoals.length){
     out+='<div style="background:#fff0f5;border-radius:12px;padding:12px 14px;margin-top:14px;">';
-    out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;'+(S.collapsed.monthGoal?'':'margin-bottom:10px;')+'" onclick="toggleCol('monthGoal')">';
+    out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;'+(S.collapsed.monthGoal?'':'margin-bottom:10px;')+'" onclick="toggleCol(\'monthGoal\')">';
     out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;">📊 이달의 목표 달성</div>';
     out+='<span style="font-size:12px;color:#e88;padding:2px 6px;user-select:none;">'+(S.collapsed.monthGoal?'▶':'▼')+'</span>';
     out+='</div>';
@@ -1098,7 +1098,7 @@ function render(){
     var wKey2='iso-'+psIso.year+'-w'+psIso.week;
     var wMKey2=ps.getFullYear()+'-'+(ps.getMonth()+1);
     out+='<div class="card">';
-    out+='<div class="card-top" style="cursor:pointer;" onclick="toggleCol('weekGoal')">';
+    out+='<div class="card-top" style="cursor:pointer;" onclick="toggleCol(\'weekGoal\')">';
     out+='<span class="ctitle">📊 이번 주 목표 달성</span><span style="font-size:11px;color:#aaa;">'+fmd(ps)+' ~ '+fmd(pe)+'</span>';
     out+='<span style="font-size:12px;color:#bbb;margin-left:auto;padding:2px 4px;user-select:none;">'+(S.collapsed.weekGoal?'▶':'▼')+'</span>';
     out+='</div>';
