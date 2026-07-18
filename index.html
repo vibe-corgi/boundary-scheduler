@@ -1097,34 +1097,45 @@ function render(){
   var todayMemoKey='daily-'+tdk;
   var todayMemo=(p.dailyMemos&&p.dailyMemos[todayMemoKey])||'';
   var pdsBlocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
-  var PDS_SH=6,PDS_TH=18,PDS_SL=14; // startHour, totalHours, slotHeight(px)
-  var PDS_TOTAL=PDS_TH*6; // 108 slots
+  var PDS_SH=0,PDS_TH=24,PDS_SL=14; // 00:00~24:00, slotHeight(px)
+  var PDS_TOTAL=PDS_TH*6; // 144 slots
   var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6'};
+  var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴'};
+  // 오늘 카테고리별 분 집계
+  var pdsCatM={e80:0,e20:0,ecut:0,eroutine:0};
+  for(var bi2=0;bi2<pdsBlocks.length;bi2++){var bl2=pdsBlocks[bi2];pdsCatM[bl2.cat]=(pdsCatM[bl2.cat]||0)+(bl2.end-bl2.start);}
+  // 오늘 해시태그별 분 집계
+  var pdsTagM={};
+  for(var bi3=0;bi3<pdsBlocks.length;bi3++){var bl3=pdsBlocks[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);});}
+  var pdsTagSorted=Object.keys(pdsTagM).sort(function(a,b){return pdsTagM[b]-pdsTagM[a];});
+  // 3개월 누적 해시태그 집계
+  var accTagM={};
+  if(p.startDate&&p.endDate){
+    var sd=new Date(p.startDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3')),ed=new Date(p.endDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+    var dc=new Date(sd);
+    while(dc<=ed){var dk2=dc.getFullYear()+'-'+(dc.getMonth()+1)+'-'+dc.getDate();var db=(p.timeBlocks&&p.timeBlocks[dk2])||[];db.forEach(function(b){(b.tags||[]).forEach(function(t){accTagM[t]=(accTagM[t]||0)+(b.end-b.start);});});dc.setDate(dc.getDate()+1);}
+  }
+  var accTagSorted=Object.keys(accTagM).sort(function(a,b){return accTagM[b]-accTagM[a];});
+  var accTotal=accTagSorted.reduce(function(s,t){return s+accTagM[t];},0);
   out+='<div class="card" style="padding:0;overflow:hidden;">';
   out+='<div class="pds-split">';
-  // ── LEFT: PDS 타임라인 ──
+  // ── LEFT: PDS 타임라인 (00:00 ~ 24:00) ──
   out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
   out+='<div class="pds-panel-hdr"><span class="ctitle">⏱️ PDS 타임라인</span><span style="font-size:10px;color:#bbb;margin-left:auto;">드래그로 블록 생성</span></div>';
   out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
-  out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;" id="pdsTlInner">';
-  // 시간 라벨 + 구분선
+  out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
   for(var ph=0;ph<PDS_TH;ph++){
     var ptop=ph*6*PDS_SL;
-    out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+(PDS_SH+ph)+'</div>';
+    out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+pad2(ph)+'</div>';
     out+='<div class="pds-hour-border" style="top:'+ptop+'px;"></div>';
-    for(var pm=1;pm<6;pm++){
-      out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';
-    }
+    for(var pm=1;pm<6;pm++){out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';}
   }
-  // 슬롯 셀 (클릭/드래그)
   for(var ps=0;ps<PDS_TOTAL;ps++){
     out+='<div class="pds-slot" data-slot="'+ps+'" style="top:'+(ps*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsSlotDown(event,\''+tdk+'\','+ps+')" onmousemove="pdsSlotMove(event,'+ps+')"></div>';
   }
-  // 블록 렌더
   for(var bi=0;bi<pdsBlocks.length;bi++){
     var bl=pdsBlocks[bi];
-    var bFrom=(bl.start-PDS_SH*60)/10;
-    var bTo=(bl.end-PDS_SH*60)/10;
+    var bFrom=bl.start/10, bTo=bl.end/10;
     if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
     var bH=(bTo-bFrom)*PDS_SL;
     var bCol=PDS_COLORS[bl.cat]||'#aaa';
@@ -1134,20 +1145,65 @@ function render(){
     out+='</div>';
   }
   out+='</div></div></div>';
-  // ── RIGHT: 오늘의 기록 ──
+  // ── RIGHT: 기록 + 통계 ──
   out+='<div class="pds-panel">';
-  out+='<div class="pds-panel-hdr"><span class="ctitle">📓 오늘의 기록</span><span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
+  out+='<div class="pds-panel-hdr" style="position:sticky;top:0;z-index:5;background:#fff;"><span class="ctitle">📓 기록 & 통계</span><span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
   out+='<div class="pds-record">';
-  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ 오늘의 Key Scene — 오늘 하루 가장 빛날 나의 장면</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 중 가장 빛날 나의 장면을 한 문장으로..." style="min-height:60px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
-  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:12px 0 6px;">📝 기록</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요. 생각, 감정, 깨달음..." style="min-height:180px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
+  // Key Scene
+  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:5px;">✨ 오늘의 Key Scene</div>';
+  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
+  // 오늘 시간 분배
+  var pdsTotalMins=pdsCatM.e80+pdsCatM.e20+pdsCatM.ecut+pdsCatM.eroutine;
+  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📊 오늘 시간 분배 <span style="font-weight:400;">('+fmtMins(pdsTotalMins)+')</span></div>';
+  if(pdsTotalMins===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 추가하면 표시됩니다</div>';}
+  else{
+    var catList=[['e80',PDS_COLORS.e80],['e20',PDS_COLORS.e20],['ecut',PDS_COLORS.ecut],['eroutine',PDS_COLORS.eroutine]];
+    for(var ci=0;ci<catList.length;ci++){
+      var ck=catList[ci][0],cc=catList[ci][1],cm=pdsCatM[ck]||0;
+      if(!cm)continue;
+      var cpct=pdsTotalMins>0?Math.round(cm/pdsTotalMins*100):0;
+      out+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">';
+      out+='<div style="font-size:10px;font-weight:700;width:78px;flex-shrink:0;color:'+cc+';">'+PDS_NAMES[ck].split(' ').slice(1).join(' ')+'</div>';
+      out+='<div style="flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+cpct+'%;background:'+cc+';border-radius:4px;"></div></div>';
+      out+='<div style="font-size:10px;font-weight:700;width:50px;text-align:right;font-variant-numeric:tabular-nums;color:'+cc+';">'+fmtMins(cm)+'</div>';
+      out+='</div>';
+    }
+  }
+  // 오늘 해시태그
+  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">#️⃣ 오늘 해시태그</div>';
+  if(pdsTagSorted.length===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">해시태그가 있는 블록을 추가하면 표시됩니다</div>';}
+  else{
+    out+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
+    for(var ti=0;ti<pdsTagSorted.length;ti++){
+      var tg=pdsTagSorted[ti],tm=pdsTagM[tg];
+      out+='<span style="font-size:11px;font-weight:700;padding:3px 9px;background:#f5f5ff;border:1.5px solid #ddd6fe;border-radius:20px;color:#7C3AED;">'+esc(tg)+' <span style="color:#aaa;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+    }
+    out+='</div>';
+  }
+  // 3개월 누적 해시태그
+  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📈 3개월 누적 해시태그</div>';
+  if(accTagSorted.length===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 기록하면 누적됩니다</div>';}
+  else{
+    for(var ai=0;ai<Math.min(accTagSorted.length,8);ai++){
+      var at=accTagSorted[ai],am=accTagM[at];
+      var apct=accTotal>0?Math.round(am/accTotal*100):0;
+      out+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">';
+      out+='<div style="font-size:11px;font-weight:700;color:var(--pk);width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(at)+'</div>';
+      out+='<div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+apct+'%;background:var(--pk);border-radius:3px;opacity:.7;"></div></div>';
+      out+='<div style="font-size:10px;font-weight:700;width:46px;text-align:right;font-variant-numeric:tabular-nums;color:#888;">'+fmtMins(am)+'</div>';
+      out+='</div>';
+    }
+    if(accTagSorted.length>8)out+='<div style="font-size:10px;color:#bbb;margin-top:2px;">+ '+(accTagSorted.length-8)+'개 더</div>';
+  }
+  // 기록 메모
+  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 5px;">📝 기록</div>';
+  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
   out+='</div></div>';
   out+='</div></div>';
   document.getElementById('app').innerHTML=out;
   document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta').forEach(function(el){ar(el);});
   // PDS 타임라인 8시로 초기 스크롤
-  var pdsSc=document.getElementById('pdsTlScroll');if(pdsSc)pdsSc.scrollTop=(8-6)*6*14;
+  var pdsSc=document.getElementById('pdsTlScroll');if(pdsSc)pdsSc.scrollTop=8*6*14;
 }
 
 // ── 액션 ───────────────────────────────────────────────────
@@ -1283,9 +1339,10 @@ function delPlan(pk,i){getPlanItems(pk).splice(i,1);save();render();}
 function setDailyMemo(el){var p=cp();p.dailyMemos=p.dailyMemos||{};p.dailyMemos[el.dataset.dmk]=el.value;ar(el);save();}
 // ── PDS 타임라인 ───────────────────────────────────────────
 var _pds={down:false,dk:'',startSlot:0,endSlot:0};
-var PDS_SH=6,PDS_SL=14; // startHour, slotHeight
+var PDS_SL=14; // slotHeight px (10min per slot)
 var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6'};
 function pad2(n){return n<10?'0'+n:''+n;}
+function fmtMins(m){var h=Math.floor(m/60),mn=m%60;return h?(mn?h+'h '+mn+'m':h+'h'):mn+'m';}
 function pdsSlotDown(e,dk,slot){e.preventDefault();_pds={down:true,dk:dk,startSlot:slot,endSlot:slot};pdsHighlight(slot,slot);}
 function pdsSlotMove(e,slot){if(!_pds.down)return;_pds.endSlot=slot;var a=Math.min(_pds.startSlot,slot),b=Math.max(_pds.startSlot,slot);pdsHighlight(a,b);}
 function pdsSlotLeave(){/* keep selection visible until mouseup */}
@@ -1293,7 +1350,7 @@ function pdsSlotUp(e,dk){
   if(!_pds.down){return;}_pds.down=false;
   var a=Math.min(_pds.startSlot,_pds.endSlot),b=Math.max(_pds.startSlot,_pds.endSlot);
   document.querySelectorAll('.pds-slot.pds-sel').forEach(function(el){el.classList.remove('pds-sel');});
-  var sMin=(a*10)+PDS_SH*60, eMin=(b+1)*10+PDS_SH*60;
+  var sMin=a*10, eMin=(b+1)*10; // 00:00 기준 분
   var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
   document.getElementById('pdsNewDk').value=dk;
   document.getElementById('pdsNewS').value=sMin;
