@@ -170,6 +170,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .pds-block{position:absolute;left:43px;right:4px;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;z-index:4;transition:opacity .1s;}
 .pds-block:hover{opacity:.82;}
 .pds-record{padding:14px 16px;height:420px;overflow-y:auto;}
+/* PDS 주간 뷰 */
+.pds-week-wrap{display:flex;height:420px;overflow-y:auto;overflow-x:hidden;}
+.pds-week-hlabels{width:28px;flex-shrink:0;position:relative;}
+.pds-week-cols{display:grid;flex:1;min-width:0;}
+.pds-week-col{border-right:1px solid #f0f0f0;position:relative;}
+.pds-week-col:last-child{border-right:none;}
+.pds-wday-hdr{position:sticky;top:0;z-index:6;padding:3px 2px;font-size:9px;font-weight:700;color:#aaa;text-align:center;border-bottom:1px solid #f0f0f0;background:#fafafa;}
+.pds-wday-hdr.wtoday{color:var(--pk);background:var(--pkl);}
+.pds-wday-inner{position:relative;}
+.pds-wblock{position:absolute;left:1px;right:1px;border-radius:2px;cursor:pointer;z-index:4;transition:opacity .1s;}
+.pds-wblock:hover{opacity:.72;}
+.pds-whour-border{position:absolute;left:0;right:0;border-top:1px solid #e8e8e8;z-index:1;pointer-events:none;}
+.pds-wmin-border{position:absolute;left:0;right:0;border-top:1px dashed rgba(0,0,0,.05);z-index:1;pointer-events:none;}
+.pds-whlabel{position:absolute;right:2px;font-size:7px;font-weight:700;color:#ccc;line-height:1;}
 .pds-cat-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;}
 .pds-cat-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;border:2px solid transparent;cursor:pointer;}
 .pds-cat-chip.sel{border-color:#000;}
@@ -509,6 +523,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div id="pdsAccBody" style="overflow-y:auto;flex:1;"></div>
 <div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mPdsAcc')">닫기</button></div>
 </div></div>
+<!-- 해시태그 상세 뷰 -->
+<div class="overlay" id="mTagDetail" style="display:none"><div class="modal" style="max-width:480px;max-height:82vh;display:flex;flex-direction:column;">
+<h3>#️⃣ <span id="tagDetailName"></span></h3>
+<div id="tagDetailBody" style="overflow-y:auto;flex:1;margin-top:8px;"></div>
+<div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mTagDetail')">닫기</button></div>
+</div></div>
 <!-- PDS 호버 툴팁 -->
 <div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;"></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
@@ -529,7 +549,7 @@ var PDCA=[{k:'plan',i:'📋',l:'PLAN',s:'이번 주 뭘 할지...'},{k:'doIt',i:
 var S={tabs:[],activeTab:0,projects:{},
   calY:new Date().getFullYear(),calM:new Date().getMonth(),
   wkY:new Date().getFullYear(),wkM:new Date().getMonth(),
-  pdcaOff:0,todoDate:todayKey()};
+  pdcaOff:0,todoDate:todayKey(),pdsWeekView:false,pdsWeekOff:0};
 
 function todayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function fmd(d){return(d.getMonth()+1)+'/'+d.getDate();}
@@ -1110,91 +1130,156 @@ function render(){
   var todayMemoKey='daily-'+tdk;
   var todayMemo=(p.dailyMemos&&p.dailyMemos[todayMemoKey])||'';
   var pdsBlocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
-  var PDS_SH=0,PDS_TH=24,PDS_SL=14; // 00:00~24:00, slotHeight(px)
+  var PDS_TH=24,PDS_SL=14;
   var PDS_TOTAL=PDS_TH*6; // 144 slots
   var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
   var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴',eother:'⬜ 기타'};
   // 오늘 카테고리별 분 집계
   var pdsCatM={e80:0,e20:0,ecut:0,eroutine:0};
   for(var bi2=0;bi2<pdsBlocks.length;bi2++){var bl2=pdsBlocks[bi2];pdsCatM[bl2.cat]=(pdsCatM[bl2.cat]||0)+(bl2.end-bl2.start);}
-  // 오늘 해시태그별 분 집계
-  var pdsTagM={};
-  for(var bi3=0;bi3<pdsBlocks.length;bi3++){var bl3=pdsBlocks[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);});}
+  // 오늘 해시태그별 분 집계 (카테고리별로도 집계 → 색상용)
+  var pdsTagM={},pdsTagCatM={};
+  for(var bi3=0;bi3<pdsBlocks.length;bi3++){var bl3=pdsBlocks[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);if(!pdsTagCatM[t])pdsTagCatM[t]={};pdsTagCatM[t][bl3.cat]=(pdsTagCatM[t][bl3.cat]||0)+(bl3.end-bl3.start);});}
   var pdsTagSorted=Object.keys(pdsTagM).sort(function(a,b){return pdsTagM[b]-pdsTagM[a];});
-  // (누적 집계는 📈 버튼 → openPdsAcc() 모달에서 월별로 표시)
   out+='<div class="card" style="padding:0;overflow:hidden;">';
-  out+='<div class="pds-split">';
-  // ── LEFT: PDS 타임라인 (00:00 ~ 24:00) ──
-  out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
-  out+='<div class="pds-panel-hdr"><span class="ctitle">⏱️ PDS 타임라인</span><button class="nav-btn" style="margin-left:auto;" onclick="prevTodo();render()">◀</button><span style="font-size:11px;font-weight:700;color:var(--dk);padding:0 4px;">'+tdLbl+'</span><button class="nav-btn" onclick="nextTodo();render()">▶</button><button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc()" title="누적 집계">📈</button></div>';
-  out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
-  out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
-  for(var ph=0;ph<PDS_TH;ph++){
-    var ptop=ph*6*PDS_SL;
-    out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+pad2(ph)+'</div>';
-    out+='<div class="pds-hour-border" style="top:'+ptop+'px;"></div>';
-    for(var pm=1;pm<6;pm++){out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';}
-  }
-  for(var ps=0;ps<PDS_TOTAL;ps++){
-    out+='<div class="pds-slot" data-slot="'+ps+'" style="top:'+(ps*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsSlotDown(event,\''+tdk+'\','+ps+')" onmousemove="pdsSlotMove(event,'+ps+')"></div>';
-  }
-  for(var bi=0;bi<pdsBlocks.length;bi++){
-    var bl=pdsBlocks[bi];
-    var bFrom=bl.start/10, bTo=bl.end/10;
-    if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
-    var bH=(bTo-bFrom)*PDS_SL;
-    var bCol=PDS_COLORS[bl.cat]||'#9CA3AF';
-    var bTipParts=[bl.label||''];
-    if(bl.tags&&bl.tags.length)bTipParts.push(bl.tags.join(' '));
-    if(bl.memo)bTipParts.push('\n'+bl.memo);
-    var bTip=bTipParts.filter(Boolean).join('  ');
-    out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(bTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()">';
-    out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(bl.label||'')+'</span>';
-    if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
+  if(S.pdsWeekView){
+    // ── 주간 뷰 ──
+    var WK_SL=5; // slot height px (5px per 10-min slot = 30px/h)
+    var WK_TOTAL=PDS_TOTAL;
+    var wkDays=pdsGetWeekDays(S.pdsWeekOff);
+    var wkRangeLabel=pdsWeekLabel(S.pdsWeekOff);
+    out+='<div class="pds-panel-hdr">';
+    out+='<span class="ctitle">⏱️ PDS</span>';
+    out+='<button class="nav-btn" style="font-size:10px;font-weight:700;color:var(--pk);background:var(--pkl);" onclick="S.pdsWeekView=false;render()">일간</button>';
+    out+='<span style="font-size:10px;font-weight:700;color:var(--dk);margin:0 2px;">주간</span>';
+    out+='<button class="nav-btn" style="margin-left:auto;" onclick="S.pdsWeekOff--;render()">◀</button>';
+    out+='<span style="font-size:10px;font-weight:700;color:var(--dk);padding:0 4px;">'+wkRangeLabel+'</span>';
+    out+='<button class="nav-btn" onclick="S.pdsWeekOff++;render()">▶</button>';
+    if(S.pdsWeekOff!==0)out+='<button class="nav-btn" style="font-size:10px;" onclick="S.pdsWeekOff=0;render()">오늘</button>';
+    out+='<button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc()" title="누적 집계">📈</button>';
     out+='</div>';
-  }
-  out+='</div></div></div>';
-  // ── RIGHT: 기록 + 통계 ──
-  out+='<div class="pds-panel">';
-  out+='<div class="pds-panel-hdr" style="position:sticky;top:0;z-index:5;background:#fff;"><span class="ctitle">📓 기록 & 통계</span><span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
-  out+='<div class="pds-record">';
-  // Key Scene
-  out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:5px;">✨ 오늘의 Key Scene</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
-  // 오늘 시간 분배
-  var pdsTotalMins=pdsCatM.e80+pdsCatM.e20+pdsCatM.ecut+pdsCatM.eroutine;
-  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📊 오늘 시간 분배 <span style="font-weight:400;">('+fmtMins(pdsTotalMins)+')</span></div>';
-  if(pdsTotalMins===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 추가하면 표시됩니다</div>';}
-  else{
-    var catList=[['e80',PDS_COLORS.e80],['e20',PDS_COLORS.e20],['ecut',PDS_COLORS.ecut],['eroutine',PDS_COLORS.eroutine]];
-    for(var ci=0;ci<catList.length;ci++){
-      var ck=catList[ci][0],cc=catList[ci][1],cm=pdsCatM[ck]||0;
-      if(!cm)continue;
-      var cpct=pdsTotalMins>0?Math.round(cm/pdsTotalMins*100):0;
-      out+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">';
-      out+='<div style="font-size:10px;font-weight:700;width:78px;flex-shrink:0;color:'+cc+';">'+PDS_NAMES[ck].split(' ').slice(1).join(' ')+'</div>';
-      out+='<div style="flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+cpct+'%;background:'+cc+';border-radius:4px;"></div></div>';
-      out+='<div style="font-size:10px;font-weight:700;width:50px;text-align:right;font-variant-numeric:tabular-nums;color:'+cc+';">'+fmtMins(cm)+'</div>';
+    out+='<div class="pds-week-wrap" id="pdsWeekScroll">';
+    // 시간 라벨 컬럼
+    out+='<div class="pds-week-hlabels" style="padding-top:28px;position:relative;">';
+    out+='<div style="position:relative;height:'+(WK_TOTAL*WK_SL)+'px;">';
+    for(var wph=0;wph<PDS_TH;wph++){
+      out+='<div class="pds-whlabel" style="top:'+(wph*6*WK_SL+1)+'px;">'+pad2(wph)+'</div>';
+      out+='<div class="pds-whour-border" style="top:'+(wph*6*WK_SL)+'px;left:0;width:100%;"></div>';
+    }
+    out+='</div></div>';
+    // 7일 컬럼
+    out+='<div class="pds-week-cols" style="grid-template-columns:repeat(7,1fr);">';
+    var todKeyFull=todayKey();
+    for(var wd=0;wd<7;wd++){
+      var wdk=wkDays[wd];
+      var wdDate=new Date(wdk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var wdBlocks=(p.timeBlocks&&p.timeBlocks[wdk])||[];
+      var wdIsToday=(wdk===todKeyFull);
+      var wdDayLabel=(['월','화','수','목','금','토','일'])[wd];
+      var wdMD=(wdDate.getMonth()+1)+'/'+(wdDate.getDate());
+      out+='<div class="pds-week-col">';
+      out+='<div class="pds-wday-hdr'+(wdIsToday?' wtoday':'')+'">'+wdDayLabel+'<br/>'+wdMD+'</div>';
+      out+='<div class="pds-wday-inner" style="height:'+(WK_TOTAL*WK_SL)+'px;">';
+      for(var wph2=0;wph2<PDS_TH;wph2++){
+        out+='<div class="pds-whour-border" style="top:'+(wph2*6*WK_SL)+'px;"></div>';
+        for(var wpm=1;wpm<6;wpm++){out+='<div class="pds-wmin-border" style="top:'+(wph2*6*WK_SL+wpm*WK_SL)+'px;"></div>';}
+      }
+      for(var wbi=0;wbi<wdBlocks.length;wbi++){
+        var wbl=wdBlocks[wbi];
+        var wbFrom=wbl.start/10,wbTo=wbl.end/10;
+        if(wbFrom<0||wbTo>WK_TOTAL||wbFrom>=wbTo)continue;
+        var wbH=Math.max(3,(wbTo-wbFrom)*WK_SL);
+        var wbCol=PDS_COLORS[wbl.cat]||'#9CA3AF';
+        var wbTipParts=[];
+        if(wbl.label)wbTipParts.push(wbl.label);
+        wbTipParts.push(pad2(Math.floor(wbl.start/60))+':'+pad2(wbl.start%60)+'~'+pad2(Math.floor(wbl.end/60))+':'+pad2(wbl.end%60));
+        if(wbl.tags&&wbl.tags.length)wbTipParts.push(wbl.tags.join(' '));
+        if(wbl.memo)wbTipParts.push('\n'+wbl.memo);
+        var wbTip=wbTipParts.join('  ');
+        out+='<div class="pds-wblock" style="top:'+(wbFrom*WK_SL)+'px;height:'+wbH+'px;background:'+wbCol+';opacity:.88;" onclick="pdsEditBlock(\''+wdk+'\',\''+wbl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(wbTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()"></div>';
+      }
+      out+='</div></div>';
+    }
+    out+='</div></div>';
+  } else {
+    // ── 일간 뷰 ──
+    out+='<div class="pds-split">';
+    // ── LEFT: PDS 타임라인 ──
+    out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
+    out+='<div class="pds-panel-hdr">';
+    out+='<span class="ctitle">⏱️ PDS 타임라인</span>';
+    out+='<button class="nav-btn" style="font-size:10px;font-weight:700;color:#aaa;" onclick="S.pdsWeekView=true;S.pdsWeekOff=0;render()">주간</button>';
+    out+='<button class="nav-btn" style="margin-left:auto;" onclick="prevTodo();render()">◀</button>';
+    out+='<span style="font-size:11px;font-weight:700;color:var(--dk);padding:0 4px;">'+tdLbl+'</span>';
+    out+='<button class="nav-btn" onclick="nextTodo();render()">▶</button>';
+    out+='<button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc()" title="누적 집계">📈</button>';
+    out+='</div>';
+    out+='<div class="pds-tl-scroll" id="pdsTlScroll" onmouseleave="pdsSlotLeave()" onmouseup="pdsSlotUp(event,\''+tdk+'\')">';
+    out+='<div class="pds-tl-inner" style="height:'+(PDS_TOTAL*PDS_SL)+'px;">';
+    for(var ph=0;ph<PDS_TH;ph++){
+      var ptop=ph*6*PDS_SL;
+      out+='<div class="pds-hour-label" style="top:'+(ptop+1)+'px;">'+pad2(ph)+'</div>';
+      out+='<div class="pds-hour-border" style="top:'+ptop+'px;"></div>';
+      for(var pm=1;pm<6;pm++){out+='<div class="pds-min-border" style="top:'+(ptop+pm*PDS_SL)+'px;"></div>';}
+    }
+    for(var ps=0;ps<PDS_TOTAL;ps++){
+      out+='<div class="pds-slot" data-slot="'+ps+'" style="top:'+(ps*PDS_SL)+'px;height:'+PDS_SL+'px;" onmousedown="pdsSlotDown(event,\''+tdk+'\','+ps+')" onmousemove="pdsSlotMove(event,'+ps+')"></div>';
+    }
+    for(var bi=0;bi<pdsBlocks.length;bi++){
+      var bl=pdsBlocks[bi];
+      var bFrom=bl.start/10, bTo=bl.end/10;
+      if(bFrom<0||bTo>PDS_TOTAL||bFrom>=bTo)continue;
+      var bH=(bTo-bFrom)*PDS_SL;
+      var bCol=PDS_COLORS[bl.cat]||'#9CA3AF';
+      var bTipParts=[bl.label||''];
+      if(bl.tags&&bl.tags.length)bTipParts.push(bl.tags.join(' '));
+      if(bl.memo)bTipParts.push('\n'+bl.memo);
+      var bTip=bTipParts.filter(Boolean).join('  ');
+      out+='<div class="pds-block" style="top:'+(bFrom*PDS_SL)+'px;height:'+bH+'px;background:'+bCol+';" onclick="event.stopPropagation();pdsEditBlock(\''+tdk+'\',\''+bl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(bTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()">';
+      out+='<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+esc(bl.label||'')+'</span>';
+      if(bH>26&&bl.tags&&bl.tags.length)out+='<span style="font-size:9px;opacity:.85;">'+esc(bl.tags.join(' '))+'</span>';
       out+='</div>';
     }
-  }
-  // 오늘 해시태그
-  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">#️⃣ 오늘 해시태그</div>';
-  if(pdsTagSorted.length===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">해시태그가 있는 블록을 추가하면 표시됩니다</div>';}
-  else{
-    out+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
-    for(var ti=0;ti<pdsTagSorted.length;ti++){
-      var tg=pdsTagSorted[ti],tm=pdsTagM[tg];
-      out+='<span style="font-size:11px;font-weight:700;padding:3px 9px;background:#f5f5ff;border:1.5px solid #ddd6fe;border-radius:20px;color:#7C3AED;">'+esc(tg)+' <span style="color:#aaa;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+    out+='</div></div></div>';
+    // ── RIGHT: 기록 + 통계 ──
+    out+='<div class="pds-panel">';
+    out+='<div class="pds-panel-hdr" style="position:sticky;top:0;z-index:5;background:#fff;"><span class="ctitle">📓 기록 & 통계</span><span style="font-size:11px;color:#aaa;">'+tdLbl+'</span></div>';
+    out+='<div class="pds-record">';
+    out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:5px;">✨ 오늘의 Key Scene</div>';
+    out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
+    var pdsTotalMins=pdsCatM.e80+pdsCatM.e20+pdsCatM.ecut+pdsCatM.eroutine;
+    out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📊 오늘 시간 분배 <span style="font-weight:400;">('+fmtMins(pdsTotalMins)+')</span></div>';
+    if(pdsTotalMins===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 추가하면 표시됩니다</div>';}
+    else{
+      var catList=[['e80',PDS_COLORS.e80],['e20',PDS_COLORS.e20],['ecut',PDS_COLORS.ecut],['eroutine',PDS_COLORS.eroutine]];
+      for(var ci=0;ci<catList.length;ci++){
+        var ck=catList[ci][0],cc=catList[ci][1],cm=pdsCatM[ck]||0;
+        if(!cm)continue;
+        var cpct=pdsTotalMins>0?Math.round(cm/pdsTotalMins*100):0;
+        out+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">';
+        out+='<div style="font-size:10px;font-weight:700;width:78px;flex-shrink:0;color:'+cc+';">'+PDS_NAMES[ck].split(' ').slice(1).join(' ')+'</div>';
+        out+='<div style="flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+cpct+'%;background:'+cc+';border-radius:4px;"></div></div>';
+        out+='<div style="font-size:10px;font-weight:700;width:50px;text-align:right;font-variant-numeric:tabular-nums;color:'+cc+';">'+fmtMins(cm)+'</div>';
+        out+='</div>';
+      }
     }
+    out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">#️⃣ 오늘 해시태그</div>';
+    if(pdsTagSorted.length===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">해시태그가 있는 블록을 추가하면 표시됩니다</div>';}
+    else{
+      out+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
+      for(var ti=0;ti<pdsTagSorted.length;ti++){
+        var tg=pdsTagSorted[ti],tm=pdsTagM[tg];
+        var tgCol=tagDomColor(pdsTagCatM[tg],PDS_COLORS);
+        out+='<span onclick="openTagDetail(\''+esc(tg)+'\')" style="cursor:pointer;font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgCol,.1)+';border:1.5px solid '+hexAlpha(tgCol,.3)+';border-radius:20px;color:'+tgCol+';">'+esc(tg)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+      }
+      out+='</div>';
+    }
+    out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 5px;">📝 기록</div>';
+    out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
+    out+='</div></div>';
     out+='</div>';
   }
-  // 누적 집계는 헤더 📈 버튼으로 별도 모달에서 확인
-  // 기록 메모
-  out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 5px;">📝 기록</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="오늘 하루를 자유롭게 기록해보세요..." style="min-height:90px;" oninput="setDailyMemo(this)" data-dmk="'+todayMemoKey+'">'+esc(todayMemo)+'</textarea>';
-  out+='</div></div>';
-  out+='</div></div>';
+  out+='</div>';
   document.getElementById('app').innerHTML=out;
   document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta').forEach(function(el){ar(el);});
   // PDS 타임라인 8시로 초기 스크롤
@@ -1443,29 +1528,123 @@ function pdsShowTip(e,txt){
   t.style.top=Math.max(8,e.clientY-10)+'px';
 }
 function pdsHideTip(){var t=document.getElementById('pdsTooltip');if(t)t.style.display='none';}
+function pdsGetWeekDays(off){
+  var today=new Date();
+  var dow=today.getDay();
+  var mon=new Date(today);
+  mon.setDate(today.getDate()-(dow===0?6:dow-1)+(off||0)*7);
+  mon.setHours(0,0,0,0);
+  var days=[];
+  for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate());}
+  return days;
+}
+function pdsWeekLabel(off){
+  var days=pdsGetWeekDays(off);
+  var s=new Date(days[0].replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+  var e=new Date(days[6].replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+  return (s.getMonth()+1)+'/'+s.getDate()+'~'+(e.getMonth()+1)+'/'+e.getDate();
+}
+function tagDomColor(catM,colors){
+  if(!catM)return '#7C3AED';
+  var best='',bv=0;
+  Object.keys(catM).forEach(function(k){if(catM[k]>bv){bv=catM[k];best=k;}});
+  return (colors&&colors[best])||'#7C3AED';
+}
+function hexAlpha(hex,a){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+function openTagDetail(tag){
+  var p=cp();
+  var allBlocks=p.timeBlocks||{};
+  var items=[],totMins=0,monthM={},catM={};
+  var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
+  var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
+  Object.keys(allBlocks).sort().reverse().forEach(function(dk){
+    (allBlocks[dk]||[]).forEach(function(bl){
+      if(!bl.tags||bl.tags.indexOf(tag)<0)return;
+      var mins=bl.end-bl.start;
+      totMins+=mins;
+      var dObj=new Date(dk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var mk=dObj.getFullYear()+'-'+(dObj.getMonth()+1);
+      monthM[mk]=(monthM[mk]||0)+mins;
+      catM[bl.cat]=(catM[bl.cat]||0)+mins;
+      items.push({dk:dk,bl:bl,mins:mins});
+    });
+  });
+  var domColor=tagDomColor(catM,PDS_COLORS);
+  var html='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">';
+  html+='<span style="font-size:16px;font-weight:800;color:'+domColor+';">'+esc(tag)+'</span>';
+  html+='<span style="font-size:11px;color:#aaa;">총 '+fmtMins(totMins)+' · '+items.length+'개 블록</span></div>';
+  // 카테고리 분배
+  html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:6px;">카테고리 분배</div>';
+  html+='<div style="display:flex;gap:3px;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px;">';
+  ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=catM[ck]||0;if(!cm)return;var pct=Math.round(cm/totMins*100);html+='<div style="height:100%;width:'+pct+'%;background:'+PDS_COLORS[ck]+';min-width:3px;" title="'+catNames[ck]+' '+fmtMins(cm)+'"></div>';});
+  html+='</div>';
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">';
+  ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=catM[ck]||0;if(!cm)return;html+='<span style="font-size:10px;font-weight:700;color:'+PDS_COLORS[ck]+';">'+catNames[ck]+' '+fmtMins(cm)+'</span>';});
+  html+='</div>';
+  // 월별 추이
+  var mKeys=Object.keys(monthM).sort();
+  var mMax=Math.max.apply(null,mKeys.map(function(k){return monthM[k];}));
+  html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:7px;">월별 추이</div>';
+  mKeys.forEach(function(mk){
+    var parts=mk.split('-');
+    var pct=mMax>0?Math.round(monthM[mk]/mMax*100):0;
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">';
+    html+='<span style="font-size:10px;color:#aaa;width:36px;flex-shrink:0;">'+parts[1]+'월</span>';
+    html+='<div style="flex:1;height:10px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+domColor+';border-radius:4px;"></div></div>';
+    html+='<span style="font-size:10px;color:#aaa;width:44px;text-align:right;">'+fmtMins(monthM[mk])+'</span>';
+    html+='</div>';
+  });
+  // 블록 목록
+  html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:12px 0 7px;">블록 목록</div>';
+  if(!items.length){html+='<div style="font-size:11px;color:#ddd;">아직 기록이 없습니다.</div>';}
+  else{
+    items.slice(0,30).forEach(function(item){
+      var bCol=PDS_COLORS[item.bl.cat]||'#9CA3AF';
+      var dObj=new Date(item.dk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var dLbl=(dObj.getMonth()+1)+'/'+dObj.getDate();
+      var tLbl=pad2(Math.floor(item.bl.start/60))+':'+pad2(item.bl.start%60)+'~'+pad2(Math.floor(item.bl.end/60))+':'+pad2(item.bl.end%60);
+      html+='<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5;">';
+      html+='<span style="width:8px;height:8px;border-radius:50%;background:'+bCol+';flex-shrink:0;margin-top:3px;display:inline-block;"></span>';
+      html+='<span style="font-size:10px;color:#aaa;flex-shrink:0;width:32px;">'+dLbl+'</span>';
+      html+='<span style="font-size:10px;color:#aaa;flex-shrink:0;width:70px;">'+tLbl+'</span>';
+      html+='<span style="font-size:11px;font-weight:700;color:#333;flex:1;">'+esc(item.bl.label||'(제목 없음)')+'</span>';
+      html+='<span style="font-size:10px;color:#aaa;flex-shrink:0;">'+fmtMins(item.mins)+'</span>';
+      html+='</div>';
+    });
+    if(items.length>30)html+='<div style="font-size:10px;color:#aaa;text-align:center;padding:6px;">+ '+(items.length-30)+'개 더 있음</div>';
+  }
+  document.getElementById('tagDetailName').textContent=tag;
+  document.getElementById('tagDetailBody').innerHTML=html;
+  show('mTagDetail');
+}
 function openPdsAcc(){
   var p=cp();
-  if(!p.startDate||!p.endDate){alert('3개월 바운더리 시작/종료일을 먼저 설정해주세요.');return;}
-  var sd=new Date(p.startDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
-  var ed=new Date(p.endDate.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
-  document.getElementById('pdsAccPeriod').textContent=p.startDate+' ~ '+p.endDate;
+  var allBlocks=p.timeBlocks||{};
+  var allDKeys=Object.keys(allBlocks).filter(function(k){return allBlocks[k]&&allBlocks[k].length>0;}).sort();
+  var periodLabel=allDKeys.length?allDKeys[0]+' ~ '+allDKeys[allDKeys.length-1]:'기록 없음';
+  document.getElementById('pdsAccPeriod').textContent=periodLabel;
+  var catColors={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
+  var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
   var months={};
-  var dc=new Date(sd);
-  while(dc<=ed){
-    var dkA=dc.getFullYear()+'-'+(dc.getMonth()+1)+'-'+dc.getDate();
-    var mk=dc.getFullYear()+'-'+(dc.getMonth()+1);
-    var dayBl=(p.timeBlocks&&p.timeBlocks[dkA])||[];
-    if(!months[mk])months[mk]={y:dc.getFullYear(),m:dc.getMonth()+1,tags:{},catM:{},total:0};
+  allDKeys.forEach(function(dkA){
+    var dObj=new Date(dkA.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+    var mk=dObj.getFullYear()+'-'+(dObj.getMonth()+1);
+    var dayBl=allBlocks[dkA]||[];
+    if(!months[mk])months[mk]={y:dObj.getFullYear(),m:dObj.getMonth()+1,tags:{},tagCatM:{},catM:{},total:0};
     dayBl.forEach(function(b){
       var mins=b.end-b.start;
       months[mk].total+=mins;
       months[mk].catM[b.cat]=(months[mk].catM[b.cat]||0)+mins;
-      (b.tags||[]).forEach(function(tg){months[mk].tags[tg]=(months[mk].tags[tg]||0)+mins;});
+      (b.tags||[]).forEach(function(tg){
+        months[mk].tags[tg]=(months[mk].tags[tg]||0)+mins;
+        if(!months[mk].tagCatM[tg])months[mk].tagCatM[tg]={};
+        months[mk].tagCatM[tg][b.cat]=(months[mk].tagCatM[tg][b.cat]||0)+mins;
+      });
     });
-    dc.setDate(dc.getDate()+1);
-  }
-  var catColors={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
-  var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
+  });
   var mKeys=Object.keys(months).sort();
   var html='';
   for(var mi=0;mi<mKeys.length;mi++){
@@ -1493,7 +1672,8 @@ function openPdsAcc(){
       html+='<div style="display:flex;flex-wrap:wrap;gap:5px;">';
       tgs.forEach(function(tg){
         var tm=mo.tags[tg];
-        html+='<span style="font-size:11px;font-weight:700;padding:3px 9px;background:#f5f5ff;border:1.5px solid #ddd6fe;border-radius:20px;color:#7C3AED;">'+esc(tg)+' <span style="color:#aaa;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+        var tgCol=tagDomColor(mo.tagCatM[tg],catColors);
+        html+='<span onclick="openTagDetail(\''+esc(tg).replace(/'/g,'&#39;')+'\')" style="cursor:pointer;font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgCol,.1)+';border:1.5px solid '+hexAlpha(tgCol,.3)+';border-radius:20px;color:'+tgCol+';">'+esc(tg)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tm)+'</span></span>';
       });
       html+='</div>';
     }
@@ -2711,7 +2891,7 @@ document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;var pairs=[['mAdd',doAdd],['mRen',doRen],['mTodo',doAddTodo],['mTodoEdit',doEditTodo],['mEvEdit',doEditEv],['mGoal',doAddGoal],['mGoalEdit',doEditGoal],['mMetricEdit',doEditMetric]];for(var i=0;i<pairs.length;i++){if(document.getElementById(pairs[i][0]).style.display!=='none'){pairs[i][1]();return;}}
 },true);
 // 오버레이 닫기
-['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit','mPdsCreate','mPdsEdit','mPdsAcc'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)hide(id);});});
+['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit','mPdsCreate','mPdsEdit','mPdsAcc','mTagDetail'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)hide(id);});});
 // 자동완성 끄기
 document.querySelectorAll('.m-inp, input[class*="m-inp"]').forEach(function(el){el.setAttribute('autocomplete','off');});
 // Firebase 로그인 후 자동으로 render() 호출됨
