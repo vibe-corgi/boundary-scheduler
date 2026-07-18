@@ -549,7 +549,8 @@ var PDCA=[{k:'plan',i:'📋',l:'PLAN',s:'이번 주 뭘 할지...'},{k:'doIt',i:
 var S={tabs:[],activeTab:0,projects:{},
   calY:new Date().getFullYear(),calM:new Date().getMonth(),
   wkY:new Date().getFullYear(),wkM:new Date().getMonth(),
-  pdcaOff:0,todoDate:todayKey(),pdsView:'day',pdsWeekOff:0};
+  pdcaOff:0,todoDate:todayKey(),pdsView:'day',pdsWeekOff:0,
+  collapsed:{}};
 
 function todayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function fmd(d){return(d.getMonth()+1)+'/'+d.getDate();}
@@ -774,7 +775,13 @@ function render(){
   out+='</div></div></div>';
   // 3개월 바운더리
   var dd=ddayCalc(p.endDate),pg=progCalc(p.startDate,p.endDate);
-  out+='<div class="bcard"><div class="bdg">🎯 3개월 바운더리</div><div class="sub-txt">이번 3개월에 반드시 달성할 한 가지를 선언하세요</div>';
+  out+='<div class="bcard">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="S.collapsed.boundary=!S.collapsed.boundary;render()">';
+  out+='<div class="bdg">🎯 3개월 바운더리</div>';
+  out+='<span style="font-size:13px;color:rgba(255,255,255,.5);padding:2px 6px;user-select:none;">'+(S.collapsed.boundary?'▶':'▼')+'</span>';
+  out+='</div>';
+  if(!S.collapsed.boundary){
+  out+='<div class="sub-txt">이번 3개월에 반드시 달성할 한 가지를 선언하세요</div>';
   out+='<textarea class="w-ta" placeholder="나의 3개월 목표를 선언하세요..." oninput="setF(\'bGoal\',this.value);ar(this)">'+esc(p.bGoal)+'</textarea>';
   out+='<div class="date-box"><div class="date-box-t">📅 기간 설정</div><div class="date-row">';
   out+='<input type="date" class="date-inp" value="'+(p.startDate||'')+'" onchange="setF(\'startDate\',this.value);render()"/>';
@@ -838,7 +845,9 @@ function render(){
       out+='</div>';
     }
   }
-  out+='</div></div>';
+  out+='</div>'; // close goals section
+  } // end if(!S.collapsed.boundary)
+  out+='</div>'; // close bcard
   // 달력
   var dim=getDIM(S.calY,S.calM),fd=getFD(S.calY,S.calM),pdim=getDIM(S.calY,S.calM-1<0?11:S.calM-1);
   var cells=[],today=new Date();
@@ -898,12 +907,23 @@ function render(){
   }
   out+='</div>';
   var memoKey=S.calY+'-'+(S.calM+1);
-  out+='<div class="cal-memo-box"><div class="cal-memo-lbl">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
-  out+='<textarea class="cal-memo-ta" placeholder="이번 달에 대한 생각, 느낌, 계획 등을 자유롭게..." oninput="setCalMemo(this)" data-mk="'+memoKey+'">'+esc((p.calMemos||{})[memoKey]||'')+'</textarea></div>';
+  out+='<div class="cal-memo-box">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="S.collapsed.calMemo=!S.collapsed.calMemo;render()">';
+  out+='<div class="cal-memo-lbl" style="margin-bottom:0;">📝 '+S.calY+'년 '+(S.calM+1)+'월 메모</div>';
+  out+='<span style="font-size:12px;color:#bbb;padding:2px 6px;user-select:none;">'+(S.collapsed.calMemo?'▶':'▼')+'</span>';
+  out+='</div>';
+  if(!S.collapsed.calMemo){
+    out+='<textarea class="cal-memo-ta" style="margin-top:8px;" placeholder="이번 달에 대한 생각, 느낌, 계획 등을 자유롭게..." oninput="setCalMemo(this)" data-mk="'+memoKey+'">'+esc((p.calMemos||{})[memoKey]||'')+'</textarea>';
+  }
+  out+='</div>';
   // 이달의 목표달성 (메모 아래로 이동)
   if(topGoals.length){
     out+='<div style="background:#fff0f5;border-radius:12px;padding:12px 14px;margin-top:14px;">';
-    out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:10px;">📊 이달의 목표 달성</div>';
+    out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;'+(S.collapsed.monthGoal?'':'margin-bottom:10px;')+'" onclick="S.collapsed.monthGoal=!S.collapsed.monthGoal;render()">';
+    out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:.5px;">📊 이달의 목표 달성</div>';
+    out+='<span style="font-size:12px;color:#e88;padding:2px 6px;user-select:none;">'+(S.collapsed.monthGoal?'▶':'▼')+'</span>';
+    out+='</div>';
+    if(!S.collapsed.monthGoal){
     for(var gi=0;gi<topGoals.length;gi++){
       var tg2=topGoals[gi];
       var ch2=goals.filter(function(g){return g.parentId===tg2.id;});
@@ -928,6 +948,7 @@ function render(){
       out+='</div>';
       out+='</div>';
     }
+    } // end if(!S.collapsed.monthGoal)
     out+='</div>';
   }
   out+='</div>';
@@ -1021,7 +1042,12 @@ function render(){
   if(metricsWk.length){
     var wKey2='iso-'+psIso.year+'-w'+psIso.week;
     var wMKey2=ps.getFullYear()+'-'+(ps.getMonth()+1);
-    out+='<div class="card"><div class="card-top"><span class="ctitle">📊 이번 주 목표 달성</span><span style="font-size:11px;color:#aaa;">'+fmd(ps)+' ~ '+fmd(pe)+'</span></div>';
+    out+='<div class="card">';
+    out+='<div class="card-top" style="cursor:pointer;" onclick="S.collapsed.weekGoal=!S.collapsed.weekGoal;render()">';
+    out+='<span class="ctitle">📊 이번 주 목표 달성</span><span style="font-size:11px;color:#aaa;">'+fmd(ps)+' ~ '+fmd(pe)+'</span>';
+    out+='<span style="font-size:12px;color:#bbb;margin-left:auto;padding:2px 4px;user-select:none;">'+(S.collapsed.weekGoal?'▶':'▼')+'</span>';
+    out+='</div>';
+    if(!S.collapsed.weekGoal){
     for(var gi3=0;gi3<topGoals.length;gi3++){
       var tg3=topGoals[gi3];
       var ch3=goals.filter(function(g){return g.parentId===tg3.id;});
@@ -1047,6 +1073,7 @@ function render(){
       }
       out+='</div></div>';
     }
+    } // end if(!S.collapsed.weekGoal)
     out+='</div>';
   }
   // 할일
@@ -1063,8 +1090,8 @@ function render(){
   if(!isToday2)out+='<br/><button onclick="S.todoDate=todayKey();render()" style="font-size:11px;color:var(--pk);background:none;border:none;cursor:pointer;margin-top:2px;">오늘로 이동</button>';
   out+='</div><button class="nav-btn" onclick="nextTodo()">▶</button></div>';
   out+='<div class="todo-add-row"><input class="todo-qi" id="qInp" placeholder="+ 할 일 빠르게 추가 (Enter → 가지치기)" onkeydown="if(event.key===\'Enter\')quickTodo()"/><button class="btn-add-todo" onclick="openTodo()">+ 추가</button></div>';
-  out+='<div class="e-grid">';
-  for(var c=0;c<4;c++){
+  out+='<div class="e-grid" style="grid-template-columns:repeat(3,1fr);">';
+  for(var c=0;c<3;c++){
     var items=todos[c]||[];
     out+='<div class="e-col '+CAT_C[c]+'" id="ecol'+c+'" ondragover="event.preventDefault();this.classList.add(\'dov\')" ondragleave="this.classList.remove(\'dov\')" ondrop="dropTodo(event,'+c+')">';
     out+='<div class="e-lbl">'+CAT[c]+'</div><div class="e-desc">'+CAT_D[c]+'</div>';
@@ -1125,7 +1152,29 @@ function render(){
     }
     out+='</div>';
   }
-  out+='</div></div>';
+  out+='</div>';
+  // 루틴 가로 행
+  var routineItems=todos[3]||[];
+  out+='<div class="e-col eroutine" id="ecol3" style="margin-top:10px;border-radius:11px;padding:10px 14px;" ondragover="event.preventDefault();this.classList.add(\'dov\')" ondragleave="this.classList.remove(\'dov\')" ondrop="dropTodo(event,3)">';
+  out+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+  out+='<div class="e-lbl" style="margin:0;">'+CAT[3]+'</div><div class="e-desc" style="margin:0;">'+CAT_D[3]+'</div>';
+  out+='</div>';
+  out+='<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
+  for(var t=0;t<routineItems.length;t++){
+    var done=routineItems[t].done;
+    var tStyle='';if(routineItems[t].color)tStyle+='color:'+routineItems[t].color+';';
+    out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,3,'+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,3,'+t+')" ondrop="event.stopPropagation();dropItem(event,3,'+t+')" style="flex:none;background:#faf9ff;border:1.5px solid #ddd6fe;border-radius:20px;padding:4px 10px;margin:0;">';
+    out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(3,'+t+',this.checked)"/>';
+    out+='<span class="todo-txt'+(done?' done':'')+'"'+(tStyle?' style="'+tStyle+'"':'')+'>'+esc(routineItems[t].text)+'</span>';
+    out+='<div class="todo-acts">';
+    out+='<button class="ic-btn" title="내일에도 추가" onclick="carryTodo(3,'+t+')">→</button>';
+    out+='<button class="ic-btn" onclick="openEditTodo(3,'+t+')">✏️</button><button class="todo-del" onclick="delTodo(3,'+t+')">×</button></div></div>';
+  }
+  if(routineItems.length===0)out+='<span style="font-size:11px;color:#c4b5fd;">추가하거나 드래그</span>';
+  out+='</div>';
+  out+='<input class="todo-qi" placeholder="+ 루틴 추가 (Enter)" style="margin-top:8px;width:100%;" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getTodos()[3].push({text:this.value.trim(),done:false});this.value=\'\';save();render();}"/>';
+  out+='</div>';
+  out+='</div>';
   // PDS 타임라인 + 오늘의 기록
   var todayMemoKey='daily-'+tdk;
   var todayMemo=(p.dailyMemos&&p.dailyMemos[todayMemoKey])||'';
