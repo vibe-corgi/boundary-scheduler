@@ -1165,7 +1165,7 @@ function render(){
     out+='<span style="font-size:10px;font-weight:700;color:var(--dk);padding:0 4px;">'+wkRangeLabel+'</span>';
     out+='<button class="nav-btn" onclick="S.pdsWeekOff++;render()">▶</button>';
     if(S.pdsWeekOff!==0)out+='<button class="nav-btn" style="font-size:10px;" onclick="S.pdsWeekOff=0;render()">이번주</button>';
-    out+='<button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc(\'week\')" title="주간별 집계">📈</button>';
+    out+='<button class="nav-btn" style="font-size:10px;color:var(--pk);" onclick="openPdsAcc(\'week\',S.pdsWeekOff)" title="이번 주 집계">📈</button>';
   } else {
     out+='<span style="margin-left:auto;font-size:10px;color:#aaa;" id="pdsAccPeriodInline"></span>';
   }
@@ -1722,75 +1722,124 @@ function pdsIsoWeekKey(dObj){
   var sLabel=(sun.getUTCMonth()+1)+'/'+sun.getUTCDate();
   return mon.getUTCFullYear()+'-W'+(mon.getUTCMonth()+1)+'-'+mon.getUTCDate()+'|'+mLabel+'~'+sLabel;
 }
-function openPdsAcc(mode){
+function openPdsAcc(mode, weekOff){
   var p=cp();
   var allBlocks=p.timeBlocks||{};
-  var allDKeys=Object.keys(allBlocks).filter(function(k){return allBlocks[k]&&allBlocks[k].length>0;}).sort();
-  var periodLabel=allDKeys.length?allDKeys[0]+' ~ '+allDKeys[allDKeys.length-1]:'기록 없음';
-  document.getElementById('pdsAccPeriod').textContent=periodLabel;
   var catColors={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
   var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
-  var groups={};
-  allDKeys.forEach(function(dkA){
-    var dObj=new Date(dkA.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
-    var gk,glabel;
-    if(mode==='week'){
-      var wk=pdsIsoWeekKey(dObj);
-      gk=wk.split('|')[0]; glabel='📅 '+wk.split('|')[1];
+  var html='';
+
+  if(mode==='week'){
+    // ── 현재 보고 있는 주의 데이터만 표시 ──
+    var wdays=pdsGetWeekDays(weekOff||0);
+    var wlabel=pdsWeekLabel(weekOff||0);
+    document.getElementById('pdsAccPeriod').textContent=wlabel;
+    document.getElementById('mPdsAcc').querySelector('h3').textContent='📈 주간 집계';
+    var wg={tags:{},tagCatM:{},catM:{},total:0,dayRows:[]};
+    wdays.forEach(function(dk){
+      var dayBl=allBlocks[dk]||[];
+      if(!dayBl.length)return;
+      var dObj=new Date(dk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var dLbl=(dObj.getMonth()+1)+'/'+dObj.getDate();
+      var dayTotal=0,dayCatM={};
+      dayBl.forEach(function(b){
+        var mins=b.end-b.start;
+        wg.total+=mins; dayTotal+=mins;
+        wg.catM[b.cat]=(wg.catM[b.cat]||0)+mins;
+        dayCatM[b.cat]=(dayCatM[b.cat]||0)+mins;
+        (b.tags||[]).forEach(function(tg){
+          wg.tags[tg]=(wg.tags[tg]||0)+mins;
+          if(!wg.tagCatM[tg])wg.tagCatM[tg]={};
+          wg.tagCatM[tg][b.cat]=(wg.tagCatM[tg][b.cat]||0)+mins;
+        });
+      });
+      wg.dayRows.push({dk:dk,dLbl:dLbl,total:dayTotal,catM:dayCatM,blocks:dayBl});
+    });
+    if(wg.total===0){
+      html='<div style="text-align:center;padding:28px 0;color:#aaa;font-size:13px;">이 주에 기록된 타임블록이 없습니다.</div>';
     } else {
-      gk=dObj.getFullYear()+'-'+(dObj.getMonth()+1);
-      glabel='📅 '+dObj.getFullYear()+'년 '+(dObj.getMonth()+1)+'월';
+      // 주 전체 카테고리 바
+      html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:8px;">주간 시간 분배 · 총 '+fmtMins(wg.total)+'</div>';
+      html+='<div style="display:flex;gap:3px;height:10px;border-radius:5px;overflow:hidden;margin-bottom:6px;">';
+      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=wg.catM[ck]||0;if(!cm)return;var pct=Math.round(cm/wg.total*100);html+='<div style="height:100%;width:'+pct+'%;background:'+catColors[ck]+';min-width:4px;" title="'+catNames[ck]+' '+fmtMins(cm)+'"></div>';});
+      html+='</div>';
+      html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">';
+      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=wg.catM[ck]||0;if(!cm)return;html+='<span style="font-size:10px;font-weight:700;color:'+catColors[ck]+';">'+catNames[ck]+' '+fmtMins(cm)+'</span>';});
+      html+='</div>';
+      // 해시태그
+      var tgs=Object.keys(wg.tags).sort(function(a,b){return wg.tags[b]-wg.tags[a];});
+      if(tgs.length){
+        html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:8px;">#️⃣ 해시태그</div>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">';
+        tgs.forEach(function(tg){
+          var tm=wg.tags[tg];
+          var tgCol=tagDomColor(wg.tagCatM[tg],catColors);
+          html+='<span onclick="openTagDetail(\''+esc(tg).replace(/'/g,'&#39;')+'\')" style="cursor:pointer;font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgCol,.1)+';border:1.5px solid '+hexAlpha(tgCol,.3)+';border-radius:20px;color:'+tgCol+';">'+esc(tg)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tm)+'</span></span>';
+        });
+        html+='</div>';
+      }
+      // 일별 상세
+      html+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:8px;">일별 기록</div>';
+      wg.dayRows.forEach(function(dr){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f5;">';
+        html+='<span style="font-size:11px;font-weight:700;color:var(--dk);width:36px;flex-shrink:0;">'+dr.dLbl+'</span>';
+        html+='<div style="flex:1;display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;">';
+        ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=dr.catM[ck]||0;if(!cm)return;var pct=Math.round(cm/dr.total*100);html+='<div style="height:100%;width:'+pct+'%;background:'+catColors[ck]+';min-width:3px;"></div>';});
+        html+='</div>';
+        html+='<span style="font-size:10px;color:#aaa;width:40px;text-align:right;">'+fmtMins(dr.total)+'</span>';
+        html+='</div>';
+      });
     }
-    var dayBl=allBlocks[dkA]||[];
-    if(!groups[gk])groups[gk]={label:glabel,tags:{},tagCatM:{},catM:{},total:0};
-    dayBl.forEach(function(b){
-      var mins=b.end-b.start;
-      groups[gk].total+=mins;
-      groups[gk].catM[b.cat]=(groups[gk].catM[b.cat]||0)+mins;
-      (b.tags||[]).forEach(function(tg){
-        groups[gk].tags[tg]=(groups[gk].tags[tg]||0)+mins;
-        if(!groups[gk].tagCatM[tg])groups[gk].tagCatM[tg]={};
-        groups[gk].tagCatM[tg][b.cat]=(groups[gk].tagCatM[tg][b.cat]||0)+mins;
+  } else {
+    // ── 월별 집계 (전체 기간) ──
+    var allDKeys=Object.keys(allBlocks).filter(function(k){return allBlocks[k]&&allBlocks[k].length>0;}).sort();
+    var periodLabel=allDKeys.length?allDKeys[0]+' ~ '+allDKeys[allDKeys.length-1]:'기록 없음';
+    document.getElementById('pdsAccPeriod').textContent=periodLabel;
+    document.getElementById('mPdsAcc').querySelector('h3').textContent='📈 월별 집계';
+    var months={};
+    allDKeys.forEach(function(dkA){
+      var dObj=new Date(dkA.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var gk=dObj.getFullYear()+'-'+(dObj.getMonth()+1);
+      var glabel='📅 '+dObj.getFullYear()+'년 '+(dObj.getMonth()+1)+'월';
+      var dayBl=allBlocks[dkA]||[];
+      if(!months[gk])months[gk]={label:glabel,tags:{},tagCatM:{},catM:{},total:0};
+      dayBl.forEach(function(b){
+        var mins=b.end-b.start;
+        months[gk].total+=mins;
+        months[gk].catM[b.cat]=(months[gk].catM[b.cat]||0)+mins;
+        (b.tags||[]).forEach(function(tg){
+          months[gk].tags[tg]=(months[gk].tags[tg]||0)+mins;
+          if(!months[gk].tagCatM[tg])months[gk].tagCatM[tg]={};
+          months[gk].tagCatM[tg][b.cat]=(months[gk].tagCatM[tg][b.cat]||0)+mins;
+        });
       });
     });
-  });
-  var gKeys=Object.keys(groups).sort();
-  var html='';
-  for(var gi=0;gi<gKeys.length;gi++){
-    var gk2=gKeys[gi],go=groups[gk2];
-    html+='<div style="margin-bottom:18px;">';
-    html+='<div style="font-size:13px;font-weight:800;color:var(--dk);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--pkl);">'+go.label+' <span style="font-size:11px;font-weight:400;color:#aaa;">총 '+fmtMins(go.total)+'</span></div>';
-    if(go.total>0){
-      html+='<div style="display:flex;gap:3px;margin-bottom:8px;height:8px;border-radius:4px;overflow:hidden;">';
-      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){
-        var cm=go.catM[ck]||0;if(!cm)return;
-        var pct=Math.round(cm/go.total*100);
-        html+='<div style="height:100%;width:'+pct+'%;background:'+catColors[ck]+';min-width:3px;" title="'+catNames[ck]+' '+fmtMins(cm)+'"></div>';
-      });
-      html+='</div>';
-      html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">';
-      ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){
-        var cm=go.catM[ck]||0;if(!cm)return;
-        html+='<span style="font-size:10px;font-weight:700;color:'+catColors[ck]+';">'+catNames[ck]+' '+fmtMins(cm)+'</span>';
-      });
-      html+='</div>';
-    }
-    var tgs=Object.keys(go.tags).sort(function(a,b){return go.tags[b]-go.tags[a];});
-    if(tgs.length===0){html+='<div style="font-size:11px;color:#ddd;">해시태그 없음</div>';}
-    else{
-      html+='<div style="display:flex;flex-wrap:wrap;gap:5px;">';
-      tgs.forEach(function(tg){
-        var tm=go.tags[tg];
-        var tgCol=tagDomColor(go.tagCatM[tg],catColors);
-        html+='<span onclick="openTagDetail(\''+esc(tg).replace(/'/g,'&#39;')+'\')" style="cursor:pointer;font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgCol,.1)+';border:1.5px solid '+hexAlpha(tgCol,.3)+';border-radius:20px;color:'+tgCol+';">'+esc(tg)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tm)+'</span></span>';
-      });
+    var mKeys=Object.keys(months).sort();
+    for(var mi=0;mi<mKeys.length;mi++){
+      var mk2=mKeys[mi],mo=months[mk2];
+      html+='<div style="margin-bottom:18px;">';
+      html+='<div style="font-size:13px;font-weight:800;color:var(--dk);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--pkl);">'+mo.label+' <span style="font-size:11px;font-weight:400;color:#aaa;">총 '+fmtMins(mo.total)+'</span></div>';
+      if(mo.total>0){
+        html+='<div style="display:flex;gap:3px;margin-bottom:8px;height:8px;border-radius:4px;overflow:hidden;">';
+        ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=mo.catM[ck]||0;if(!cm)return;var pct=Math.round(cm/mo.total*100);html+='<div style="height:100%;width:'+pct+'%;background:'+catColors[ck]+';min-width:3px;" title="'+catNames[ck]+' '+fmtMins(cm)+'"></div>';});
+        html+='</div>';
+        html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">';
+        ['e80','e20','ecut','eroutine','eother'].forEach(function(ck){var cm=mo.catM[ck]||0;if(!cm)return;html+='<span style="font-size:10px;font-weight:700;color:'+catColors[ck]+';">'+catNames[ck]+' '+fmtMins(cm)+'</span>';});
+        html+='</div>';
+      }
+      var tgs=Object.keys(mo.tags).sort(function(a,b){return mo.tags[b]-mo.tags[a];});
+      if(tgs.length===0){html+='<div style="font-size:11px;color:#ddd;">해시태그 없음</div>';}
+      else{
+        html+='<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+        tgs.forEach(function(tg){var tm=mo.tags[tg];var tgCol=tagDomColor(mo.tagCatM[tg],catColors);html+='<span onclick="openTagDetail(\''+esc(tg).replace(/'/g,'&#39;')+'\')" style="cursor:pointer;font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgCol,.1)+';border:1.5px solid '+hexAlpha(tgCol,.3)+';border-radius:20px;color:'+tgCol+';">'+esc(tg)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tm)+'</span></span>';});
+        html+='</div>';
+      }
       html+='</div>';
     }
-    html+='</div>';
+    if(!mKeys.length)html='<div style="font-size:13px;color:#aaa;text-align:center;padding:20px;">아직 기록된 타임블록이 없습니다.</div>';
   }
-  if(!gKeys.length)html='<div style="font-size:13px;color:#aaa;text-align:center;padding:20px;">아직 기록된 타임블록이 없습니다.</div>';
+
   document.getElementById('pdsAccBody').innerHTML=html;
-  document.getElementById('mPdsAcc').querySelector('h3').textContent=mode==='week'?'📈 주간별 집계':'📈 월별 집계';
   show('mPdsAcc');
 }
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
