@@ -2888,14 +2888,14 @@ function renderMobile() {
     var dailyRetro = ((p.dailyKeySceneRetros || {})[tDayK]) || '';
     content += '<div style="background:linear-gradient(135deg,#fff5f8,#fff0fa);border:1.5px solid #ffd6e7;border-radius:14px;overflow:hidden;margin-bottom:12px;">';
     content += '<div style="padding:14px;"><div class="mb-keyscene-label">✨ 오늘의 Key Scene</div>';
-    content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." oninput="ar(this);p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[\''+tDayK+'\']=this.value;save()">'+esc(dailyKS)+'</textarea>';
+    content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." data-ks2="'+tDayK+'" oninput="setDailyKeyScene(this)">'+esc(dailyKS)+'</textarea>';
     content += '</div>';
     content += '<div style="border-top:2px solid rgba(255,100,138,.25);padding:12px 14px;background:rgba(255,255,255,.6);">';
     content += '<div style="font-size:10px;font-weight:700;color:rgba(255,100,138,.7);letter-spacing:.5px;margin-bottom:8px;">📝 회고</div>';
     content += '<textarea class="mb-ta" placeholder="실제로 어땠나요?" data-ks3="'+tDayK+'" oninput="setDailyKeySceneRetro(this)">'+esc(dailyRetro)+'</textarea>';
     content += '</div></div>';
     content += '<div class="mb-card-title">📓 오늘의 기록</div>';
-    content += '<textarea class="mb-ta" style="min-height:120px;" placeholder="오늘 하루 기록..." oninput="ar(this);p.dailyMemos=p.dailyMemos||{};p.dailyMemos[\''+dailyMemoK+'\']=this.value;save()">'+esc(dailyMemo)+'</textarea>';
+    content += '<textarea class="mb-ta" style="min-height:120px;" placeholder="오늘 하루 기록..." data-dmk="'+dailyMemoK+'" oninput="setDailyMemo(this)">'+esc(dailyMemo)+'</textarea>';
     content += '</div>';
   }
 
@@ -3017,11 +3017,11 @@ function renderMobile() {
     }
     content += '<input class="mb-qi" placeholder="+ Plan 추가 (Enter)" autocomplete="off" onkeydown="if(event.key===\'Enter\'&&this.value.trim()){getPlanItems(\''+pk2+'\').push({text:this.value.trim(),done:false});this.value=\'\';save();renderMobile();}"/>';
     content += '<div class="mb-pdca-label">✅ DO — 실제로 한 것</div>';
-    content += '<textarea class="mb-ta" oninput="var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].doIt=this.value;save()">'+esc(pdcaD.doIt||'')+'</textarea>';
+    content += '<textarea class="mb-ta" oninput="ar(this);var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].doIt=this.value;save()">'+esc(pdcaD.doIt||'')+'</textarea>';
     content += '<div class="mb-pdca-label">🔍 CHECK — 되돌아보기</div>';
-    content += '<textarea class="mb-ta" oninput="var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].check=this.value;save()">'+esc(pdcaD.check||'')+'</textarea>';
+    content += '<textarea class="mb-ta" oninput="ar(this);var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].check=this.value;save()">'+esc(pdcaD.check||'')+'</textarea>';
     content += '<div class="mb-pdca-label">🚀 ACT — 다음 주 액션</div>';
-    content += '<textarea class="mb-ta" oninput="var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].act=this.value;save()">'+esc(pdcaD.act||'')+'</textarea>';
+    content += '<textarea class="mb-ta" oninput="ar(this);var d=cp();d.pdca=d.pdca||{};d.pdca[\''+pk2+'\']=d.pdca[\''+pk2+'\']||{};d.pdca[\''+pk2+'\'].act=this.value;save()">'+esc(pdcaD.act||'')+'</textarea>';
     content += '</div>';
   }
 
