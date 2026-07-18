@@ -1353,9 +1353,9 @@ function render(){
     out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:5px;">✨ 오늘의 Key Scene</div>';
     out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;background:transparent;border:none;font-size:12px;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
     out+='</div>';
-    out+='<div style="border-top:1px dashed rgba(124,58,237,.25);padding:8px 12px;background:#faf7ff;">';
+    out+='<div style="border-top:2px solid rgba(124,58,237,.2);padding:8px 12px;background:#faf7ff;">';
     out+='<div style="font-size:9px;font-weight:700;color:rgba(124,58,237,.5);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
-    out+='<textarea class="cal-memo-ta" placeholder="실제로 어땠나요?" style="min-height:38px;background:transparent;border:none;font-size:12px;" data-ks3="'+tdk+'" oninput="setDailyKeySceneRetro(this)">'+esc(((p.dailyKeySceneRetros||{})[tdk])||'')+'</textarea>';
+    out+='<textarea class="cal-memo-ta" placeholder="실제로 어땠나요?" style="min-height:56px;background:transparent;border:none;font-size:12px;" data-ks3="'+tdk+'" oninput="setDailyKeySceneRetro(this)">'+esc(((p.dailyKeySceneRetros||{})[tdk])||'')+'</textarea>';
     out+='</div></div>';
     var pdsTotalMins=pdsCatM.e80+pdsCatM.e20+pdsCatM.ecut+pdsCatM.eroutine;
     out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📊 오늘 시간 분배 <span style="font-weight:400;">('+fmtMins(pdsTotalMins)+')</span></div>';
@@ -1551,7 +1551,7 @@ function setF(f,v){cp()[f]=v;save();}
 function updatePrn(el){cp().principles[+el.dataset.pi]=el.value;save();}
 function updateWG(el){var p=cp();p.weekGoals=p.weekGoals||{};p.weekGoals[el.dataset.wk]=el.value;save();}
 function updatePdca(el){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[el.dataset.pk])p.pdca[el.dataset.pk]={plan:'',doIt:'',check:'',act:''};p.pdca[el.dataset.pk][el.dataset.fk]=el.value;save();}
-function setWeekKeyScene(side,el){var p=cp();p.weekKeyScenes=p.weekKeyScenes||{};var k=el.dataset.wks;if(!p.weekKeyScenes[k])p.weekKeyScenes[k]={left:'',right:''};p.weekKeyScenes[k][side]=el.value;save();}
+function setWeekKeyScene(side,el){var p=cp();p.weekKeyScenes=p.weekKeyScenes||{};var k=el.dataset.wks;if(!p.weekKeyScenes[k])p.weekKeyScenes[k]={left:'',right:''};p.weekKeyScenes[k][side]=el.value;ar(el);save();}
 function setKeyScene(side,el){var p=cp();p.calKeyScenes=p.calKeyScenes||{};var ksKey=el.dataset.ks;if(!p.calKeyScenes[ksKey])p.calKeyScenes[ksKey]={left:'',right:''};p.calKeyScenes[ksKey][side]=el.value;ar(el);save();}
 function getPlanItems(pk){var p=cp();p.pdca=p.pdca||{};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};if(typeof p.pdca[pk].plan==='string'){var s=p.pdca[pk].plan;p.pdca[pk].plan=s?s.split('\n').filter(function(l){return l.trim();}).map(function(l){return{text:l,done:false};}):[]; }return p.pdca[pk].plan;}
 function openPlanEdit(pk,i){planEditPk=pk;planEditIdx=i;render();setTimeout(function(){var el=document.getElementById('planEditInp');if(el){el.focus();el.select();}},30);}
@@ -2047,8 +2047,8 @@ function openPdsAcc(mode, weekOff){
   show('mPdsAcc');
 }
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
-function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
-function setDailyKeySceneRetro(el){var p=cp();p.dailyKeySceneRetros=p.dailyKeySceneRetros||{};p.dailyKeySceneRetros[el.dataset.ks3]=el.value;save();}
+function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;ar(el);save();}
+function setDailyKeySceneRetro(el){var p=cp();p.dailyKeySceneRetros=p.dailyKeySceneRetros||{};p.dailyKeySceneRetros[el.dataset.ks3]=el.value;ar(el);save();}
 var _pdsMode='plan';
 var _pdsdo={down:false,dk:'',startSlot:0,endSlot:0};
 // ── 가로 그리드 드래그 (PLAN/DO 공통) ──
