@@ -1372,50 +1372,58 @@ function render(){
     out+='</div>';
 
   } else if(pv==='week'){
-    // ── 주간 뷰 ──
-    var WK_SL=5;
-    var WK_TOTAL=PDS_TOTAL;
+    // ── 주간 뷰 ── DO blocks: 일간과 동일한 24행×6열 가로 그리드, 월~일
+    var WK_GH=17; // row height per hour (same as day view)
     var todKeyFull=todayKey();
-    out+='<div class="pds-week-wrap" id="pdsWeekScroll">';
-    out+='<div class="pds-week-hlabels" style="padding-top:28px;">';
-    out+='<div style="position:relative;height:'+(WK_TOTAL*WK_SL)+'px;">';
-    for(var wph=0;wph<PDS_TH;wph++){
-      out+='<div class="pds-whlabel" style="top:'+(wph*6*WK_SL+1)+'px;">'+pad2(wph)+'</div>';
-      out+='<div class="pds-whour-border" style="top:'+(wph*6*WK_SL)+'px;left:0;width:100%;"></div>';
+    out+='<div>';
+    // 요일 헤더
+    out+='<div style="display:flex;border-bottom:1.5px solid #f0f0f0;">';
+    out+='<div style="width:26px;flex-shrink:0;"></div>';
+    for(var wd=0;wd<7;wd++){
+      var wdk0=wkDays[wd];
+      var wdDate0=new Date(wdk0.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+      var wdIsToday0=(wdk0===todKeyFull);
+      var wdDayLabel0=(['월','화','수','목','금','토','일'])[wd];
+      var wdMD0=(wdDate0.getMonth()+1)+'/'+(wdDate0.getDate());
+      out+='<div style="flex:1;padding:4px 2px;font-size:9px;font-weight:700;text-align:center;border-right:1px solid rgba(0,0,0,.06);color:'+(wdIsToday0?'var(--pk)':'#aaa')+';background:'+(wdIsToday0?'var(--pkl)':'#fff')+';">'+wdDayLabel0+'<br/>'+wdMD0+'</div>';
     }
-    out+='</div></div>';
-    out+='<div class="pds-week-cols" style="grid-template-columns:repeat(7,1fr);">';
+    out+='</div>';
+    // 그리드 본문
+    out+='<div style="display:flex;">';
+    // 왼쪽 시간 라벨
+    out+='<div style="width:26px;flex-shrink:0;background:#fafafa;border-right:1px solid #e8e8e8;">';
+    for(var gh=0;gh<PDS_TH;gh++){
+      out+='<div style="height:'+WK_GH+'px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:7px;font-weight:700;color:#bbb;pointer-events:none;">'+pad2(gh)+'</div>';
+    }
+    out+='</div>';
+    // 7일 컬럼
+    out+='<div style="flex:1;display:grid;grid-template-columns:repeat(7,1fr);">';
     for(var wd=0;wd<7;wd++){
       var wdk=wkDays[wd];
-      var wdDate=new Date(wdk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
       var wdBlocks=(p.doBlocks&&p.doBlocks[wdk])||[];
       var wdIsToday=(wdk===todKeyFull);
-      var wdDayLabel=(['월','화','수','목','금','토','일'])[wd];
-      var wdMD=(wdDate.getMonth()+1)+'/'+(wdDate.getDate());
-      out+='<div class="pds-week-col">';
-      out+='<div class="pds-wday-hdr'+(wdIsToday?' wtoday':'')+'">'+wdDayLabel+'<br/>'+wdMD+'</div>';
-      out+='<div class="pds-wday-inner" style="height:'+(WK_TOTAL*WK_SL)+'px;">';
-      for(var wph2=0;wph2<PDS_TH;wph2++){
-        out+='<div class="pds-whour-border" style="top:'+(wph2*6*WK_SL)+'px;"></div>';
-        for(var wpm=1;wpm<6;wpm++){out+='<div class="pds-wmin-border" style="top:'+(wph2*6*WK_SL+wpm*WK_SL)+'px;"></div>';}
+      var wSlotMap={};
+      for(var wi=0;wi<wdBlocks.length;wi++){
+        var wbl2=wdBlocks[wi];
+        var wf=Math.floor(wbl2.start/10),wt=Math.floor(wbl2.end/10);
+        for(var ws=wf;ws<wt;ws++)wSlotMap[ws]=wbl2;
       }
-      for(var wbi=0;wbi<wdBlocks.length;wbi++){
-        var wbl=wdBlocks[wbi];
-        var wbFrom=wbl.start/10,wbTo=wbl.end/10;
-        if(wbFrom<0||wbTo>WK_TOTAL||wbFrom>=wbTo)continue;
-        var wbH=Math.max(3,(wbTo-wbFrom)*WK_SL);
-        var wbCol=PDS_COLORS[wbl.cat]||'#9CA3AF';
-        var wbTipParts=[];
-        if(wbl.label)wbTipParts.push(wbl.label);
-        wbTipParts.push(pad2(Math.floor(wbl.start/60))+':'+pad2(wbl.start%60)+'~'+pad2(Math.floor(wbl.end/60))+':'+pad2(wbl.end%60));
-        if(wbl.tags&&wbl.tags.length)wbTipParts.push(wbl.tags.join(' '));
-        if(wbl.memo)wbTipParts.push('\n'+wbl.memo);
-        var wbTip=wbTipParts.join('  ');
-        out+='<div class="pds-wblock" style="top:'+(wbFrom*WK_SL)+'px;height:'+wbH+'px;background:'+wbCol+';opacity:.88;" onclick="pdsEditBlock(\''+wdk+'\',\''+wbl.id+'\',\'do\')" onmouseenter="pdsShowTip(event,\''+esc(wbTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()"></div>';
+      out+='<div style="border-right:1px solid rgba(0,0,0,.06)'+(wdIsToday?';background:rgba(255,45,120,.02)':'')+';">';
+      for(var gh=0;gh<PDS_TH;gh++){
+        out+='<div style="display:flex;height:'+WK_GH+'px;border-bottom:1px solid rgba(0,0,0,.04);">';
+        for(var gm=0;gm<6;gm++){
+          var slot=gh*6+gm;
+          var wblk=wSlotMap[slot];
+          var wbg=wblk?(PDS_COLORS[wblk.cat]||'#9CA3AF'):'transparent';
+          var wtitle=wblk?(pad2(gh)+':'+pad2(gm*10)+' '+esc(wblk.label||'')):(pad2(gh)+':'+pad2(gm*10));
+          out+='<div title="'+wtitle+'" style="flex:1;height:100%;background:'+wbg+';border-right:1px solid rgba(0,0,0,.03);cursor:'+(wblk?'pointer':'default')+';"'+(wblk?' onclick="pdsEditBlock(\''+wdk+'\',\''+wblk.id+'\',\'do\')"':'')+' onmouseenter="pdsShowTip(event,\''+wtitle+'\')" onmouseleave="pdsHideTip()"></div>';
+        }
+        out+='</div>';
       }
-      out+='</div></div>';
+      out+='</div>';
     }
-    out+='</div></div>';
+    out+='</div>';
+    out+='</div>';
 
   } else {
     // ── 종합 뷰 (해시태그 누적 인라인) ──
