@@ -1388,7 +1388,7 @@ function render(){
     for(var wd=0;wd<7;wd++){
       var wdk=wkDays[wd];
       var wdDate=new Date(wdk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
-      var wdBlocks=(p.timeBlocks&&p.timeBlocks[wdk])||[];
+      var wdBlocks=(p.doBlocks&&p.doBlocks[wdk])||[];
       var wdIsToday=(wdk===todKeyFull);
       var wdDayLabel=(['월','화','수','목','금','토','일'])[wd];
       var wdMD=(wdDate.getMonth()+1)+'/'+(wdDate.getDate());
@@ -1411,7 +1411,7 @@ function render(){
         if(wbl.tags&&wbl.tags.length)wbTipParts.push(wbl.tags.join(' '));
         if(wbl.memo)wbTipParts.push('\n'+wbl.memo);
         var wbTip=wbTipParts.join('  ');
-        out+='<div class="pds-wblock" style="top:'+(wbFrom*WK_SL)+'px;height:'+wbH+'px;background:'+wbCol+';opacity:.88;" onclick="pdsEditBlock(\''+wdk+'\',\''+wbl.id+'\')" onmouseenter="pdsShowTip(event,\''+esc(wbTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()"></div>';
+        out+='<div class="pds-wblock" style="top:'+(wbFrom*WK_SL)+'px;height:'+wbH+'px;background:'+wbCol+';opacity:.88;" onclick="pdsEditBlock(\''+wdk+'\',\''+wbl.id+'\',\'do\')" onmouseenter="pdsShowTip(event,\''+esc(wbTip).replace(/'/g,'&#39;').replace(/\n/g,'\\n')+'\')" onmouseleave="pdsHideTip()"></div>';
       }
       out+='</div></div>';
     }
