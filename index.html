@@ -529,6 +529,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div id="tagDetailBody" style="overflow-y:auto;flex:1;margin-top:8px;"></div>
 <div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mTagDetail')">닫기</button></div>
 </div></div>
+<!-- 끝점/KeyScene 모아보기 모달 -->
+<div class="overlay" id="mKeySceneView" style="display:none"><div class="modal" style="max-width:560px;max-height:86vh;display:flex;flex-direction:column;">
+<h3>📖 끝점 &amp; Key Scene 모아보기</h3>
+<div id="keySceneViewBody" style="overflow-y:auto;flex:1;margin-top:10px;font-size:13px;"></div>
+<div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mKeySceneView')">닫기</button></div>
+</div></div>
 <!-- PDS 호버 툴팁 -->
 <div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;"></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
@@ -776,9 +782,9 @@ function render(){
   // 3개월 바운더리
   var dd=ddayCalc(p.endDate),pg=progCalc(p.startDate,p.endDate);
   out+='<div class="bcard">';
-  out+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="S.collapsed.boundary=!S.collapsed.boundary;render()">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;">';
   out+='<div class="bdg">🎯 3개월 바운더리</div>';
-  out+='<span style="font-size:13px;color:rgba(255,255,255,.5);padding:2px 6px;user-select:none;">'+(S.collapsed.boundary?'▶':'▼')+'</span>';
+  out+='<button onclick="S.collapsed.boundary=!S.collapsed.boundary;render()" style="background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:13px;">'+(S.collapsed.boundary?'▶':'▼')+'</button>';
   out+='</div>';
   if(!S.collapsed.boundary){
   out+='<div class="sub-txt">이번 3개월에 반드시 달성할 한 가지를 선언하세요</div>';
@@ -796,13 +802,16 @@ function render(){
   var pinnedGoals=topGoals.filter(function(g){return g.pinnedW;});
   var qKeys=getQuarterDateKeys(p.startDate,p.endDate);
   out+='<div style="border-top:1px solid rgba(255,255,255,.12);margin-top:14px;padding-top:12px;">';
-  out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">';
+  out+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:'+(S.collapsed.numGoal?'0':'10px')+'">';
   out+='<span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;">📊 숫자 목표 달성 현황</span>';
-  out+='<div style="display:flex;gap:6px;">';
+  out+='<div style="display:flex;gap:6px;align-items:center;">';
   out+='<button class="goal-add-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.3);" onclick="openGoal()">+ 대목표 추가</button>';
   out+='<button class="goal-add-btn" style="color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.15);font-size:10px;" onclick="cleanOrphanGoalIds()" title="잘못된 지표 연결 정리">🧹 연결 정리</button>';
+  out+='<button onclick="S.collapsed.numGoal=!S.collapsed.numGoal;render()" style="background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:12px;">'+(S.collapsed.numGoal?'▶':'▼')+'</button>';
   out+='</div>';
   out+='</div>';
+  if(!S.collapsed.numGoal){
+  if(!S.collapsed.numGoal){
   if(!topGoals.length){out+='<div style="font-size:12px;color:rgba(255,255,255,.25);text-align:center;padding:6px 0;">대목표를 추가하고 세부 지표로 달성을 추적하세요</div>';}
   else{
     for(var gi=0;gi<topGoals.length;gi++){
@@ -845,6 +854,7 @@ function render(){
       out+='</div>';
     }
   }
+  } // end if(!S.collapsed.numGoal)
   out+='</div>'; // close goals section
   } // end if(!S.collapsed.boundary)
   out+='</div>'; // close bcard
@@ -867,13 +877,15 @@ function render(){
   for(var ci2=0;ci2<calIdeasArr.length;ci2++){var ci2tc=TC[ci2%TC.length];out+='<span class="tag-chip" style="background:'+ci2tc+'20;border-color:'+ci2tc+';color:'+ci2tc+'"><span onclick="toggleCalIdeaDone(\''+ksKey+'\','+ci2+')" style="cursor:pointer;'+(calIdeasArr[ci2].done?'text-decoration:line-through;opacity:.5;':'')+'">'+esc(calIdeasArr[ci2].text)+'</span><button class="tag-del" style="color:'+ci2tc+'" onclick="delCalIdea(\''+ksKey+'\','+ci2+')">×</button></span>';}
   out+='</div></div>';
   // Key Scene 메모 (달력 위)
-  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">';
-  out+='<div style="background:var(--pkl);border-radius:12px;padding:12px;">';
+  out+='<div style="border:1.5px solid #e8e0f8;border-radius:12px;overflow:hidden;margin-bottom:14px;">';
+  out+='<div style="background:var(--pkl);padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 달 끝에 내가 원하는 모습</div>';
-  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea></div>';
-  out+='<div style="background:#f0f4ff;border-radius:12px;padding:12px;">';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea>';
+  out+='</div>';
+  out+='<div style="border-top:1.5px solid #e0d4f5;background:#f0f4ff;padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이달의 핵심 장면</div>';
-  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 달 가장 빛날 나의 장면을 상상해보세요..." oninput="setKeyScene(\'right\',this)" data-ks="'+ksKey+'">'+esc(ks.right)+'</textarea></div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 달 가장 빛날 나의 장면을 상상해보세요..." oninput="setKeyScene(\'right\',this)" data-ks="'+ksKey+'">'+esc(ks.right)+'</textarea>';
+  out+='</div>';
   out+='</div>';
   // 이달의 숫자 목표 변수 (렌더링은 메모 아래로 이동)
   var mKeys=getMonthDateKeys(S.calY,S.calM);
@@ -964,14 +976,18 @@ function render(){
   var wksKey='iso-'+psIso.year+'-w'+psIso.week;
   var wksD=(p.weekKeyScenes&&p.weekKeyScenes[wksKey])||{left:'',right:''};
   out+='<div class="card"><div class="card-top"><span class="ctitle">🗓️ 이번 주 끝점 & Key Scene</span><span style="font-size:10px;color:#aaa;margin-left:8px;">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span></div>';
-  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">';
-  out+='<div style="background:var(--pkl);border-radius:12px;padding:12px;">';
+  out+='<div style="border:1.5px solid #e8e0f8;border-radius:12px;overflow:hidden;margin-top:8px;">';
+  out+='<div style="background:var(--pkl);padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 주 끝에 내가 원하는 모습</div>';
-  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey+'">'+esc(wksD.left)+'</textarea></div>';
-  out+='<div style="background:#f0f4ff;border-radius:12px;padding:12px;">';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey+'">'+esc(wksD.left)+'</textarea>';
+  out+='</div>';
+  out+='<div style="border-top:1.5px solid #e0d4f5;background:#f0f4ff;padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이번 주 핵심 장면</div>';
-  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey+'">'+esc(wksD.right)+'</textarea></div>';
-  out+='</div></div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey+'">'+esc(wksD.right)+'</textarea>';
+  out+='</div>';
+  out+='</div>';
+  out+='<button onclick="openKeySceneView()" style="width:100%;margin-top:8px;padding:6px;background:#f8f4ff;border:1.5px solid #ddd6fe;border-radius:8px;color:#7C3AED;font-size:11px;font-weight:700;cursor:pointer;">📖 끝점 &amp; Key Scene 모아보기</button>';
+  out+='</div>';
   out+='<div class="card"><div class="card-top"><span class="ctitle">🔄 이번 주 PDCA</span>';
   out+='<div class="nav-g"><button class="nav-btn" onclick="S.pdcaOff--;save();render()">◀</button><span class="nav-lbl">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span><button class="nav-btn" onclick="S.pdcaOff++;save();render()">▶</button></div></div>';
   if(pinnedGoals.length){out+='<div style="background:var(--pkl);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pk);font-weight:700;">📌 집중 목표: '+pinnedGoals.map(function(g){return esc(g.name);}).join(' · ')+'</div>';}
@@ -1770,6 +1786,43 @@ function pdsIsoWeekKey(dObj){
   var mLabel=(mon.getUTCMonth()+1)+'/'+mon.getUTCDate();
   var sLabel=(sun.getUTCMonth()+1)+'/'+sun.getUTCDate();
   return mon.getUTCFullYear()+'-W'+(mon.getUTCMonth()+1)+'-'+mon.getUTCDate()+'|'+mLabel+'~'+sLabel;
+}
+function openKeySceneView(){
+  var p=cp();
+  var html='';
+  // 월간 끝점/KeyScene (최신 6개월)
+  var months=[];
+  var now=new Date();
+  for(var i=0;i<6;i++){var d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth()+1});}
+  months.forEach(function(mo){
+    var ksKey=mo.y+'-'+mo.m;
+    var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{left:'',right:''};
+    if(!ks.left&&!ks.right)return;
+    html+='<div style="margin-bottom:12px;border:1.5px solid #e8e0f8;border-radius:10px;overflow:hidden;">';
+    html+='<div style="background:#f8f4ff;padding:6px 12px;font-size:10px;font-weight:700;color:#7C3AED;">📅 '+mo.y+'년 '+mo.m+'월</div>';
+    if(ks.left){html+='<div style="padding:10px 12px;border-top:1px solid #ede9f8;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:4px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.left)+'</div></div>';}
+    if(ks.right){html+='<div style="padding:10px 12px;border-top:1px solid #ede9f8;background:#f0f4ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:4px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.right)+'</div></div>';}
+    html+='</div>';
+  });
+  // 주간 끝점/KeyScene
+  var wkSeen={};
+  var wkEntries=[];
+  Object.keys(p.weekKeyScenes||{}).forEach(function(wk){
+    var d=p.weekKeyScenes[wk];
+    if(d.left||d.right)wkEntries.push({key:wk,d:d});
+  });
+  wkEntries.sort(function(a,b){return b.key.localeCompare(a.key);}).slice(0,8).forEach(function(e){
+    var parts=e.key.replace('iso-','').split('-w');
+    var label=parts[0]+'년 '+parts[1]+'주차';
+    html+='<div style="margin-bottom:8px;border:1px solid #dbeafe;border-radius:10px;overflow:hidden;">';
+    html+='<div style="background:#eff6ff;padding:5px 12px;font-size:10px;font-weight:700;color:#1d4ed8;">📆 '+label+'</div>';
+    if(e.d.left){html+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:3px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.left)+'</div></div>';}
+    if(e.d.right){html+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;background:#f0f9ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:3px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.right)+'</div></div>';}
+    html+='</div>';
+  });
+  if(!html)html='<div style="color:#aaa;text-align:center;padding:20px;">아직 작성된 끝점/Key Scene이 없습니다.</div>';
+  document.getElementById('keySceneViewBody').innerHTML=html;
+  show('mKeySceneView');
 }
 function openPdsAcc(mode, weekOff){
   var p=cp();
@@ -3099,7 +3152,7 @@ document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;var pairs=[['mAdd',doAdd],['mRen',doRen],['mTodo',doAddTodo],['mTodoEdit',doEditTodo],['mEvEdit',doEditEv],['mGoal',doAddGoal],['mGoalEdit',doEditGoal],['mMetricEdit',doEditMetric]];for(var i=0;i<pairs.length;i++){if(document.getElementById(pairs[i][0]).style.display!=='none'){pairs[i][1]();return;}}
 },true);
 // 오버레이 닫기
-['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit','mPdsCreate','mPdsEdit','mPdsAcc','mTagDetail'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)hide(id);});});
+['mAdd','mRen','mDel','mTodo','mTodoEdit','mMove','mEv','mEvEdit','mDiag','mExport','mGoal','mMetric','mGoalEdit','mMetricEdit','mPdsCreate','mPdsEdit','mPdsAcc','mTagDetail','mKeySceneView'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)hide(id);});});
 // 자동완성 끄기
 document.querySelectorAll('.m-inp, input[class*="m-inp"]').forEach(function(el){el.setAttribute('autocomplete','off');});
 // Firebase 로그인 후 자동으로 render() 호출됨
