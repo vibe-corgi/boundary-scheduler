@@ -618,6 +618,20 @@ function logout() {
   auth.signOut().then(function(){ location.reload(); });
 }
 
+// 서비스워커 등록
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/boundary-scheduler/sw.js').then(function(reg) {
+    reg.addEventListener('updatefound', function() {
+      var nw = reg.installing;
+      nw.addEventListener('statechange', function() {
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+          if (confirm('새 버전이 있습니다. 지금 업데이트할까요?')) { location.reload(); }
+        }
+      });
+    });
+  });
+}
+
 // 인증 상태 감지
 window.addEventListener('load', function() {
   // Firebase 설정값 체크
