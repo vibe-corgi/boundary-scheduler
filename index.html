@@ -876,14 +876,28 @@ function render(){
   for(var ci2=0;ci2<calIdeasArr.length;ci2++){var ci2tc=TC[ci2%TC.length];out+='<span class="tag-chip" style="background:'+ci2tc+'20;border-color:'+ci2tc+';color:'+ci2tc+'"><span onclick="toggleCalIdeaDone(\''+ksKey+'\','+ci2+')" style="cursor:pointer;'+(calIdeasArr[ci2].done?'text-decoration:line-through;opacity:.5;':'')+'">'+esc(calIdeasArr[ci2].text)+'</span><button class="tag-del" style="color:'+ci2tc+'" onclick="delCalIdea(\''+ksKey+'\','+ci2+')">×</button></span>';}
   out+='</div></div>';
   // Key Scene 메모 (달력 위)
-  out+='<div style="border:1.5px solid #e8e0f8;border-radius:12px;overflow:hidden;margin-bottom:14px;">';
-  out+='<div style="background:var(--pkl);padding:12px;">';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">';
+  // 끝점
+  out+='<div style="background:var(--pkl);border-radius:12px;overflow:hidden;">';
+  out+='<div style="padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 달 끝에 내가 원하는 모습</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이달 말, 내가 되어 있고 싶은 모습..." oninput="setKeyScene(\'left\',this)" data-ks="'+ksKey+'">'+esc(ks.left)+'</textarea>';
   out+='</div>';
-  out+='<div style="border-top:1.5px solid #e0d4f5;background:#f0f4ff;padding:12px;">';
+  out+='<div style="border-top:1px dashed rgba(255,100,138,.3);padding:10px 12px;">';
+  out+='<div style="font-size:9px;font-weight:700;color:rgba(255,100,138,.6);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:44px;background:transparent;border:none;font-size:12px;" placeholder="실제로 어땠나요?" oninput="setKeyScene(\'leftR\',this)" data-ks="'+ksKey+'">'+esc(ks.leftR||'')+'</textarea>';
+  out+='</div>';
+  out+='</div>';
+  // 키신
+  out+='<div style="background:#f0f4ff;border-radius:12px;overflow:hidden;">';
+  out+='<div style="padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이달의 핵심 장면</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 달 가장 빛날 나의 장면을 상상해보세요..." oninput="setKeyScene(\'right\',this)" data-ks="'+ksKey+'">'+esc(ks.right)+'</textarea>';
+  out+='</div>';
+  out+='<div style="border-top:1px dashed rgba(124,58,237,.25);padding:10px 12px;">';
+  out+='<div style="font-size:9px;font-weight:700;color:rgba(124,58,237,.5);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:44px;background:transparent;border:none;font-size:12px;" placeholder="실제로 어땠나요?" oninput="setKeyScene(\'rightR\',this)" data-ks="'+ksKey+'">'+esc(ks.rightR||'')+'</textarea>';
+  out+='</div>';
   out+='</div>';
   out+='</div>';
   // 이달의 숫자 목표 변수 (렌더링은 메모 아래로 이동)
@@ -975,14 +989,28 @@ function render(){
   var wksKey='iso-'+psIso.year+'-w'+psIso.week;
   var wksD=(p.weekKeyScenes&&p.weekKeyScenes[wksKey])||{left:'',right:''};
   out+='<div class="card"><div class="card-top"><span class="ctitle">🗓️ 이번 주 끝점 & Key Scene</span><span style="font-size:10px;color:#aaa;margin-left:8px;">'+fmd(ps)+' ~ '+fmd(pe)+' ('+psIso.week+'주차)</span></div>';
-  out+='<div style="border:1.5px solid #e8e0f8;border-radius:12px;overflow:hidden;margin-top:8px;">';
-  out+='<div style="background:var(--pkl);padding:12px;">';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">';
+  // 끝점
+  out+='<div style="background:var(--pkl);border-radius:12px;overflow:hidden;">';
+  out+='<div style="padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:var(--pk);letter-spacing:1px;margin-bottom:6px;">🎯 끝점 — 이번 주 끝에 내가 원하는 모습</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 말, 내가 되어 있고 싶은 모습..." oninput="setWeekKeyScene(\'left\',this)" data-wks="'+wksKey+'">'+esc(wksD.left)+'</textarea>';
   out+='</div>';
-  out+='<div style="border-top:1.5px solid #e0d4f5;background:#f0f4ff;padding:12px;">';
+  out+='<div style="border-top:1px dashed rgba(255,100,138,.3);padding:10px 12px;">';
+  out+='<div style="font-size:9px;font-weight:700;color:rgba(255,100,138,.6);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:44px;background:transparent;border:none;font-size:12px;" placeholder="실제로 어땠나요?" oninput="setWeekKeyScene(\'leftR\',this)" data-wks="'+wksKey+'">'+esc(wksD.leftR||'')+'</textarea>';
+  out+='</div>';
+  out+='</div>';
+  // 키신
+  out+='<div style="background:#f0f4ff;border-radius:12px;overflow:hidden;">';
+  out+='<div style="padding:12px;">';
   out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:6px;">✨ Key Scene — 이번 주 핵심 장면</div>';
   out+='<textarea class="cal-memo-ta" style="min-height:56px;background:transparent;border:none;font-size:12px;" placeholder="이번 주 가장 빛날 나의 장면을 상상해보세요..." oninput="setWeekKeyScene(\'right\',this)" data-wks="'+wksKey+'">'+esc(wksD.right)+'</textarea>';
+  out+='</div>';
+  out+='<div style="border-top:1px dashed rgba(124,58,237,.25);padding:10px 12px;">';
+  out+='<div style="font-size:9px;font-weight:700;color:rgba(124,58,237,.5);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
+  out+='<textarea class="cal-memo-ta" style="min-height:44px;background:transparent;border:none;font-size:12px;" placeholder="실제로 어땠나요?" oninput="setWeekKeyScene(\'rightR\',this)" data-wks="'+wksKey+'">'+esc(wksD.rightR||'')+'</textarea>';
+  out+='</div>';
   out+='</div>';
   out+='</div>';
   out+='<button onclick="openKeySceneView()" style="width:100%;margin-top:8px;padding:6px;background:#f8f4ff;border:1.5px solid #ddd6fe;border-radius:8px;color:#7C3AED;font-size:11px;font-weight:700;cursor:pointer;">📖 끝점 &amp; Key Scene 모아보기</button>';
@@ -1269,8 +1297,16 @@ function render(){
     out+='<div class="pds-panel">';
     out+='<div class="pds-panel-hdr" style="position:sticky;top:0;z-index:5;background:#fff;border-top:1px solid #f0f0f0;"><span class="ctitle">📓 기록 & 통계</span></div>';
     out+='<div class="pds-record">';
+    out+='<div style="border:1px solid #e9d5ff;border-radius:10px;overflow:hidden;margin-bottom:10px;">';
+    out+='<div style="padding:10px 12px;">';
     out+='<div style="font-size:10px;font-weight:700;color:#7C3AED;letter-spacing:1px;margin-bottom:5px;">✨ 오늘의 Key Scene</div>';
-    out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;border-color:#e9d5ff;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
+    out+='<textarea class="cal-memo-ta" placeholder="오늘 하루 가장 빛날 나의 장면..." style="min-height:46px;background:transparent;border:none;font-size:12px;" data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(((p.dailyKeyScenes||{})[tdk])||'')+'</textarea>';
+    out+='</div>';
+    out+='<div style="border-top:1px dashed rgba(124,58,237,.25);padding:8px 12px;background:#faf7ff;">';
+    out+='<div style="font-size:9px;font-weight:700;color:rgba(124,58,237,.5);letter-spacing:.5px;margin-bottom:4px;">📝 회고</div>';
+    out+='<textarea class="cal-memo-ta" placeholder="실제로 어땠나요?" style="min-height:38px;background:transparent;border:none;font-size:12px;" data-ks3="'+tdk+'" oninput="setDailyKeySceneRetro(this)">'+esc(((p.dailyKeySceneRetros||{})[tdk])||'')+'</textarea>';
+    out+='</div>';
+    out+='</div>';
     var pdsTotalMins=pdsCatM.e80+pdsCatM.e20+pdsCatM.ecut+pdsCatM.eroutine;
     out+='<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin:10px 0 6px;">📊 오늘 시간 분배 <span style="font-weight:400;">('+fmtMins(pdsTotalMins)+')</span></div>';
     if(pdsTotalMins===0){out+='<div style="font-size:11px;color:#ddd;margin-bottom:8px;">타임블록을 추가하면 표시됩니다</div>';}
@@ -1945,6 +1981,7 @@ function openPdsAcc(mode, weekOff){
 }
 function setCalMemo(el){var p=cp();p.calMemos=p.calMemos||{};p.calMemos[el.dataset.mk]=el.value;save();}
 function setDailyKeyScene(el){var p=cp();p.dailyKeyScenes=p.dailyKeyScenes||{};p.dailyKeyScenes[el.dataset.ks2]=el.value;save();}
+function setDailyKeySceneRetro(el){var p=cp();p.dailyKeySceneRetros=p.dailyKeySceneRetros||{};p.dailyKeySceneRetros[el.dataset.ks3]=el.value;save();}
 function quickAddEv(e,ck){if(e.key!=='Enter')return;var inp=document.getElementById('evQuickInp'),t=inp.value.trim();if(!t)return;var p=cp();p.events=p.events||{};if(!p.events[ck])p.events[ck]=[];p.events[ck].push({text:t,p:1});inp.value='';save();render();setTimeout(function(){var el=document.getElementById('evQuickInp');if(el)el.focus();},50);}
 function calDragStart(ck,i,e){calDragKey=ck;calDragIdx=i;e.dataTransfer.effectAllowed='move';}
 function calDragEnd(){document.querySelectorAll('.cal-cell.drag-over').forEach(function(el){el.classList.remove('drag-over');});}
