@@ -604,11 +604,10 @@ var unsubscribe = null;
 function loginGoogle() {
   if (!auth) { document.getElementById('setupGuide').style.display='block'; return; }
   var provider = new firebase.auth.GoogleAuthProvider();
-  // Try popup first; fall back to redirect if blocked
   auth.signInWithPopup(provider).catch(function(e) {
     if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-      auth.signInWithRedirect(provider);
-    } else {
+      alert('팝업이 차단되었습니다.\nSafari → 설정 → 팝업 차단 해제 후 다시 시도해주세요.\n\n또는 Chrome 브라우저로 접속해주세요.');
+    } else if (e.code !== 'auth/cancelled-popup-request') {
       alert('로그인 실패: ' + e.message);
     }
   });
@@ -628,7 +627,7 @@ window.addEventListener('load', function() {
     document.getElementById('loginBtn').style.opacity = '0.4';
     return;
   }
-  auth.getRedirectResult().catch(function(e){ var ok=['auth/no-current-user','auth/operation-not-supported-in-this-environment'];if(ok.indexOf(e.code)<0)alert('로그인 실패: '+e.message); });
+  // redirect 미사용 — getRedirectResult 불필요
   auth.onAuthStateChanged(function(user) {
     if (user) {
       currentUser = user;
