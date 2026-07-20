@@ -2790,9 +2790,10 @@ function showTip(e,txt){var t=document.getElementById('tipBox');t.textContent=tx
 function moveTip(e){var t=document.getElementById('tipBox');t.style.left=e.clientX+'px';t.style.top=e.clientY+'px';}
 function hideTip(){var t=document.getElementById('tipBox');t.style.display='none';}
 // ── 모바일 뷰 ──────────────────────────────────────────────
-var isMobile = location.search.indexOf('view=mobile') >= 0
+var isMobile = location.search.indexOf('view=desktop') < 0 && (
+  location.search.indexOf('view=mobile') >= 0
   || window.navigator.standalone === true
-  || window.matchMedia('(display-mode: standalone)').matches;
+  || window.matchMedia('(display-mode: standalone)').matches);
 var mbTab = 0; // 0=할일 1=기록 2=성과 3=PDCA
 
 function renderMobile() {
@@ -3028,7 +3029,7 @@ function renderMobile() {
   // 탑바
   var topbar = '<div class="mb-topbar">';
   topbar += '<div><div class="mb-topbar-title">🎯 바운더리</div><div class="mb-topbar-sub">_you just shine</div></div>';
-  topbar += '<button class="mb-full-btn" onclick="location.href=location.pathname">🖥️ 전체 앱</button>';
+  topbar += '<button class="mb-full-btn" onclick="location.href=location.pathname+\'?view=desktop\'">🖥️ 전체 앱</button>';
   topbar += '</div>';
 
   // 바텀탭
