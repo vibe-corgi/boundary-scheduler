@@ -139,7 +139,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .cal-plus{font-size:9px;color:#ddd;margin-top:2px;}
 .cal-memo-box{margin-top:14px;border-top:1.5px solid #f5f5f5;padding-top:12px;}
 .cal-memo-lbl{font-size:10px;font-weight:700;color:#aaa;letter-spacing:1px;margin-bottom:7px;}
-.cal-memo-ta{width:100%;border:1.5px solid #f0f0f0;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;color:var(--dk);background:#fafafa;resize:none;min-height:72px;outline:none;line-height:1.7;}
+.cal-memo-ta{width:100%;border:1.5px solid #f0f0f0;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;color:var(--dk);background:#fafafa;resize:none;min-height:72px;outline:none;line-height:1.7;overflow:hidden;}
 .cal-memo-ta:focus{border-color:var(--pk);background:#fff;}
 .cal-memo-ta::placeholder{color:#ccc;}
 .todo-add-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
@@ -178,7 +178,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .pds-do-slot.pds-sel{background:rgba(255,45,120,.15)!important;}
 .pds-do-block{position:absolute;left:3px;right:3px;border-radius:5px;padding:2px 5px;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;z-index:4;transition:opacity .1s;}
 .pds-do-block:hover{opacity:.82;}
-.pds-record{padding:14px 16px;height:420px;overflow-y:auto;}
+.pds-record{padding:14px 16px;}
 /* DO border fixes */
 .pds-do-hour-border{position:absolute;left:0;right:0;border-top:1px solid #e8e8e8;z-index:1;pointer-events:none;}
 .pds-do-min-border{position:absolute;left:0;right:0;border-top:1px dashed rgba(0,0,0,.06);z-index:1;pointer-events:none;}
@@ -335,7 +335,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .mc-fill{background:linear-gradient(90deg,var(--pk),#ff6ba8);border-radius:4px;height:4px;}
 .mc-stats{display:flex;align-items:center;gap:5px;font-size:11px;}
 .mc-memo{font-size:10px;color:#aaa;font-style:italic;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mc-memo-inp{width:100%;border:none;border-bottom:1px dashed #e0d0e8;outline:none;font-size:10px;color:#222;background:transparent;font-family:inherit;padding:2px 0;font-style:italic;margin-top:3px;}
+.mc-memo-inp{width:100%;border:none;border-bottom:1px dashed #e0d0e8;outline:none;font-size:10px;color:#222;background:transparent;font-family:inherit;padding:2px 0;font-style:italic;margin-top:3px;resize:none;overflow:hidden;min-height:16px;display:block;line-height:1.5;}
 .mc-memo-inp:focus{border-bottom-color:var(--pk);color:#111;}
 .mc-memo-inp::placeholder{color:#ccc;}
 .goal-del-sm{background:none;border:none;color:#ddd;cursor:pointer;font-size:12px;padding:0 1px;flex-shrink:0;}
@@ -549,7 +549,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </div></div>
 <!-- PDS 호버 툴팁 -->
 <div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;"></div>
-<div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;" placeholder="메모를 입력하세요..."></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
+<div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;overflow:hidden;" placeholder="메모를 입력하세요..." oninput="ar(this)"></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
 <input type="file" id="xlsxInput" accept=".xlsx,.xls" style="display:none" onchange="importXLSX(this)"/>
@@ -877,7 +877,7 @@ function render(){
           out+='<div class="mc-name" style="color:rgba(255,255,255,.85);display:flex;align-items:center;gap:4px;"><span class="gdrag-handle" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m.id+'\')">⠿</span>'+esc(m.name)+'<button class="goal-del-sm" style="color:'+(m.pinnedQ?'var(--pk)':'rgba(255,255,255,.2)')+';font-size:10px;margin-left:auto;" onclick="toggleGoalPin(\''+m.id+'\',\'Q\')">📌</button><button class="goal-del-sm" style="color:rgba(255,255,255,.25);font-size:10px;" onclick="openEditMetric(\''+m.id+'\')">✏️</button><button class="goal-del-sm" style="color:rgba(255,255,255,.15);" onclick="delMetric(\''+m.id+'\')">×</button></div>';
           out+='<div class="mc-bar"><div class="mc-fill" style="width:'+qPct+'%;"></div></div>';
           out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m.id+'\')">'+qDone+'/'+(qTgt||'?')+esc(m.unit||'')+'</span><span style="color:rgba(255,255,255,.3);">'+qPct+'%</span>'+(mBreakStr?'<span style="color:rgba(255,255,255,.22);font-size:10px;flex:1;text-align:right;">'+esc(mBreakStr)+'</span>':'')+'</div>';
-          out+='<input class="mc-memo-inp" placeholder="3개월 메모" value="'+esc(m.memo||'')+'" data-gid="'+m.id+'" oninput="setQuarterMetricMemo(this)" style="color:rgba(255,255,255,.65);border-bottom-color:rgba(255,255,255,.15);" />';
+          out+='<textarea class="mc-memo-inp" placeholder="3개월 메모" data-gid="'+m.id+'" oninput="setQuarterMetricMemo(this);ar(this)" style="color:rgba(255,255,255,.65);border-bottom-color:rgba(255,255,255,.15);">'+esc(m.memo||'')+'</textarea>';
           out+='</div>';
         }
         out+='</div>';
@@ -1003,7 +1003,7 @@ function render(){
         out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m2.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m2.id+'\')">⠿</span>'+esc(m2.name)+'<button class="goal-del-sm" style="color:'+(m2.pinnedM?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m2.id+'\',\'M\')" title="핀">📌</button></div>';
         out+='<div class="mc-bar-light"><div class="mc-fill" style="width:'+mPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" title="클릭 시 연결된 할일 확인" onclick="showMetricTodos(\''+m2.id+'\')">'+mDone+'/'+(mTgt||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;">'+mPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">월<input class="goal-mtgt" type="number" value="'+(mTgt||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)" style="width:28px;"/>'+(m2.quarterTarget?'<span style="color:#ddd;font-size:10px;"> / 3개월'+m2.quarterTarget+esc(m2.unit||'')+'</span>':'')+'</span></div>';
-        out+='<input class="mc-memo-inp" placeholder="이달 메모" value="'+esc(mMemo2)+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this)"/>';
+        out+='<textarea class="mc-memo-inp" placeholder="이달 메모" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthMetricMemo(this);ar(this)">'+esc(mMemo2)+'</textarea>';
         out+='</div>';
       }
       out+='</div>';
@@ -1147,7 +1147,7 @@ function render(){
         out+='<div class="mc-name" style="display:flex;align-items:center;gap:3px;"><span class="gdrag-handle light" draggable="true" ondragstart="gDSm(event,\'metric\',\''+m3.id+'\')" ondragend="gDEm(event)" ontouchstart="gDSt(event,\'metric\',\''+m3.id+'\')">⠿</span>'+esc(m3.name)+'<button class="goal-del-sm" style="color:'+(m3.pinnedW?'var(--pk)':'#ddd')+';font-size:11px;margin-left:auto;" onclick="toggleGoalPin(\''+m3.id+'\',\'W\')" title="핀">📌</button></div>';
         out+='<div class="mc-bar-week"><div class="mc-fill" style="width:'+wPct+'%;"></div></div>';
         out+='<div class="mc-stats"><span style="color:var(--pk);font-weight:700;cursor:pointer;" onclick="showMetricTodos(\''+m3.id+'\')">'+wDone+'/'+wTgt+esc(m3.unit||'')+'</span><span style="color:#c0a0b0;">'+wPct+'%</span><span style="color:#ccc;font-size:10px;flex:1;text-align:right;">주<input class="goal-mtgt" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m3.id+'" data-wk="'+wKey2+'" oninput="setWeekTarget(this)" style="width:28px;"/>'+(mTgt3?'<span style="color:#d0b0c0;font-size:10px;"> / 월'+mTgt3+esc(m3.unit||'')+'</span>':'')+'</span></div>';
-        out+='<input class="mc-memo-inp" placeholder="이번 주 메모" value="'+esc(wMemo3)+'" data-gid="'+m3.id+'" data-wk="'+wKey2+'" oninput="setWeekMetricMemo(this)"/>';
+        out+='<textarea class="mc-memo-inp" placeholder="이번 주 메모" data-gid="'+m3.id+'" data-wk="'+wKey2+'" oninput="setWeekMetricMemo(this);ar(this)">'+esc(wMemo3)+'</textarea>';
         out+='</div>';
       }
       out+='</div></div>';
@@ -1547,7 +1547,7 @@ function render(){
   out+='</div>';
   } // end sec3
   document.getElementById('app').innerHTML=out;
-  document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta').forEach(function(el){ar(el);});
+  document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta,.mc-memo-inp').forEach(function(el){ar(el);});
   // PDS 타임라인 8시로 초기 스크롤
   var pdsSc=document.getElementById('pdsTlScroll');if(pdsSc)pdsSc.scrollTop=8*6*14;
 }
@@ -2159,7 +2159,7 @@ function doEditEv(){var t=document.getElementById('iEvEdit').value.trim();if(!t)
 function delEvEdit(){if(!confirm('이 일정을 삭제할까요?'))return;cp().events[evKey].splice(evEditIdx,1);if(!cp().events[evKey].length)delete cp().events[evKey];hide('mEvEdit');save();render();}
 // 다이어그램
 var diagType='';
-function openDiag(type){diagType=type;document.getElementById('diagTitle').textContent=type==='start'?'📍 시작 메모':'🎯 끝 메모';document.getElementById('iDiag').value=cp()[type==='start'?'startNote':'endNote']||'';show('mDiag');setTimeout(function(){document.getElementById('iDiag').focus();},50);}
+function openDiag(type){diagType=type;document.getElementById('diagTitle').textContent=type==='start'?'📍 시작 메모':'🎯 끝 메모';var el=document.getElementById('iDiag');el.value=cp()[type==='start'?'startNote':'endNote']||'';show('mDiag');setTimeout(function(){el.focus();ar(el);},50);}
 function saveDiag(){cp()[diagType==='start'?'startNote':'endNote']=document.getElementById('iDiag').value;hide('mDiag');save();render();}
 // 태그
 function addTag(e){if(e.key!=='Enter')return;var inp=e.target,v=inp.value.trim().replace(/^#+/,'');if(!v)return;var p=cp();p.tryTags=p.tryTags||[];p.tryTags.push(v);inp.value='';save();render();setTimeout(function(){var el=document.querySelector('.tag-inp');if(el)el.focus();},50);}
