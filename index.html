@@ -510,8 +510,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;" id="pdsCatRow">
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #FF2D78;font-size:11px;font-weight:700;color:#FF2D78;"><input type="radio" name="pdsCat" value="e80" checked style="display:none;" onchange="pdsCatSel()"> 🔥 80%</label>
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCat" value="e20" style="display:none;" onchange="pdsCatSel()"> ⚡ 20%</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCat" value="ecut" style="display:none;" onchange="pdsCatSel()"> 🌿 가지치기</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCat" value="eroutine" style="display:none;" onchange="pdsCatSel()"> 🔵 루틴</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCat" value="ecut" style="display:none;" onchange="pdsCatSel()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCat" value="eroutine" style="display:none;" onchange="pdsCatSel()"> 🔵 루틴</label>
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #9CA3AF;font-size:11px;font-weight:700;color:#9CA3AF;"><input type="radio" name="pdsCat" value="eother" style="display:none;" onchange="pdsCatSel()"> ⬜ 기타</label>
 </div>
 <input class="m-inp" id="pdsNewTags" placeholder="#해시태그 #여러개 공백으로 구분"/>
@@ -533,12 +533,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #FF2D78;font-size:11px;font-weight:700;color:#FF2D78;"><input type="radio" name="pdsCatE" value="e80" style="display:none;" onchange="pdsCatSelE()"> 🔥 80%</label>
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #F59E0B;font-size:11px;font-weight:700;color:#F59E0B;"><input type="radio" name="pdsCatE" value="e20" style="display:none;" onchange="pdsCatSelE()"> ⚡ 20%</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCatE" value="ecut" style="display:none;" onchange="pdsCatSelE()"> 🌿 가지치기</label>
-<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCatE" value="eroutine" style="display:none;" onchange="pdsCatSelE()"> 🔵 루틴</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #4A6CF7;font-size:11px;font-weight:700;color:#4A6CF7;"><input type="radio" name="pdsCatE" value="ecut" style="display:none;" onchange="pdsCatSelE()"> 🌿 가지치기</label>
+<label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #10B981;font-size:11px;font-weight:700;color:#10B981;"><input type="radio" name="pdsCatE" value="eroutine" style="display:none;" onchange="pdsCatSelE()"> 🔵 루틴</label>
 <label style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;border:1.5px solid #9CA3AF;font-size:11px;font-weight:700;color:#9CA3AF;"><input type="radio" name="pdsCatE" value="eother" style="display:none;" onchange="pdsCatSelE()"> ⬜ 기타</label>
 </div>
 <input class="m-inp" id="pdsEditTags" placeholder="#해시태그"/>
-<div class="act-row"><button class="btn-cancel" onclick="hide('mPdsEdit')">취소</button><button class="btn-red" onclick="pdsDelBlock()">삭제</button><button class="btn-ok" onclick="pdsUpdate()">저장 ✓</button></div>
+<div class="act-row"><button class="btn-cancel" onclick="hide('mPdsEdit')">취소</button><button class="btn-red" onclick="pdsDelBlock()">삭제</button><button id="pdsEditCopyBtn" class="btn-ok" style="background:#7C3AED;" onclick="copyPlanBlockToNext()">→내일</button><button class="btn-ok" onclick="pdsUpdate()">저장 ✓</button></div>
 </div></div>
 <!-- 누적 해시태그 월별 모달 -->
 <div class="overlay" id="mPdsAcc" style="display:none"><div class="modal" style="max-width:480px;max-height:80vh;display:flex;flex-direction:column;">
@@ -1277,7 +1277,7 @@ function render(){
   var doBlocksStat=(p.doBlocks&&p.doBlocks[tdk])||[]; // DO 블록만 통계에 반영
   var PDS_TH=24,PDS_SL=14;
   var PDS_TOTAL=PDS_TH*6; // 144 slots
-  var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#10B981',eroutine:'#4A6CF7',eother:'#9CA3AF'};
+  var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
   var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴',eother:'⬜ 기타'};
   // 오늘 카테고리별 분 집계 (DO만)
   var pdsCatM={e80:0,e20:0,ecut:0,eroutine:0,eother:0};
@@ -1329,7 +1329,7 @@ function render(){
     // ── LEFT panel: PLAN|시간바|DO 가로 그리드 ──
     out+='<div class="pds-panel" style="border-right:1.5px solid #f0f0f0;">';
     out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;border-bottom:1px solid #f0f0f0;">';
-    out+='<div style="padding:4px 7px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;border-right:1px solid #f0f0f0;display:flex;align-items:center;gap:5px;">📋 PLAN<button onclick="copyPlanToNextDay(\''+tdk+'\')" title="다음 날에도 복사" style="margin-left:auto;background:none;border:1px solid #eee;border-radius:4px;font-size:9px;color:#aaa;cursor:pointer;padding:1px 5px;line-height:1.4;" onmouseover="this.style.color=\'var(--pk)\';this.style.borderColor=\'var(--pk)\'" onmouseout="this.style.color=\'#aaa\';this.style.borderColor=\'#eee\'">→내일</button></div>';
+    out+='<div style="padding:4px 7px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;border-right:1px solid #f0f0f0;">📋 PLAN</div>';
     out+='<div style="background:#fafafa;border-right:1px solid #f0f0f0;"></div>';
     out+='<div style="padding:4px 7px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;">✅ DO</div>';
     out+='</div>';
@@ -1337,9 +1337,12 @@ function render(){
     out+='<div style="overflow:hidden;" id="pdsTlScroll" onmouseup="gridCellUp(event,\''+tdk+'\')" onmouseleave="gridCellLeave()">';
     out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;user-select:none;">';
     // ── PLAN 가로 그리드 ──
+    var planRowStart={};for(var bi=0;bi<pdsBlocks.length;bi++){var _b=pdsBlocks[bi];planRowStart[Math.floor(Math.floor(_b.start/10)/6)]=PDS_COLORS[_b.cat]||'#9CA3AF';}
+    var doRowStart={};for(var bi=0;bi<doBlocks.length;bi++){var _b=doBlocks[bi];doRowStart[Math.floor(Math.floor(_b.start/10)/6)]=PDS_COLORS[_b.cat]||'#9CA3AF';}
     out+='<div style="border-right:1px solid #e8e8e8;">';
     for(var gh=0;gh<PDS_TH;gh++){
-      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+      var planBorderTop=planRowStart[gh]?'border-top:2px solid '+hexAlpha(planRowStart[gh],0.5)+';':'';
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);'+planBorderTop+'">';
       for(var gm=0;gm<6;gm++){
         var slot=gh*6+gm;
         var pbl=planSlotMap[slot];
@@ -1359,7 +1362,8 @@ function render(){
     // ── DO 가로 그리드 ──
     out+='<div>';
     for(var gh=0;gh<PDS_TH;gh++){
-      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+      var doBorderTop=doRowStart[gh]?'border-top:2px solid '+hexAlpha(doRowStart[gh],0.5)+';':'';
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);'+doBorderTop+'">';
       for(var gm=0;gm<6;gm++){
         var slot=gh*6+gm;
         var dbl2=doSlotMap[slot];
@@ -1699,7 +1703,7 @@ function setDailyMemo(el){var p=cp();p.dailyMemos=p.dailyMemos||{};p.dailyMemos[
 // ── PDS 타임라인 ───────────────────────────────────────────
 var _pds={down:false,dk:'',startSlot:0,endSlot:0};
 var PDS_SL=14; // slotHeight px (10min per slot)
-var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#10B981',eroutine:'#4A6CF7'};
+var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981'};
 function pad2(n){return n<10?'0'+n:''+n;}
 function fmtMins(m){var h=Math.floor(m/60),mn=m%60;return h?(mn?h+'h '+mn+'m':h+'h'):mn+'m';}
 function pdsSlotDown(e,dk,slot){e.preventDefault();_pds={down:true,dk:dk,startSlot:slot,endSlot:slot};pdsHighlight(slot,slot);}
@@ -1727,7 +1731,7 @@ function pdsHighlight(a,b){
     el.classList.toggle('pds-sel',s>=a&&s<=b);
   });
 }
-var _PDS_ALL_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#10B981',eroutine:'#4A6CF7',eother:'#9CA3AF'};
+var _PDS_ALL_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
 function pdsCatSel(){
   var v=document.querySelector('input[name="pdsCat"]:checked').value;
   document.querySelectorAll('input[name="pdsCat"]').forEach(function(r){
@@ -1783,6 +1787,7 @@ function pdsEditBlock(dk,id,mode){
   document.getElementById('pdsEditETime').value=pad2(h2)+':'+pad2(m2);
   document.querySelectorAll('input[name="pdsCatE"]').forEach(function(r){r.checked=(r.value===bl.cat);});
   pdsCatSelE();
+  var cb=document.getElementById('pdsEditCopyBtn');if(cb)cb.style.display=(_pdsMode==='plan'?'':'none');
   show('mPdsEdit');
   setTimeout(function(){var el=document.getElementById('pdsEditLbl');if(el)el.focus();},50);
 }
@@ -1867,7 +1872,7 @@ function openTagDetail(tag){
   var p=cp();
   var allBlocks=p.timeBlocks||{};
   var items=[],totMins=0,monthM={},catM={};
-  var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#10B981',eroutine:'#4A6CF7',eother:'#9CA3AF'};
+  var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
   var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
   Object.keys(allBlocks).sort().reverse().forEach(function(dk){
     (allBlocks[dk]||[]).forEach(function(bl){
@@ -1978,7 +1983,7 @@ function openKeySceneView(){
 function openPdsAcc(mode, weekOff){
   var p=cp();
   var allBlocks=p.timeBlocks||{};
-  var catColors={e80:'#FF2D78',e20:'#F59E0B',ecut:'#10B981',eroutine:'#4A6CF7',eother:'#9CA3AF'};
+  var catColors={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
   var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
   var html='';
 
@@ -2230,6 +2235,20 @@ function setQuarterMetricMemo(el){var p=cp(),allG=p.goals||[];for(var i=0;i<allG
 function setMonthMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthMemos=g.monthMemos||{};var v=el.value.trim();if(v)g.monthMemos[el.dataset.mk]=v;else delete g.monthMemos[el.dataset.mk];save();}
 function setWeekMetricMemo(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.weekMemos=g.weekMemos||{};var v=el.value.trim();if(v)g.weekMemos[el.dataset.wk]=v;else delete g.weekMemos[el.dataset.wk];save();}
 function carryPlan(pk,i){var p=cp();var items=getPlanItems(pk);var item=items[i];var d=new Date(pk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));d.setDate(d.getDate()+7);var npk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();var nItems=getPlanItems(npk);nItems.push({text:item.text,done:false});save();showSaveToast();}
+function copyPlanBlockToNext(){
+  var dk=document.getElementById('pdsEditDk').value;
+  var id=document.getElementById('pdsEditId').value;
+  var p=cp();
+  var blocks=(p.timeBlocks&&p.timeBlocks[dk])||[];
+  var bl=null;for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){bl=blocks[i];break;}}
+  if(!bl)return;
+  var d=new Date(dk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+  d.setDate(d.getDate()+1);
+  var ndk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  p.timeBlocks=p.timeBlocks||{};p.timeBlocks[ndk]=p.timeBlocks[ndk]||[];
+  p.timeBlocks[ndk].push(Object.assign({},bl,{id:Date.now()+''}));
+  save();hide('mPdsEdit');showSaveToast('다음 날에 복사됨 ✓');
+}
 function copyPlanToNextDay(tdk){
   var p=cp();
   var blocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
