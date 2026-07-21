@@ -1345,7 +1345,8 @@ function render(){
         var pbl=planSlotMap[slot];
         var pbg=pbl?hexAlpha(PDS_COLORS[pbl.cat]||'#9CA3AF',0.1):'transparent';
         var ptipLbl=pbl?esc(pbl.label||''):'';var ptipMemo=pbl?esc(pbl.memo||''):'';
-        out+='<div data-plan-cell="1" data-slot="'+slot+'" data-tip-lbl="'+ptipLbl+'" data-tip-memo="'+ptipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+        var pDot=(pbl&&slot===Math.floor(pbl.start/10))?'<div style="width:4px;height:4px;border-radius:50%;background:'+(PDS_COLORS[pbl.cat]||'#9CA3AF')+';pointer-events:none;flex-shrink:0;"></div>':'';
+        out+='<div data-plan-cell="1" data-slot="'+slot+'" data-tip-lbl="'+ptipLbl+'" data-tip-memo="'+ptipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;display:flex;align-items:center;justify-content:center;">'+pDot+'</div>';
       }
       out+='</div>';
     }
@@ -1365,7 +1366,8 @@ function render(){
         var dbl2=doSlotMap[slot];
         var dbg=dbl2?hexAlpha(PDS_COLORS[dbl2.cat]||'#9CA3AF',0.3):'transparent';
         var dtipLbl=dbl2?esc(dbl2.label||''):'';var dtipMemo=dbl2?esc(dbl2.memo||''):'';
-        out+='<div data-do-cell="1" data-slot="'+slot+'" data-tip-lbl="'+dtipLbl+'" data-tip-memo="'+dtipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+        var dDot=(dbl2&&slot===Math.floor(dbl2.start/10))?'<div style="width:4px;height:4px;border-radius:50%;background:'+(PDS_COLORS[dbl2.cat]||'#9CA3AF')+';pointer-events:none;flex-shrink:0;"></div>':'';
+        out+='<div data-do-cell="1" data-slot="'+slot+'" data-tip-lbl="'+dtipLbl+'" data-tip-memo="'+dtipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;display:flex;align-items:center;justify-content:center;">'+dDot+'</div>';
       }
       out+='</div>';
     }
