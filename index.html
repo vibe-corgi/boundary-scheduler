@@ -496,8 +496,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div class="overlay" id="mMetricDiag" style="display:none"><div class="modal" style="max-width:460px;"><h3>📊 <span id="mmdTitle"></span> 연결 할일</h3><div id="mmdList" style="max-height:320px;overflow-y:auto;margin-bottom:14px;font-size:13px;"></div><div class="act-row"><button class="btn-cancel" onclick="hide('mMetricDiag')">닫기</button></div></div></div>
 <div class="overlay" id="mPdsCreate" style="display:none"><div class="modal" style="max-width:400px;">
 <h3>⏱️ 타임블록 추가</h3>
-<div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:12px;" id="pdsNewTime"></div>
-<input type="hidden" id="pdsNewDk"/><input type="hidden" id="pdsNewS"/><input type="hidden" id="pdsNewE"/>
+<input type="hidden" id="pdsNewDk"/>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+  <span style="font-size:11px;font-weight:700;color:#aaa;white-space:nowrap;">시작</span>
+  <input type="time" id="pdsNewSTime" class="m-inp" style="flex:1;margin-bottom:0;padding:6px 10px;font-size:13px;"/>
+  <span style="font-size:13px;font-weight:700;color:#7C3AED;">~</span>
+  <span style="font-size:11px;font-weight:700;color:#aaa;white-space:nowrap;">종료</span>
+  <input type="time" id="pdsNewETime" class="m-inp" style="flex:1;margin-bottom:0;padding:6px 10px;font-size:13px;"/>
+</div>
 <input class="m-inp" id="pdsNewLbl" placeholder="할 일 / 활동명 (선택)"/>
 <textarea class="m-inp" id="pdsNewMemo" placeholder="간략한 메모 (마우스오버 시 표시)" style="min-height:52px;resize:none;font-size:12px;margin-top:6px;"></textarea>
 <div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
@@ -513,8 +519,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 </div></div>
 <div class="overlay" id="mPdsEdit" style="display:none"><div class="modal" style="max-width:400px;">
 <h3>⏱️ 타임블록 수정</h3>
-<div style="font-size:12px;color:#7C3AED;font-weight:700;margin-bottom:10px;" id="pdsEditTime"></div>
 <input type="hidden" id="pdsEditDk"/><input type="hidden" id="pdsEditId"/>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+  <span style="font-size:11px;font-weight:700;color:#aaa;white-space:nowrap;">시작</span>
+  <input type="time" id="pdsEditSTime" class="m-inp" style="flex:1;margin-bottom:0;padding:6px 10px;font-size:13px;"/>
+  <span style="font-size:13px;font-weight:700;color:#7C3AED;">~</span>
+  <span style="font-size:11px;font-weight:700;color:#aaa;white-space:nowrap;">종료</span>
+  <input type="time" id="pdsEditETime" class="m-inp" style="flex:1;margin-bottom:0;padding:6px 10px;font-size:13px;"/>
+</div>
 <input class="m-inp" id="pdsEditLbl" placeholder="할 일 / 활동명"/>
 <textarea class="m-inp" id="pdsEditMemo" placeholder="간략한 메모 (마우스오버 시 표시)" style="min-height:52px;resize:none;font-size:12px;margin-top:6px;"></textarea>
 <div style="font-size:11px;font-weight:700;color:#aaa;margin:10px 0 6px;">카테고리</div>
@@ -1262,16 +1274,17 @@ function render(){
   var todayMemoKey='daily-'+tdk;
   var todayMemo=(p.dailyMemos&&p.dailyMemos[todayMemoKey])||'';
   var pdsBlocks=(p.timeBlocks&&p.timeBlocks[tdk])||[];
+  var doBlocksStat=(p.doBlocks&&p.doBlocks[tdk])||[]; // DO 블록만 통계에 반영
   var PDS_TH=24,PDS_SL=14;
   var PDS_TOTAL=PDS_TH*6; // 144 slots
   var PDS_COLORS={e80:'#4A6CF7',e20:'#F59E0B',ecut:'#10B981',eroutine:'#8B5CF6',eother:'#9CA3AF'};
   var PDS_NAMES={e80:'🔥 80% 에너지',e20:'⚡ 20% 에너지',ecut:'🌿 가지치기',eroutine:'🔵 루틴',eother:'⬜ 기타'};
-  // 오늘 카테고리별 분 집계
+  // 오늘 카테고리별 분 집계 (DO만)
   var pdsCatM={e80:0,e20:0,ecut:0,eroutine:0};
-  for(var bi2=0;bi2<pdsBlocks.length;bi2++){var bl2=pdsBlocks[bi2];pdsCatM[bl2.cat]=(pdsCatM[bl2.cat]||0)+(bl2.end-bl2.start);}
-  // 오늘 해시태그별 분 집계 (카테고리별로도 집계 → 색상용)
+  for(var bi2=0;bi2<doBlocksStat.length;bi2++){var bl2=doBlocksStat[bi2];pdsCatM[bl2.cat]=(pdsCatM[bl2.cat]||0)+(bl2.end-bl2.start);}
+  // 오늘 해시태그별 분 집계 (DO만)
   var pdsTagM={},pdsTagCatM={};
-  for(var bi3=0;bi3<pdsBlocks.length;bi3++){var bl3=pdsBlocks[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);if(!pdsTagCatM[t])pdsTagCatM[t]={};pdsTagCatM[t][bl3.cat]=(pdsTagCatM[t][bl3.cat]||0)+(bl3.end-bl3.start);});}
+  for(var bi3=0;bi3<doBlocksStat.length;bi3++){var bl3=doBlocksStat[bi3];(bl3.tags||[]).forEach(function(t){pdsTagM[t]=(pdsTagM[t]||0)+(bl3.end-bl3.start);if(!pdsTagCatM[t])pdsTagCatM[t]={};pdsTagCatM[t][bl3.cat]=(pdsTagCatM[t][bl3.cat]||0)+(bl3.end-bl3.start);});}
   var pdsTagSorted=Object.keys(pdsTagM).sort(function(a,b){return pdsTagM[b]-pdsTagM[a];});
   // ── PDS 카드 (일간 / 주간 / 종합 탭) ──
   out+='<div class="card" style="padding:0;overflow:hidden;">';
@@ -1331,7 +1344,7 @@ function render(){
         var slot=gh*6+gm;
         var pbl=planSlotMap[slot];
         var pbg=pbl?hexAlpha(PDS_COLORS[pbl.cat]||'#9CA3AF',0.1):'transparent';
-        var ptip=pbl?(pad2(gh)+':'+pad2(gm*10)+' '+esc(pbl.label||'')):(pad2(gh)+':'+pad2(gm*10));
+        var ptip=pbl?esc(pbl.label||''):'';
         out+='<div data-plan-cell="1" data-slot="'+slot+'" title="'+ptip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
       }
       out+='</div>';
@@ -1351,7 +1364,7 @@ function render(){
         var slot=gh*6+gm;
         var dbl2=doSlotMap[slot];
         var dbg=dbl2?hexAlpha(PDS_COLORS[dbl2.cat]||'#9CA3AF',0.3):'transparent';
-        var dtip=dbl2?(pad2(gh)+':'+pad2(gm*10)+' '+esc(dbl2.label||'')):(pad2(gh)+':'+pad2(gm*10));
+        var dtip=dbl2?esc(dbl2.label||''):'';
         out+='<div data-do-cell="1" data-slot="'+slot+'" title="'+dtip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
       }
       out+='</div>';
@@ -1699,9 +1712,8 @@ function pdsSlotUp(e,dk){
   var sMin=a*10, eMin=(b+1)*10; // 00:00 기준 분
   var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
   document.getElementById('pdsNewDk').value=dk;
-  document.getElementById('pdsNewS').value=sMin;
-  document.getElementById('pdsNewE').value=eMin;
-  document.getElementById('pdsNewTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+((eMin-sMin))+'분)';
+  document.getElementById('pdsNewSTime').value=pad2(h1)+':'+pad2(m1);
+  document.getElementById('pdsNewETime').value=pad2(h2)+':'+pad2(m2);
   document.getElementById('pdsNewLbl').value='';
   document.getElementById('pdsNewTags').value='';
   var rads=document.querySelectorAll('input[name="pdsCat"]');
@@ -1734,8 +1746,12 @@ function pdsCatSelE(){
 }
 function pdsSave(){
   var dk=document.getElementById('pdsNewDk').value;
-  var s=+document.getElementById('pdsNewS').value;
-  var e2=+document.getElementById('pdsNewE').value;
+  var sv=document.getElementById('pdsNewSTime').value||'00:00';
+  var ev=document.getElementById('pdsNewETime').value||'00:00';
+  var sp=sv.split(':'),ep=ev.split(':');
+  var s=parseInt(sp[0])*60+parseInt(sp[1]);
+  var e2=parseInt(ep[0])*60+parseInt(ep[1]);
+  if(e2<=s)e2=s+10;
   var lbl=document.getElementById('pdsNewLbl').value.trim();
   var memo=document.getElementById('pdsNewMemo').value.trim();
   var cat=document.querySelector('input[name="pdsCat"]:checked').value;
@@ -1763,7 +1779,8 @@ function pdsEditBlock(dk,id,mode){
   document.getElementById('pdsEditMemo').value=bl.memo||'';
   document.getElementById('pdsEditTags').value=(bl.tags||[]).join(' ');
   var h1=Math.floor(bl.start/60),m1=bl.start%60,h2=Math.floor(bl.end/60),m2=bl.end%60;
-  document.getElementById('pdsEditTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+((bl.end-bl.start))+'분)';
+  document.getElementById('pdsEditSTime').value=pad2(h1)+':'+pad2(m1);
+  document.getElementById('pdsEditETime').value=pad2(h2)+':'+pad2(m2);
   document.querySelectorAll('input[name="pdsCatE"]').forEach(function(r){r.checked=(r.value===bl.cat);});
   pdsCatSelE();
   show('mPdsEdit');
@@ -1777,9 +1794,15 @@ function pdsUpdate(){
   var cat=document.querySelector('input[name="pdsCatE"]:checked').value;
   var tagsRaw=document.getElementById('pdsEditTags').value;
   var tags=tagsRaw.split(/[\s,]+/).filter(function(t){return t.length>1&&t.startsWith('#');});
+  var sv=document.getElementById('pdsEditSTime').value||'00:00';
+  var ev=document.getElementById('pdsEditETime').value||'00:00';
+  var sp=sv.split(':'),ep=ev.split(':');
+  var newS=parseInt(sp[0])*60+parseInt(sp[1]);
+  var newE=parseInt(ep[0])*60+parseInt(ep[1]);
+  if(newE<=newS)newE=newS+10;
   var p=cp();
   var blocks=(_pdsMode==='do'?(p.doBlocks&&p.doBlocks[dk]):(p.timeBlocks&&p.timeBlocks[dk]))||[];
-  for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){blocks[i].label=lbl;blocks[i].cat=cat;blocks[i].tags=tags;if(memo)blocks[i].memo=memo;else delete blocks[i].memo;break;}}
+  for(var i=0;i<blocks.length;i++){if(blocks[i].id===id){blocks[i].label=lbl;blocks[i].cat=cat;blocks[i].tags=tags;blocks[i].start=newS;blocks[i].end=newE;if(memo)blocks[i].memo=memo;else delete blocks[i].memo;break;}}
   _pdsMode='plan';
   save();hide('mPdsEdit');render();
   setTimeout(function(){var sc=document.getElementById('pdsTlScroll');if(sc)sc.scrollTop=8*6*PDS_SL;},60);
@@ -2100,9 +2123,8 @@ function gridCellUp(e,tdk){
   var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
   _pdsMode=src;
   document.getElementById('pdsNewDk').value=tdk;
-  document.getElementById('pdsNewS').value=sMin;
-  document.getElementById('pdsNewE').value=eMin;
-  document.getElementById('pdsNewTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+(eMin-sMin)+'분)';
+  document.getElementById('pdsNewSTime').value=pad2(h1)+':'+pad2(m1);
+  document.getElementById('pdsNewETime').value=pad2(h2)+':'+pad2(m2);
   document.getElementById('pdsNewLbl').value='';
   document.getElementById('pdsNewTags').value='';
   if(document.getElementById('pdsNewMemo'))document.getElementById('pdsNewMemo').value='';
@@ -2121,9 +2143,8 @@ function pdsDoSlotUp(e,dk){
   var h1=Math.floor(sMin/60),m1=sMin%60,h2=Math.floor(eMin/60),m2=eMin%60;
   _pdsMode='do';
   document.getElementById('pdsNewDk').value=dk;
-  document.getElementById('pdsNewS').value=sMin;
-  document.getElementById('pdsNewE').value=eMin;
-  document.getElementById('pdsNewTime').textContent=pad2(h1)+':'+pad2(m1)+' ~ '+pad2(h2)+':'+pad2(m2)+' ('+(eMin-sMin)+'분)';
+  document.getElementById('pdsNewSTime').value=pad2(h1)+':'+pad2(m1);
+  document.getElementById('pdsNewETime').value=pad2(h2)+':'+pad2(m2);
   document.getElementById('pdsNewLbl').value='';
   document.getElementById('pdsNewTags').value='';
   var rads=document.querySelectorAll('input[name="pdsCat"]');rads[0].checked=true;pdsCatSel();
