@@ -560,7 +560,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mKeySceneView')">닫기</button></div>
 </div></div>
 <!-- PDS 호버 툴팁 -->
-<div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;"></div>
+<div id="pdsTooltip" style="display:none;position:fixed;background:rgba(28,28,30,.92);color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;max-width:220px;z-index:9999;pointer-events:none;line-height:1.6;white-space:pre-wrap;word-break:break-word;"></div>
 <div class="overlay" id="mDiag" style="display:none"><div class="modal"><h3 id="diagTitle">📍 시작 메모</h3><textarea class="m-inp" id="iDiag" style="min-height:120px;resize:none;line-height:1.7;overflow:hidden;" placeholder="메모를 입력하세요..." oninput="ar(this)"></textarea><div class="act-row"><button class="btn-cancel" onclick="hide('mDiag')">취소</button><button class="btn-ok" onclick="saveDiag()">저장 ✓</button></div></div></div>
 <div class="overlay" id="mExport" style="display:none"><div class="modal" style="max-width:500px;"><h3>📋 Notion 전체 복사</h3><div style="font-size:12px;color:#aaa;margin-bottom:8px;"><b>Ctrl+A → Ctrl+C</b> 후 Notion에 붙여넣기</div><textarea class="ex-ta" id="exportTxt" readonly onclick="this.select()"></textarea><div class="act-row" style="margin-top:12px;"><button class="btn-cancel" onclick="hide('mExport')">닫기</button><button class="btn-ok" onclick="doCopy()">복사 ✓</button></div></div></div>
 
@@ -1344,8 +1344,8 @@ function render(){
         var slot=gh*6+gm;
         var pbl=planSlotMap[slot];
         var pbg=pbl?hexAlpha(PDS_COLORS[pbl.cat]||'#9CA3AF',0.1):'transparent';
-        var ptip=pbl?esc(pbl.label||''):'';
-        out+='<div data-plan-cell="1" data-slot="'+slot+'" title="'+ptip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+        var ptipLbl=pbl?esc(pbl.label||''):'';var ptipMemo=pbl?esc(pbl.memo||''):'';
+        out+='<div data-plan-cell="1" data-slot="'+slot+'" data-tip-lbl="'+ptipLbl+'" data-tip-memo="'+ptipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'plan\')" onmousemove="gridCellMove(event,'+slot+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
       }
       out+='</div>';
     }
@@ -1364,8 +1364,8 @@ function render(){
         var slot=gh*6+gm;
         var dbl2=doSlotMap[slot];
         var dbg=dbl2?hexAlpha(PDS_COLORS[dbl2.cat]||'#9CA3AF',0.3):'transparent';
-        var dtip=dbl2?esc(dbl2.label||''):'';
-        out+='<div data-do-cell="1" data-slot="'+slot+'" title="'+dtip+'" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
+        var dtipLbl=dbl2?esc(dbl2.label||''):'';var dtipMemo=dbl2?esc(dbl2.memo||''):'';
+        out+='<div data-do-cell="1" data-slot="'+slot+'" data-tip-lbl="'+dtipLbl+'" data-tip-memo="'+dtipMemo+'" onmouseenter="pdsShowTipEl(event,this)" onmouseleave="pdsHideTip()" onmousedown="gridCellDown(event,\''+tdk+'\','+slot+',\'do\')" onmousemove="gridCellMove(event,'+slot+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);cursor:crosshair;"></div>';
       }
       out+='</div>';
     }
@@ -1819,7 +1819,19 @@ function pdsDelBlock(){
 }
 function pdsShowTip(e,txt){
   var t=document.getElementById('pdsTooltip');if(!t||!txt)return;
-  t.textContent=txt.replace(/\\n/g,'\n');
+  t.innerHTML='<strong>'+txt.replace(/</g,'&lt;')+'</strong>';
+  t.style.display='block';
+  t.style.left=(e.clientX+14)+'px';
+  t.style.top=Math.max(8,e.clientY-10)+'px';
+}
+function pdsShowTipEl(e,el){
+  var lbl=el.dataset.tipLbl,memo=el.dataset.tipMemo;
+  if(!lbl&&!memo)return;
+  var t=document.getElementById('pdsTooltip');if(!t)return;
+  var html='';
+  if(lbl)html+='<strong>'+lbl.replace(/</g,'&lt;')+'</strong>';
+  if(memo)html+=(lbl?'<br/>':'')+memo.replace(/</g,'&lt;').replace(/\n/g,'<br/>');
+  t.innerHTML=html;
   t.style.display='block';
   t.style.left=(e.clientX+14)+'px';
   t.style.top=Math.max(8,e.clientY-10)+'px';
