@@ -1337,12 +1337,9 @@ function render(){
     out+='<div style="overflow:hidden;" id="pdsTlScroll" onmouseup="gridCellUp(event,\''+tdk+'\')" onmouseleave="gridCellLeave()">';
     out+='<div style="display:grid;grid-template-columns:1fr 26px 1fr;user-select:none;">';
     // ── PLAN 가로 그리드 ──
-    var planRowStart={};for(var bi=0;bi<pdsBlocks.length;bi++){var _b=pdsBlocks[bi];planRowStart[Math.floor(Math.floor(_b.start/10)/6)]=PDS_COLORS[_b.cat]||'#9CA3AF';}
-    var doRowStart={};for(var bi=0;bi<doBlocks.length;bi++){var _b=doBlocks[bi];doRowStart[Math.floor(Math.floor(_b.start/10)/6)]=PDS_COLORS[_b.cat]||'#9CA3AF';}
     out+='<div style="border-right:1px solid #e8e8e8;">';
     for(var gh=0;gh<PDS_TH;gh++){
-      var planBorderTop=planRowStart[gh]?'border-top:2px solid '+hexAlpha(planRowStart[gh],0.5)+';':'';
-      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);'+planBorderTop+'">';
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
       for(var gm=0;gm<6;gm++){
         var slot=gh*6+gm;
         var pbl=planSlotMap[slot];
@@ -1362,8 +1359,7 @@ function render(){
     // ── DO 가로 그리드 ──
     out+='<div>';
     for(var gh=0;gh<PDS_TH;gh++){
-      var doBorderTop=doRowStart[gh]?'border-top:2px solid '+hexAlpha(doRowStart[gh],0.5)+';':'';
-      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);'+doBorderTop+'">';
+      out+='<div style="display:flex;height:'+PDS_GH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
       for(var gm=0;gm<6;gm++){
         var slot=gh*6+gm;
         var dbl2=doSlotMap[slot];
