@@ -1866,7 +1866,7 @@ function hexAlpha(hex,a){
 }
 function openTagDetail(tag){
   var p=cp();
-  var allBlocks=p.timeBlocks||{};
+  var allBlocks=p.doBlocks||{};
   var items=[],totMins=0,monthM={},catM={};
   var PDS_COLORS={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
   var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
@@ -1978,7 +1978,7 @@ function openKeySceneView(){
 }
 function openPdsAcc(mode, weekOff){
   var p=cp();
-  var allBlocks=p.timeBlocks||{};
+  var allBlocks=p.doBlocks||{};
   var catColors={e80:'#FF2D78',e20:'#F59E0B',ecut:'#4A6CF7',eroutine:'#10B981',eother:'#9CA3AF'};
   var catNames={e80:'80%에너지',e20:'20%에너지',ecut:'가지치기',eroutine:'루틴',eother:'기타'};
   var html='';
