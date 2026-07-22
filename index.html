@@ -2858,7 +2858,7 @@ var isMobile = location.search.indexOf('view=desktop') < 0 && (
   location.search.indexOf('view=mobile') >= 0
   || window.navigator.standalone === true
   || window.matchMedia('(display-mode: standalone)').matches);
-var mbTab = 0; // 0=할일 1=기록 2=성과 3=PDCA 4=스케줄러
+var mbTab = 0; // 0=할일 1=성과 2=PDCA 3=스케줄러 4=기록
 var mbSchedTab = 'day'; // day / week / summary
 var mbSchedWeekOff = 0;
 
@@ -2944,8 +2944,8 @@ function renderMobile() {
     content += '</div>';
   }
 
-  // ── 탭1: 기록 ──
-  else if (mbTab === 1) {
+  // ── 탭4: 기록 ──
+  else if (mbTab === 4) {
     var tDayK = S.todoDate || todayKey();
     var dailyKS = ((p.dailyKeyScenes || {})[tDayK]) || '';
     var dailyMemoK = 'daily-' + tDayK;
@@ -2966,8 +2966,8 @@ function renderMobile() {
     content += '</div>';
   }
 
-  // ── 탭2: 성과 ──
-  else if (mbTab === 2) {
+  // ── 탭1: 성과 ──
+  else if (mbTab === 1) {
     // 이번 주
     var wks = getWeeks(S.calY, S.calM);
     var curWk = null; for (var w = 0; w < wks.length; w++) { if (isThisWeek(wks[w].s, wks[w].e)) { curWk = wks[w]; break; } }
@@ -3020,10 +3020,38 @@ function renderMobile() {
         content += '</div></div>';
       }
     }
+    // 대목표
+    if (topGoals.length) {
+      content += '<div class="mb-section-hdr">🎯 대목표</div>';
+      for (var gi3 = 0; gi3 < topGoals.length; gi3++) {
+        var tg3 = topGoals[gi3];
+        var ch3 = goals.filter(function(g) { return g.parentId === tg3.id; });
+        var qTgt3 = ch3.reduce(function(s,g){return s+(g.quarterTarget||0);},0);
+        var qDone3 = ch3.reduce(function(s,g){return s+countGoalInDates(g.id,getMonthDateKeys(S.calY,S.calM));},0);
+        content += '<div class="mb-goal-group" style="margin-bottom:10px;">';
+        content += '<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg3.name)+'</div>';
+        if (ch3.length) {
+          content += '<div style="display:flex;flex-direction:column;gap:5px;">';
+          for (var ci3=0;ci3<ch3.length;ci3++) {
+            var sg=ch3[ci3];
+            var sgPct=sg.quarterTarget?Math.min(100,Math.round(countGoalInDates(sg.id,getMonthDateKeys(S.calY,S.calM))/(sg.quarterTarget/3)*100)):0;
+            content += '<div style="display:flex;align-items:center;gap:6px;">';
+            content += '<div style="font-size:11px;color:var(--dk);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(sg.name)+'</div>';
+            content += '<div style="width:80px;height:6px;background:#f0f0f0;border-radius:3px;flex-shrink:0;"><div style="height:100%;width:'+sgPct+'%;background:var(--pk);border-radius:3px;"></div></div>';
+            content += '<div style="font-size:10px;font-weight:700;color:var(--pk);width:28px;text-align:right;flex-shrink:0;">'+sgPct+'%</div>';
+            content += '</div>';
+          }
+          content += '</div>';
+        } else {
+          content += '<div style="font-size:11px;color:#ccc;">소목표 없음</div>';
+        }
+        content += '</div>';
+      }
+    }
   }
 
-  // ── 탭3: PDCA ──
-  else if (mbTab === 3) {
+  // ── 탭2: PDCA ──
+  else if (mbTab === 2) {
     var ps = pdcaStart(S.pdcaOff), pe = new Date(ps); pe.setDate(ps.getDate() + 6);
     var psIso = isoWeek(ps), pk2 = ps.getFullYear() + '-' + (ps.getMonth() + 1) + '-' + ps.getDate();
     var pdcaD = (p.pdca && p.pdca[pk2]) || { plan: [], doIt: '', check: '', act: '' };
@@ -3092,8 +3120,8 @@ function renderMobile() {
     content += '</div>';
   }
 
-  // ── 탭4: 스케줄러 ──
-  else if (mbTab === 4) {
+  // ── 탭3: 스케줄러 ──
+  else if (mbTab === 3) {
     var mbPv = mbSchedTab;
     // 서브탭 바
     content += '<div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:5;">';
@@ -3165,7 +3193,7 @@ function renderMobile() {
       content += '</div>';
       content += '</div></div>'; // grid body, grid card
 
-      // 기록 & 통계 섹션
+      // 통계 섹션
       var mbDStat = mbDbs;
       var mbCatM = {e80:0,e20:0,ecut:0,eroutine:0,eother:0};
       for (var bi=0;bi<mbDStat.length;bi++){var bl=mbDStat[bi];mbCatM[bl.cat]=(mbCatM[bl.cat]||0)+(bl.end-bl.start);}
@@ -3173,21 +3201,9 @@ function renderMobile() {
       for (var bi=0;bi<mbDStat.length;bi++){var bl=mbDStat[bi];if(bl.tags){for(var ti2=0;ti2<bl.tags.length;ti2++){var tg2=bl.tags[ti2];mbTagM[tg2]=(mbTagM[tg2]||0)+(bl.end-bl.start);if(!mbTagCatM[tg2])mbTagCatM[tg2]={};mbTagCatM[tg2][bl.cat]=(mbTagCatM[tg2][bl.cat]||0)+(bl.end-bl.start);}}}
       var mbTagSorted=Object.keys(mbTagM).sort(function(a,b){return mbTagM[b]-mbTagM[a];});
       var mbTotalMins=mbCatM.e80+mbCatM.e20+mbCatM.ecut+mbCatM.eroutine+mbCatM.eother;
-      var mbKS=((p.dailyKeyScenes||{})[tdk])||'';
-      var mbRetro=((p.dailyKeySceneRetros||{})[tdk])||'';
-      var mbDmk='daily-'+tdk;
-      var mbDailyMemo=(p.dailyMemos&&p.dailyMemos[mbDmk])||'';
-
-      // Key Scene & 회고
-      content += '<div class="mb-card" style="margin-top:8px;">';
-      content += '<div style="background:linear-gradient(135deg,#fff5f8,#fff0fa);border:1.5px solid #ffd6e7;border-radius:14px;overflow:hidden;margin-bottom:12px;">';
-      content += '<div style="padding:12px 14px;"><div class="mb-keyscene-label">✨ 오늘의 Key Scene</div>';
-      content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(mbKS)+'</textarea></div>';
-      content += '<div style="border-top:2px solid rgba(255,100,138,.25);padding:10px 14px;background:rgba(255,255,255,.6);">';
-      content += '<div style="font-size:10px;font-weight:700;color:rgba(255,100,138,.7);letter-spacing:.5px;margin-bottom:6px;">📝 회고</div>';
-      content += '<textarea class="mb-ta" placeholder="실제로 어땠나요?" data-ks3="'+tdk+'" oninput="setDailyKeySceneRetro(this)">'+esc(mbRetro)+'</textarea></div></div>';
 
       // 시간분배
+      content += '<div class="mb-card" style="margin-top:8px;">';
       content += '<div class="mb-card-title">📊 오늘 시간 분배 <span style="font-size:11px;font-weight:400;color:#bbb;">('+fmtMins(mbTotalMins||0)+')</span></div>';
       if (mbTotalMins === 0) {
         content += '<div style="font-size:11px;color:#ccc;margin-bottom:10px;">DO 블록을 추가하면 표시됩니다</div>';
@@ -3216,10 +3232,6 @@ function renderMobile() {
         }
         content += '</div>';
       }
-
-      // 기록
-      content += '<div class="mb-card-title" style="margin-top:10px;">📓 기록</div>';
-      content += '<textarea class="mb-ta" style="min-height:80px;" placeholder="오늘 하루를 자유롭게 기록해보세요..." data-dmk="'+mbDmk+'" oninput="setDailyMemo(this)">'+esc(mbDailyMemo)+'</textarea>';
       content += '</div>';
 
     } else if (mbPv === 'week') {
@@ -3293,7 +3305,7 @@ function renderMobile() {
   topbar += '</div>';
 
   // 바텀탭
-  var tabs = [['✅','할일'],['📓','기록'],['📊','성과'],['🔄','PDCA'],['⏱️','스케줄러']];
+  var tabs = [['✅','할일'],['📊','성과'],['🔄','PDCA'],['⏱️','스케줄러'],['📓','기록']];
   var bottomnav = '<div class="mb-bottomnav">';
   for (var ti = 0; ti < tabs.length; ti++) {
     bottomnav += '<button class="mb-tab'+(mbTab===ti?' active':'')+'" onclick="mbTab='+ti+';renderMobile()">';
