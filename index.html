@@ -75,9 +75,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .big-ta::placeholder{color:#ccc;font-weight:400;}
 .hint{font-size:12px;color:#bbb;}
 .diag-top{text-align:left;font-size:13px;font-weight:700;color:#555;margin-bottom:14px;}
-.prob-row{display:flex;align-items:center;gap:7px;margin-bottom:18px;}
+.prob-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:18px;}
 .prob-lbl{font-size:13px;font-weight:700;color:#555;white-space:nowrap;}
-.line-inp{flex:1;border:none;outline:none;border-bottom:1.5px solid #eee;font-size:14px;font-weight:600;color:var(--dk);font-family:inherit;background:transparent;padding:2px 0;}
+.line-inp{flex:1;border:none;outline:none;border-bottom:1.5px solid #eee;font-size:14px;font-weight:600;color:var(--dk);font-family:inherit;background:transparent;padding:2px 0;resize:none;overflow:hidden;min-height:24px;line-height:1.6;display:block;}
 .line-inp::placeholder{color:#ccc;font-weight:400;}
 .diag-wrap{position:relative;height:110px;margin:0 8px 80px;}
 .diag-axes{position:absolute;inset:0;}
@@ -796,7 +796,7 @@ function render(){
   // 다이어그램
   out+='<div class="card"><div class="diag-top" style="display:flex;align-items:center;justify-content:space-between;">일은? 시작과 끝이 있다.<button onclick="toggleCol(\'motivation\')" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:13px;padding:0 2px;">'+(S.collapsed.motivation?'▶':'▼')+'</button></div>';
   if(!S.collapsed.motivation){
-  out+='<div class="prob-row"><span class="prob-lbl">문제:</span><input class="line-inp" placeholder="해결하고 싶은 문제를 입력하세요" value="'+esc(p.problem)+'" oninput="setF(\'problem\',this.value)"/></div>';
+  out+='<div class="prob-row"><span class="prob-lbl" style="padding-top:3px;">문제:</span><textarea class="line-inp" placeholder="해결하고 싶은 문제를 입력하세요" oninput="setF(\'problem\',this.value);ar(this)">'+esc(p.problem)+'</textarea></div>';
   out+='<div class="diag-wrap"><div class="diag-axes">';
   out+='<svg style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 400 110" preserveAspectRatio="none">';
   out+='<line x1="0" y1="105" x2="400" y2="105" stroke="#1a1a2e" stroke-width="3"/>';
@@ -1562,7 +1562,7 @@ function render(){
   out+='</div>';
   } // end sec3
   document.getElementById('app').innerHTML=out;
-  document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta,.mc-memo-inp').forEach(function(el){ar(el);});
+  document.querySelectorAll('.pdca-ta,.meta-ta,.big-ta,.w-ta,.cal-memo-ta,.mc-memo-inp,.line-inp').forEach(function(el){ar(el);});
   // PDS 타임라인 8시로 초기 스크롤
   var pdsSc=document.getElementById('pdsTlScroll');if(pdsSc)pdsSc.scrollTop=8*6*14;
 }
@@ -2990,7 +2990,8 @@ function renderMobile() {
           content += '<div class="mb-mc'+(m.pinnedW?' pinned':'')+'"><div class="mb-mc-name" style="display:flex;align-items:center;gap:3px;">'+esc(m.name)+'<button onclick="toggleGoalPin(\''+m.id+'\',\'W\');renderMobile()" style="background:none;border:none;cursor:pointer;font-size:11px;color:'+(m.pinnedW?'var(--pk)':'#ddd')+';padding:0;margin-left:auto;flex-shrink:0;">📌</button></div>';
           content += '<div class="mb-mc-bar-bg"><div class="mb-mc-bar-fill" style="width:'+wPct+'%"></div></div>';
           content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+wDone+'/'+wTgt+esc(m.unit||'')+'</span><span style="color:#bbb;margin-left:auto">'+wPct+'%</span></div>';
-          content += '<div style="text-align:right;margin-top:4px;font-size:11px;color:#ccc;">주목표 <input class="mb-tgt-inp" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/></div></div>';
+          var autoMTgtRef = m.quarterTarget ? Math.round(m.quarterTarget/3) : 0;
+          content += '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px;font-size:11px;color:#ccc;">주목표 <input class="mb-tgt-inp" type="number" value="'+(wTgt||'')+'" placeholder="'+autoWTgt+'" data-mid="'+m.id+'" data-wk="'+curWKey+'" oninput="setWeekTarget(this)"/>'+(autoMTgtRef?'<span style="color:#bbb;">월 <b style="color:var(--pk);">'+autoMTgtRef+'</b>'+esc(m.unit||'')+'</span>':'')+'</div></div>';
         }
         content += '</div></div>';
       }
@@ -3015,7 +3016,7 @@ function renderMobile() {
           content += '<div class="mb-mc'+(m2.pinnedM?' pinned':'')+'"><div class="mb-mc-name" style="display:flex;align-items:center;gap:3px;">'+esc(m2.name)+'<button onclick="toggleGoalPin(\''+m2.id+'\',\'M\');renderMobile()" style="background:none;border:none;cursor:pointer;font-size:11px;color:'+(m2.pinnedM?'var(--pk)':'#ddd')+';padding:0;margin-left:auto;flex-shrink:0;">📌</button></div>';
           content += '<div class="mb-mc-bar-bg"><div class="mb-mc-bar-fill" style="width:'+mPct2+'%"></div></div>';
           content += '<div class="mb-mc-stats"><span style="color:var(--pk);font-weight:700">'+mDone2+'/'+(mTgt2||'?')+esc(m2.unit||'')+'</span><span style="color:#bbb;margin-left:auto">'+mPct2+'%</span></div>';
-          content += '<div style="text-align:right;margin-top:4px;font-size:11px;color:#ccc;">월목표 <input class="mb-tgt-inp" type="number" value="'+(mTgt2||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/></div></div>';
+          content += '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px;font-size:11px;color:#ccc;">월목표 <input class="mb-tgt-inp" type="number" value="'+(mTgt2||'')+'" placeholder="'+autoMTgt+'" data-gid="'+m2.id+'" data-mk="'+mKey2+'" oninput="setMonthTarget(this)"/>'+(m2.quarterTarget?'<span style="color:#bbb;">3개월 <b style="color:#7C3AED;">'+m2.quarterTarget+'</b>'+esc(m2.unit||'')+'</span>':'')+'</div></div>';
         }
         content += '</div></div>';
       }
