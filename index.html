@@ -2108,6 +2108,9 @@ var _grid={down:false,src:'plan',tdk:'',start:-1,end:-1};
 function gridCellDown(e,tdk,slot,src){e.preventDefault();_grid={down:true,src:src,tdk:tdk,start:slot,end:slot};gridHighlight(slot,slot,src);}
 function gridCellMove(e,slot,src){if(!_grid.down||_grid.src!==src||slot===_grid.end)return;_grid.end=slot;gridHighlight(_grid.start,slot,src);}
 function gridCellLeave(){/* keep highlight until mouseup */}
+function gridTouchStart(e,tdk,slot,src){e.preventDefault();gridCellDown({preventDefault:function(){}},tdk,slot,src);}
+function gridTouchMove(e){if(!_grid.down)return;e.preventDefault();var t=e.touches[0];var el=document.elementFromPoint(t.clientX,t.clientY);if(!el)return;var s=parseInt(el.dataset.slot);if(isNaN(s))return;var sr=el.dataset.planCell?'plan':el.dataset.doCell?'do':null;if(!sr||sr!==_grid.src)return;gridCellMove({},s,sr);}
+function gridTouchEnd(e,tdk){if(!_grid.down)return;gridCellUp({},tdk);}
 function gridHighlight(s1,s2,src){
   var from=Math.min(s1,s2),to=Math.max(s1,s2);
   var attr=src==='do'?'data-do-cell':'data-plan-cell';
@@ -2855,7 +2858,9 @@ var isMobile = location.search.indexOf('view=desktop') < 0 && (
   location.search.indexOf('view=mobile') >= 0
   || window.navigator.standalone === true
   || window.matchMedia('(display-mode: standalone)').matches);
-var mbTab = 0; // 0=할일 1=기록 2=성과 3=PDCA
+var mbTab = 0; // 0=할일 1=기록 2=성과 3=PDCA 4=스케줄러
+var mbSchedTab = 'day'; // day / week / summary
+var mbSchedWeekOff = 0;
 
 function renderMobile() {
   var p = cp();
@@ -3087,6 +3092,200 @@ function renderMobile() {
     content += '</div>';
   }
 
+  // ── 탭4: 스케줄러 ──
+  else if (mbTab === 4) {
+    var mbPv = mbSchedTab;
+    // 서브탭 바
+    content += '<div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:5;">';
+    var mbSubLabels = [['day','일간'],['week','주간'],['summary','종합']];
+    for (var si=0;si<mbSubLabels.length;si++) {
+      var sv=mbSubLabels[si][0],sl=mbSubLabels[si][1],isA=mbPv===sv;
+      content += '<button onclick="mbSchedTab=\''+sv+'\';renderMobile()" style="flex:1;padding:10px 0;font-size:12px;font-weight:700;border:none;background:'+(isA?'#fff5f8':'#fff')+';color:'+(isA?'var(--pk)':'#aaa')+';cursor:pointer;border-bottom:'+(isA?'2px solid var(--pk)':'2px solid transparent')+';font-family:inherit;">'+sl+'</button>';
+    }
+    content += '</div>';
+
+    if (mbPv === 'day') {
+      // 날짜 네비
+      content += '<div class="mb-card" style="padding:0;overflow:hidden;">';
+      content += '<div class="mb-date-row" style="padding:8px 12px;"><button class="mb-nav-btn" onclick="prevTodo();renderMobile()">◀</button><div class="mb-date-label">'+tdLbl+'</div><button class="mb-nav-btn" onclick="nextTodo();renderMobile()">▶</button></div>';
+
+      // PLAN/DO 그리드
+      var mbPbs = (p.timeBlocks && p.timeBlocks[tdk]) || [];
+      var mbDbs = (p.doBlocks && p.doBlocks[tdk]) || [];
+      var mbPC = PDS_COLORS, mbGH = 17;
+      var mbPSM = {}, mbDSM = {};
+      for (var bi=0;bi<mbPbs.length;bi++){var bl=mbPbs[bi];var sf=Math.floor(bl.start/10),st=Math.floor(bl.end/10);for(var s=sf;s<st;s++)mbPSM[s]=bl;}
+      for (var bi=0;bi<mbDbs.length;bi++){var bl=mbDbs[bi];var sf=Math.floor(bl.start/10),st=Math.floor(bl.end/10);for(var s=sf;s<st;s++)mbDSM[s]=bl;}
+
+      // 그리드 헤더
+      content += '<div style="display:grid;grid-template-columns:1fr 26px 1fr;border-bottom:1px solid #f0f0f0;">';
+      content += '<div style="padding:5px 8px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;border-right:1px solid #f0f0f0;">📋 PLAN</div>';
+      content += '<div style="background:#fafafa;border-right:1px solid #f0f0f0;"></div>';
+      content += '<div style="padding:5px 8px;font-size:9px;font-weight:700;color:#aaa;letter-spacing:.8px;">✅ DO</div>';
+      content += '</div>';
+
+      // 그리드 본문
+      content += '<div style="display:grid;grid-template-columns:1fr 26px 1fr;user-select:none;" ontouchmove="gridTouchMove(event)" ontouchend="gridTouchEnd(event,\''+tdk+'\')">';
+
+      // PLAN 열
+      content += '<div style="border-right:1px solid #e8e8e8;">';
+      for (var gh=0;gh<24;gh++) {
+        content += '<div style="display:flex;height:'+mbGH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+        for (var gm=0;gm<6;gm++) {
+          var slt=gh*6+gm, pbl=mbPSM[slt];
+          var pbg=pbl?hexAlpha(mbPC[pbl.cat]||'#9CA3AF',0.1):'transparent';
+          var pDot=(pbl&&slt===Math.floor(pbl.start/10))?'<div style="width:4px;height:4px;border-radius:50%;background:'+(mbPC[pbl.cat]||'#9CA3AF')+';pointer-events:none;flex-shrink:0;"></div>':'';
+          var ptl=pbl?esc(pbl.label||''):'', ptm=pbl?esc(pbl.memo||''):'';
+          content += '<div data-plan-cell="1" data-slot="'+slt+'" data-tip-lbl="'+ptl+'" data-tip-memo="'+ptm+'" ontouchstart="gridTouchStart(event,\''+tdk+'\','+slt+',\'plan\')" style="flex:1;height:100%;background:'+pbg+';border-right:1px solid rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;">'+pDot+'</div>';
+        }
+        content += '</div>';
+      }
+      content += '</div>';
+
+      // 시간 바
+      content += '<div style="background:#fafafa;border-right:1px solid #e8e8e8;">';
+      for (var gh=0;gh<24;gh++) {
+        content += '<div style="height:'+mbGH+'px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:7px;font-weight:700;color:#bbb;pointer-events:none;">'+pad2(gh)+'</div>';
+      }
+      content += '</div>';
+
+      // DO 열
+      content += '<div>';
+      for (var gh=0;gh<24;gh++) {
+        content += '<div style="display:flex;height:'+mbGH+'px;border-bottom:1px solid rgba(0,0,0,.05);">';
+        for (var gm=0;gm<6;gm++) {
+          var slt=gh*6+gm, dbl=mbDSM[slt];
+          var dbg=dbl?hexAlpha(mbPC[dbl.cat]||'#9CA3AF',0.3):'transparent';
+          var dDot=(dbl&&slt===Math.floor(dbl.start/10))?'<div style="width:4px;height:4px;border-radius:50%;background:'+(mbPC[dbl.cat]||'#9CA3AF')+';pointer-events:none;flex-shrink:0;"></div>':'';
+          var dtl=dbl?esc(dbl.label||''):'', dtm=dbl?esc(dbl.memo||''):'';
+          content += '<div data-do-cell="1" data-slot="'+slt+'" data-tip-lbl="'+dtl+'" data-tip-memo="'+dtm+'" ontouchstart="gridTouchStart(event,\''+tdk+'\','+slt+',\'do\')" style="flex:1;height:100%;background:'+dbg+';border-right:1px solid rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;">'+dDot+'</div>';
+        }
+        content += '</div>';
+      }
+      content += '</div>';
+      content += '</div></div>'; // grid body, grid card
+
+      // 기록 & 통계 섹션
+      var mbDStat = mbDbs;
+      var mbCatM = {e80:0,e20:0,ecut:0,eroutine:0,eother:0};
+      for (var bi=0;bi<mbDStat.length;bi++){var bl=mbDStat[bi];mbCatM[bl.cat]=(mbCatM[bl.cat]||0)+(bl.end-bl.start);}
+      var mbTagM={}, mbTagCatM={};
+      for (var bi=0;bi<mbDStat.length;bi++){var bl=mbDStat[bi];if(bl.tags){for(var ti2=0;ti2<bl.tags.length;ti2++){var tg2=bl.tags[ti2];mbTagM[tg2]=(mbTagM[tg2]||0)+(bl.end-bl.start);if(!mbTagCatM[tg2])mbTagCatM[tg2]={};mbTagCatM[tg2][bl.cat]=(mbTagCatM[tg2][bl.cat]||0)+(bl.end-bl.start);}}}
+      var mbTagSorted=Object.keys(mbTagM).sort(function(a,b){return mbTagM[b]-mbTagM[a];});
+      var mbTotalMins=mbCatM.e80+mbCatM.e20+mbCatM.ecut+mbCatM.eroutine+mbCatM.eother;
+      var mbKS=((p.dailyKeyScenes||{})[tdk])||'';
+      var mbRetro=((p.dailyKeySceneRetros||{})[tdk])||'';
+      var mbDmk='daily-'+tdk;
+      var mbDailyMemo=(p.dailyMemos&&p.dailyMemos[mbDmk])||'';
+
+      // Key Scene & 회고
+      content += '<div class="mb-card" style="margin-top:8px;">';
+      content += '<div style="background:linear-gradient(135deg,#fff5f8,#fff0fa);border:1.5px solid #ffd6e7;border-radius:14px;overflow:hidden;margin-bottom:12px;">';
+      content += '<div style="padding:12px 14px;"><div class="mb-keyscene-label">✨ 오늘의 Key Scene</div>';
+      content += '<textarea class="mb-ta" placeholder="오늘 가장 빛날 나의 장면을 한 문장으로..." data-ks2="'+tdk+'" oninput="setDailyKeyScene(this)">'+esc(mbKS)+'</textarea></div>';
+      content += '<div style="border-top:2px solid rgba(255,100,138,.25);padding:10px 14px;background:rgba(255,255,255,.6);">';
+      content += '<div style="font-size:10px;font-weight:700;color:rgba(255,100,138,.7);letter-spacing:.5px;margin-bottom:6px;">📝 회고</div>';
+      content += '<textarea class="mb-ta" placeholder="실제로 어땠나요?" data-ks3="'+tdk+'" oninput="setDailyKeySceneRetro(this)">'+esc(mbRetro)+'</textarea></div></div>';
+
+      // 시간분배
+      content += '<div class="mb-card-title">📊 오늘 시간 분배 <span style="font-size:11px;font-weight:400;color:#bbb;">('+fmtMins(mbTotalMins||0)+')</span></div>';
+      if (mbTotalMins === 0) {
+        content += '<div style="font-size:11px;color:#ccc;margin-bottom:10px;">DO 블록을 추가하면 표시됩니다</div>';
+      } else {
+        var mbCatList=[['e80',PDS_COLORS.e80,'80% 에너지'],['e20',PDS_COLORS.e20,'20% 에너지'],['ecut',PDS_COLORS.ecut,'가지치기'],['eroutine',PDS_COLORS.eroutine,'루틴'],['eother',PDS_COLORS.eother,'기타']];
+        for (var ci=0;ci<mbCatList.length;ci++) {
+          var ck=mbCatList[ci][0],cc=mbCatList[ci][1],cn=mbCatList[ci][2],cm=mbCatM[ck]||0;
+          if(!cm)continue;
+          var cpct=Math.round(cm/mbTotalMins*100);
+          content += '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">';
+          content += '<div style="font-size:10px;font-weight:700;width:66px;flex-shrink:0;color:'+cc+';">'+cn+'</div>';
+          content += '<div style="flex:1;height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+cpct+'%;background:'+cc+';border-radius:4px;"></div></div>';
+          content += '<div style="font-size:10px;font-weight:700;min-width:40px;text-align:right;color:'+cc+';">'+fmtMins(cm)+'</div></div>';
+        }
+      }
+
+      // 해시태그
+      content += '<div class="mb-card-title" style="margin-top:10px;">#️⃣ 오늘 해시태그</div>';
+      if (mbTagSorted.length === 0) {
+        content += '<div style="font-size:11px;color:#ccc;margin-bottom:8px;">해시태그가 있는 블록을 추가하면 표시됩니다</div>';
+      } else {
+        content += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
+        for (var tgi=0;tgi<mbTagSorted.length;tgi++) {
+          var tgn=mbTagSorted[tgi],tgm=mbTagM[tgn],tgc=tagDomColor(mbTagCatM[tgn],PDS_COLORS);
+          content += '<span style="font-size:11px;font-weight:700;padding:3px 9px;background:'+hexAlpha(tgc,.1)+';border:1.5px solid '+hexAlpha(tgc,.3)+';border-radius:20px;color:'+tgc+';">'+esc(tgn)+' <span style="opacity:.6;font-weight:400;">'+fmtMins(tgm)+'</span></span>';
+        }
+        content += '</div>';
+      }
+
+      // 기록
+      content += '<div class="mb-card-title" style="margin-top:10px;">📓 기록</div>';
+      content += '<textarea class="mb-ta" style="min-height:80px;" placeholder="오늘 하루를 자유롭게 기록해보세요..." data-dmk="'+mbDmk+'" oninput="setDailyMemo(this)">'+esc(mbDailyMemo)+'</textarea>';
+      content += '</div>';
+
+    } else if (mbPv === 'week') {
+      // 주간 DO 블록 뷰
+      var mbWk = mbSchedWeekOff;
+      var mbWDays = pdsGetWeekDays(mbWk);
+      var mbWLabel = pdsWeekLabel(mbWk);
+      var mbWGH = 17, mbTodK = todayKey();
+      var mbDayNames = ['월','화','수','목','금','토','일'];
+
+      content += '<div style="display:flex;align-items:center;gap:4px;padding:8px 12px;background:#fff;border-bottom:1px solid #f0f0f0;">';
+      content += '<button class="mb-nav-btn" onclick="mbSchedWeekOff--;renderMobile()">◀</button>';
+      content += '<span style="flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--dk);">'+mbWLabel+'</span>';
+      content += '<button class="mb-nav-btn" onclick="mbSchedWeekOff++;renderMobile()">▶</button>';
+      if (mbWk!==0) content += '<button class="mb-nav-btn" onclick="mbSchedWeekOff=0;renderMobile()" style="font-size:10px;">이번주</button>';
+      content += '<button class="mb-nav-btn" onclick="openPdsAcc(\'week\',mbSchedWeekOff)" style="font-size:10px;color:var(--pk);">📈집계</button>';
+      content += '</div>';
+
+      content += '<div style="background:#fff;overflow-x:auto;">';
+      // 요일 헤더
+      content += '<div style="display:flex;min-width:280px;">';
+      content += '<div style="width:24px;flex-shrink:0;"></div>';
+      for (var wd=0;wd<7;wd++) {
+        var wdk=mbWDays[wd];
+        var wdDate=new Date(wdk.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3'));
+        var wdIsToday=(wdk===mbTodK);
+        content += '<div style="flex:1;padding:4px 2px;font-size:9px;font-weight:700;text-align:center;border-right:1px solid rgba(0,0,0,.06);color:'+(wdIsToday?'var(--pk)':'#aaa')+';background:'+(wdIsToday?'#fff5f8':'#fff')+';">';
+        content += mbDayNames[wd]+'<br/>'+(wdDate.getMonth()+1)+'/'+(wdDate.getDate())+'</div>';
+      }
+      content += '</div>';
+
+      // 그리드 본문
+      content += '<div style="display:flex;min-width:280px;">';
+      content += '<div style="width:24px;flex-shrink:0;background:#fafafa;border-right:1px solid #e8e8e8;">';
+      for (var gh=0;gh<24;gh++) {
+        content += '<div style="height:'+mbWGH+'px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#bbb;border-bottom:1px solid rgba(0,0,0,.04);">'+pad2(gh)+'</div>';
+      }
+      content += '</div>';
+      for (var wd=0;wd<7;wd++) {
+        var wdk=mbWDays[wd];
+        var wdIsToday=(wdk===mbTodK);
+        var wdDbs=(p.doBlocks&&p.doBlocks[wdk])||[];
+        var wdSM={};
+        for (var bi=0;bi<wdDbs.length;bi++){var bl=wdDbs[bi];var sf=Math.floor(bl.start/60),st=Math.ceil(bl.end/60);for(var h=sf;h<st;h++)if(!wdSM[h])wdSM[h]=bl;}
+        content += '<div style="flex:1;border-right:1px solid rgba(0,0,0,.06);'+(wdIsToday?'background:rgba(255,45,120,.02);':'')+'">';
+        for (var gh=0;gh<24;gh++) {
+          var wbl=wdSM[gh];
+          var wbg=wbl?hexAlpha(PDS_COLORS[wbl.cat]||'#9CA3AF',0.3):'transparent';
+          content += '<div style="height:'+mbWGH+'px;background:'+wbg+';border-bottom:1px solid rgba(0,0,0,.04);"></div>';
+        }
+        content += '</div>';
+      }
+      content += '</div></div>';
+
+    } else {
+      // 종합 탭
+      content += '<div class="mb-card" style="text-align:center;padding:32px 20px;">';
+      content += '<div style="font-size:32px;margin-bottom:12px;">📈</div>';
+      content += '<div style="font-size:14px;font-weight:700;color:var(--dk);margin-bottom:8px;">누적 집계</div>';
+      content += '<div style="font-size:12px;color:#aaa;margin-bottom:20px;">주간/월간 DO 블록 누적 통계를 확인하세요</div>';
+      content += '<button onclick="openPdsAcc(\'week\',0)" style="display:block;width:100%;padding:12px;background:var(--pk);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;">주간 집계 보기</button>';
+      content += '<button onclick="openPdsAcc(\'summary\')" style="display:block;width:100%;padding:12px;background:#7C3AED;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">월별 종합 보기</button>';
+      content += '</div>';
+    }
+  }
+
   // 탑바
   var topbar = '<div class="mb-topbar">';
   topbar += '<div><div class="mb-topbar-title">🎯 바운더리</div><div class="mb-topbar-sub">_you just shine</div></div>';
@@ -3094,7 +3293,7 @@ function renderMobile() {
   topbar += '</div>';
 
   // 바텀탭
-  var tabs = [['✅','할일'],['📓','기록'],['📊','성과'],['🔄','PDCA']];
+  var tabs = [['✅','할일'],['📓','기록'],['📊','성과'],['🔄','PDCA'],['⏱️','스케줄러']];
   var bottomnav = '<div class="mb-bottomnav">';
   for (var ti = 0; ti < tabs.length; ti++) {
     bottomnav += '<button class="mb-tab'+(mbTab===ti?' active':'')+'" onclick="mbTab='+ti+';renderMobile()">';
