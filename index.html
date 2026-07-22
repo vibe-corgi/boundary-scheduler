@@ -2272,20 +2272,21 @@ function getQuarterDateKeys(startDate,endDate){if(!startDate||!endDate)return[];
 function countGoalInDates(goalId,dateKeys){var p=cp(),todos=p.todosByDate||{},count=0;for(var di=0;di<dateKeys.length;di++){var dk=dateKeys[di],day=todos[dk];if(!day||!Array.isArray(day))continue;for(var c=0;c<day.length;c++){if(!Array.isArray(day[c]))continue;for(var t=0;t<day[c].length;t++){if(day[c][t]&&day[c][t].done&&day[c][t].goalId===goalId)count++;}}}return count;}
 function getMonthBreakdown(goalId,startDate,endDate){if(!startDate||!endDate)return[];var result=[],cur=new Date(startDate),end=new Date(endDate);var seen={};while(cur<=end){var ym=cur.getFullYear()+'-'+(cur.getMonth()+1);if(!seen[ym]){seen[ym]=true;var keys=getMonthDateKeys(cur.getFullYear(),cur.getMonth());result.push({label:(cur.getMonth()+1)+'월',done:countGoalInDates(goalId,keys)});}cur.setMonth(cur.getMonth()+1);}return result;}
 function openGoal(){document.getElementById('iGoalName').value='';show('mGoal');setTimeout(function(){document.getElementById('iGoalName').focus();},50);}
-function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();if(!name)return;var p=cp();p.goals=p.goals||[];p.goals.push({id:'g_'+Date.now(),name:name,parentId:null});hide('mGoal');save();render();}
-function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();render();}
+function rr(){render();var m=document.getElementById('mobileApp');if(m&&m.style.display!=='none')renderMobile();}
+function doAddGoal(){var name=document.getElementById('iGoalName').value.trim();if(!name)return;var p=cp();p.goals=p.goals||[];p.goals.push({id:'g_'+Date.now(),name:name,parentId:null});hide('mGoal');save();rr();}
+function delGoal(id){if(!confirm('대목표와 하위 지표를 모두 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id&&g.parentId!==id;});save();rr();}
 function setPlanGoal(pk,idx,goalId){var p=cp();if(!p.pdca)p.pdca={};if(!p.pdca[pk])p.pdca[pk]={plan:[],doIt:'',check:'',act:''};var plan=p.pdca[pk].plan||[];if(plan[idx]){if(goalId)plan[idx].goalId=goalId;else delete plan[idx].goalId;}save();render();}
 function _pgSel(pk,pi,goalId){var g=cp().goals||[];var tg=g.filter(function(x){return !x.parentId;});var h='<select class="plan-goal-sel'+(goalId?' linked':'')+'" onclick="event.stopPropagation()" onchange="setPlanGoal(\''+pk+'\','+pi+',this.value)" title="목표/지표 연결"><option value=""'+(goalId?'':' selected')+'>▼</option>';for(var i=0;i<tg.length;i++){h+='<option value="'+tg[i].id+'"'+(goalId===tg[i].id?' selected':'')+'>🎯 '+esc(tg[i].name)+'</option>';var ch=g.filter(function(x){return x.parentId===tg[i].id;});for(var j=0;j<ch.length;j++){h+='<option value="'+ch[j].id+'"'+(goalId===ch[j].id?' selected':'')+'>  └ '+esc(ch[j].name)+'</option>';}}return h+'</select>';}
 function toggleGoalPin(id,view){var p=cp();var gs=p.goals||[];var fld='pinned'+(view||'Q');for(var i=0;i<gs.length;i++){if(gs[i].id===id){gs[i][fld]=!gs[i][fld];break;}}save();render();}
 var _metricParentId='';
 function openMetric(goalId){_metricParentId=goalId;var p=cp();var tg=(p.goals||[]).filter(function(g){return g.id===goalId;})[0];document.getElementById('mMetricGoalNm').textContent=tg?tg.name:'';document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';show('mMetric');setTimeout(function(){document.getElementById('iMetricName').focus();},50);}
-function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var memo=document.getElementById('iMetricMemo').value.trim();var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,memo:memo,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();render();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('iMetricMemo').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
-function delMetric(id){if(!confirm('이 지표를 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id;});save();render();}
+function doAddMetric(keepOpen){var name=document.getElementById('iMetricName').value.trim();if(!name)return;var unit=document.getElementById('iMetricUnit').value.trim();var qt=parseInt(document.getElementById('iMetricQTarget').value)||0;var memo=document.getElementById('iMetricMemo').value.trim();var p=cp();p.goals=p.goals||[];p.goals.push({id:'m_'+Date.now(),name:name,unit:unit,quarterTarget:qt,memo:memo,parentId:_metricParentId,monthTargets:{},weekTargets:{}});save();rr();if(keepOpen){document.getElementById('iMetricName').value='';document.getElementById('iMetricUnit').value='';document.getElementById('iMetricQTarget').value='';document.getElementById('iMetricMemo').value='';document.getElementById('mMetricAdded').textContent='"'+name+'" 추가됨 ✓';setTimeout(function(){document.getElementById('mMetricAdded').textContent='';},2000);document.getElementById('iMetricName').focus();}else{hide('mMetric');}}
+function delMetric(id){if(!confirm('이 지표를 삭제할까요?'))return;var p=cp();p.goals=(p.goals||[]).filter(function(g){return g.id!==id;});save();rr();}
 var _editGoalId='',_editMetricId='';
 function openEditGoal(id){_editGoalId=id;var p=cp(),g=(p.goals||[]).filter(function(x){return x.id===id;})[0];if(!g)return;document.getElementById('iGoalEditName').value=g.name;show('mGoalEdit');setTimeout(function(){document.getElementById('iGoalEditName').select();},50);}
-function doEditGoal(){var name=document.getElementById('iGoalEditName').value.trim();if(!name)return;var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editGoalId){allG[i].name=name;break;}}hide('mGoalEdit');save();render();}
+function doEditGoal(){var name=document.getElementById('iGoalEditName').value.trim();if(!name)return;var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editGoalId){allG[i].name=name;break;}}hide('mGoalEdit');save();rr();}
 function openEditMetric(id){_editMetricId=id;var p=cp(),g=(p.goals||[]).filter(function(x){return x.id===id;})[0];if(!g)return;document.getElementById('iMetricEditName').value=g.name;document.getElementById('iMetricEditUnit').value=g.unit||'';document.getElementById('iMetricEditQTarget').value=g.quarterTarget||'';document.getElementById('iMetricEditMemo').value=g.memo||'';show('mMetricEdit');setTimeout(function(){document.getElementById('iMetricEditName').select();},50);}
-function doEditMetric(){var name=document.getElementById('iMetricEditName').value.trim();if(!name)return;var unit=document.getElementById('iMetricEditUnit').value.trim();var qt=parseInt(document.getElementById('iMetricEditQTarget').value)||0;var memo=document.getElementById('iMetricEditMemo').value.trim();var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editMetricId){allG[i].name=name;allG[i].unit=unit;allG[i].quarterTarget=qt;allG[i].memo=memo;break;}}hide('mMetricEdit');save();render();}
+function doEditMetric(){var name=document.getElementById('iMetricEditName').value.trim();if(!name)return;var unit=document.getElementById('iMetricEditUnit').value.trim();var qt=parseInt(document.getElementById('iMetricEditQTarget').value)||0;var memo=document.getElementById('iMetricEditMemo').value.trim();var p=cp(),allG=p.goals||[];for(var i=0;i<allG.length;i++){if(allG[i].id===_editMetricId){allG[i].name=name;allG[i].unit=unit;allG[i].quarterTarget=qt;allG[i].memo=memo;break;}}hide('mMetricEdit');save();rr();}
 function setWeekTarget(el){var p=cp(),allG=p.goals||[],g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.mid){g=allG[i];break;}}if(!g)return;g.weekTargets=g.weekTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.weekTargets[el.dataset.wk];else g.weekTargets[el.dataset.wk]=v;save();}
 function setMonthTarget(el){var p=cp();var allG=p.goals||[];var g=null;for(var i=0;i<allG.length;i++){if(allG[i].id===el.dataset.gid){g=allG[i];break;}}if(!g)return;g.monthTargets=g.monthTargets||{};var v=el.value===''?null:parseInt(el.value)||0;if(v===null)delete g.monthTargets[el.dataset.mk];else g.monthTargets[el.dataset.mk]=v;save();}
 function dragStart(e,c,i){dragC=c;dragI=i;e.dataTransfer.effectAllowed='move';setTimeout(function(){e.target.classList.add('dragging');},0);}
@@ -3021,33 +3022,48 @@ function renderMobile() {
         content += '</div></div>';
       }
     }
-    // 대목표
-    if (topGoals.length) {
-      content += '<div class="mb-section-hdr">🎯 대목표</div>';
-      for (var gi3 = 0; gi3 < topGoals.length; gi3++) {
-        var tg3 = topGoals[gi3];
-        var ch3 = goals.filter(function(g) { return g.parentId === tg3.id; });
-        var qTgt3 = ch3.reduce(function(s,g){return s+(g.quarterTarget||0);},0);
-        var qDone3 = ch3.reduce(function(s,g){return s+countGoalInDates(g.id,getMonthDateKeys(S.calY,S.calM));},0);
-        content += '<div class="mb-goal-group" style="margin-bottom:10px;">';
-        content += '<div class="mb-goal-group-title"><span style="color:var(--pk)">🎯</span>'+esc(tg3.name)+'</div>';
-        if (ch3.length) {
-          content += '<div style="display:flex;flex-direction:column;gap:5px;">';
-          for (var ci3=0;ci3<ch3.length;ci3++) {
-            var sg=ch3[ci3];
-            var sgPct=sg.quarterTarget?Math.min(100,Math.round(countGoalInDates(sg.id,getMonthDateKeys(S.calY,S.calM))/(sg.quarterTarget/3)*100)):0;
-            content += '<div style="display:flex;align-items:center;gap:6px;">';
-            content += '<div style="font-size:11px;color:var(--dk);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(sg.name)+'</div>';
-            content += '<div style="width:80px;height:6px;background:#f0f0f0;border-radius:3px;flex-shrink:0;"><div style="height:100%;width:'+sgPct+'%;background:var(--pk);border-radius:3px;"></div></div>';
-            content += '<div style="font-size:10px;font-weight:700;color:var(--pk);width:28px;text-align:right;flex-shrink:0;">'+sgPct+'%</div>';
-            content += '</div>';
-          }
+    // 대목표 (생성/수정/삭제 포함)
+    content += '<div class="mb-section-hdr" style="display:flex;align-items:center;justify-content:space-between;">🎯 대목표<button onclick="openGoal()" style="font-size:11px;font-weight:700;padding:4px 10px;background:var(--pk);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;">+ 대목표</button></div>';
+    if (!topGoals.length) {
+      content += '<div style="font-size:12px;color:#ccc;text-align:center;padding:16px 0;">대목표를 추가해보세요</div>';
+    }
+    for (var gi3 = 0; gi3 < topGoals.length; gi3++) {
+      var tg3 = topGoals[gi3];
+      var ch3 = goals.filter(function(g) { return g.parentId === tg3.id; });
+      content += '<div class="mb-goal-group" style="margin-bottom:10px;">';
+      // 대목표 헤더 (수정/삭제 버튼 포함)
+      content += '<div class="mb-goal-group-title" style="gap:6px;">';
+      content += '<span style="color:var(--pk)">🎯</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">'+esc(tg3.name)+'</span>';
+      content += '<button onclick="openEditGoal(\''+tg3.id+'\')" style="background:none;border:1px solid #e0e0e0;border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;color:#888;flex-shrink:0;">✏️</button>';
+      content += '<button onclick="delGoal(\''+tg3.id+'\')" style="background:none;border:1px solid #ffd0d0;border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;color:#f87171;flex-shrink:0;">🗑</button>';
+      content += '</div>';
+      // 소목표 목록
+      if (ch3.length) {
+        content += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;">';
+        for (var ci3=0;ci3<ch3.length;ci3++) {
+          var sg=ch3[ci3];
+          var sgMDone=countGoalInDates(sg.id,getMonthDateKeys(S.calY,S.calM));
+          var sgMTgt=sg.quarterTarget?Math.round(sg.quarterTarget/3):0;
+          var sgPct=sgMTgt?Math.min(100,Math.round(sgMDone/sgMTgt*100)):0;
+          content += '<div style="background:#fafafa;border-radius:8px;padding:8px 10px;">';
+          content += '<div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">';
+          content += '<span style="font-size:11px;font-weight:700;color:var(--dk);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(sg.name)+'</span>';
+          if(sg.unit||sg.quarterTarget){content += '<span style="font-size:10px;color:#aaa;flex-shrink:0;">3개월 <b style="color:#7C3AED;">'+( sg.quarterTarget||0)+'</b>'+esc(sg.unit||'')+'</span>';}
+          content += '<button onclick="openEditMetric(\''+sg.id+'\')" style="background:none;border:1px solid #e0e0e0;border-radius:5px;padding:1px 6px;font-size:11px;cursor:pointer;color:#888;flex-shrink:0;">✏️</button>';
+          content += '<button onclick="delMetric(\''+sg.id+'\')" style="background:none;border:1px solid #ffd0d0;border-radius:5px;padding:1px 6px;font-size:11px;cursor:pointer;color:#f87171;flex-shrink:0;">🗑</button>';
           content += '</div>';
-        } else {
-          content += '<div style="font-size:11px;color:#ccc;">소목표 없음</div>';
+          content += '<div style="display:flex;align-items:center;gap:6px;">';
+          content += '<div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+sgPct+'%;background:var(--pk);border-radius:3px;"></div></div>';
+          content += '<div style="font-size:10px;font-weight:700;color:var(--pk);width:52px;text-align:right;flex-shrink:0;">'+sgMDone+'/'+(sgMTgt||'?')+esc(sg.unit||'')+' '+sgPct+'%</div>';
+          content += '</div></div>';
         }
         content += '</div>';
+      } else {
+        content += '<div style="font-size:11px;color:#ccc;padding:4px 0 6px;">소목표 없음</div>';
       }
+      // + 소목표 추가 버튼
+      content += '<button onclick="openMetric(\''+tg3.id+'\')" style="width:100%;padding:7px;background:#f5f5f5;border:1.5px dashed #ddd;border-radius:8px;font-size:11px;font-weight:700;color:#aaa;cursor:pointer;font-family:inherit;">+ 소목표 추가</button>';
+      content += '</div>';
     }
   }
 
