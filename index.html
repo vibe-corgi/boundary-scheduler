@@ -1198,8 +1198,8 @@ function render(){
       out+='<div class="plan-sec-hdr" style="color:var(--pk);">🌟 최우선 <span style="font-size:9px;font-weight:400;color:#ccc;">1개 · 드래그로 이동</span></div>';
       if(priIdxs.length===0)out+='<div style="font-size:10px;color:#ddd;text-align:center;padding:4px 0;">여기로 드래그</div>';
       for(var ki=0;ki<priIdxs.length;ki++){var t=priIdxs[ki],done=items[t].done;
-        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,true);">';
-        out+='<span class="drag-h">⠿</span>';
+        out+='<div class="todo-item" draggable="true" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="pri" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,true);">';
+        out+='<span class="drag-h" style="-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')">⠿</span>';
         out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
         var linkedMetric=null,linkedParent=null;
         if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
@@ -1216,8 +1216,8 @@ function render(){
       out+='<div class="plan-sec-hdr">📋 일반 <span style="font-size:9px;font-weight:400;color:#ccc;">'+norIdxs.length+'/2</span></div>';
       if(norIdxs.length===0&&priIdxs.length===0)out+='<div class="todo-empty">추가하거나 드래그</div>';
       for(var ni=0;ni<norIdxs.length;ni++){var t=norIdxs[ni],done=items[t].done;
-        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,false);">';
-        out+='<span class="drag-h">⠿</span>';
+        out+='<div class="todo-item" draggable="true" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="nor" ondragstart="dragStart(event,0,'+t+')" ondragend="todo80SecLeave()" ondragover="event.preventDefault();event.stopPropagation();" ondrop="event.stopPropagation();todo80SecDrop(event,false);">';
+        out+='<span class="drag-h" style="-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')">⠿</span>';
         out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo(0,'+t+',this.checked)"/>';
         var linkedMetric=null,linkedParent=null;
         if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
@@ -1232,8 +1232,8 @@ function render(){
     }else{
       if(items.length===0){out+='<div class="todo-empty">추가하거나 드래그</div>';}
       else{for(var t=0;t<items.length;t++){var done=items[t].done;
-        out+='<div class="todo-item" draggable="true" ondragstart="dragStart(event,'+c+','+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,'+c+','+t+')" ondrop="event.stopPropagation();dropItem(event,'+c+','+t+')">';
-        out+='<span class="drag-h">⠿</span>';
+        out+='<div class="todo-item" draggable="true" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragstart="dragStart(event,'+c+','+t+')" ondragend="this.classList.remove(\'dragging\')" ondragover="event.preventDefault();event.stopPropagation();dragOverItem(event,'+c+','+t+')" ondrop="event.stopPropagation();dropItem(event,'+c+','+t+')">';
+        out+='<span class="drag-h" style="-webkit-user-select:none;-webkit-touch-callout:none;" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
         out+='<input type="checkbox" class="todo-cb"'+(done?' checked':'')+' onchange="toggleTodo('+c+','+t+',this.checked)"/>';
         var linkedMetric=null,linkedParent=null;
         if(items[t].goalId){var allG=p.goals||[];for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===items[t].goalId){linkedMetric=allG[fg];break;}}if(linkedMetric&&linkedMetric.parentId){for(var fg2=0;fg2<allG.length;fg2++){if(allG[fg2].id===linkedMetric.parentId){linkedParent=allG[fg2];break;}}}}
@@ -3524,7 +3524,7 @@ function mbSetupDragListeners() {
         arr0.forEach(function(it){ delete it.priority; });
         if (isPri) moved0.priority = true;
         arr0.splice(Math.min(to, arr0.length), 0, moved0);
-        save(); _mbDrag = null; renderMobile(); return;
+        save(); _mbDrag = null; rr(); return;
       }
     }
     if (from !== to) {
@@ -3541,7 +3541,7 @@ function mbSetupDragListeners() {
       }
     }
     _mbDrag = null;
-    renderMobile();
+    rr();
   });
 }
 
