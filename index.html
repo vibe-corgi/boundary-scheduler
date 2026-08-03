@@ -2903,8 +2903,9 @@ function renderMobile() {
           var badge='';
           if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
           content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="pri" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\',0,'+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')">⠿</span>';
           content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
-          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
           content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
           content += '<button class="mb-carry-btn" onclick="carryTodo(0,'+t+');renderMobile()" title="내일로">→</button>';
           content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
@@ -2916,8 +2917,9 @@ function renderMobile() {
           var badge='';
           if (item.goalId){var allG=goals;for(var fg=0;fg<allG.length;fg++){if(allG[fg].id===item.goalId){badge='<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>';break;}}}
           content += '<div class="mb-todo-item" id="mbt-0-'+t+'" data-drag-cat="0" data-drag-idx="'+t+'" data-todo80sec="nor" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\',0,'+t+',\'\')">';
+          content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\',0,'+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')">⠿</span>';
           content += '<input type="checkbox" class="mb-todo-cb"'+(done?' checked':'')+' onchange="getTodos()[0]['+t+'].done=this.checked;save();renderMobile()"/>';
-          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\',0,'+t+',\'\')" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'" style="font-weight:700;'+(item.color?'color:'+item.color+';':'')+'" data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
           content += '<button class="mb-edit-btn" onclick="openEditTodo(0,'+t+')">✏️</button>';
           content += '<button class="mb-carry-btn" onclick="carryTodo(0,'+t+');renderMobile()" title="내일로">→</button>';
           content += '<button class="mb-del-btn" onclick="getTodos()[0].splice('+t+',1);save();renderMobile()">×</button>';
@@ -2930,9 +2932,10 @@ function renderMobile() {
           var badge = '';
           if (item.goalId) { var allG = goals; for (var fg = 0; fg < allG.length; fg++) { if (allG[fg].id === item.goalId) { badge = '<span class="mb-todo-badge">📊'+esc(allG[fg].name)+'</span>'; break; } } }
           content += '<div class="mb-todo-item" id="mbt-'+c+'-'+t+'" data-drag-cat="'+c+'" data-drag-idx="'+t+'" ondragover="mbDO(event)" ondrop="mbDrop(event,\'todo\','+c+','+t+',\'\')">';
+          content += '<span class="mb-drag-handle" draggable="true" ondragstart="mbDStart(event,\'todo\','+c+','+t+',\'\')" ondragend="mbDEnd(event)" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')">⠿</span>';
           content += '<input type="checkbox" class="mb-todo-cb"' + (done ? ' checked' : '') + ' onchange="getTodos()['+c+']['+t+'].done=this.checked;save();renderMobile()"/>';
           var mbTStyle='';if(item.color)mbTStyle+='color:'+item.color+';';
-          content += '<span class="mb-todo-txt'+(done?' done':'')+'" ontouchstart="mbDS(event,\'todo\','+c+','+t+',\'\')"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
+          content += '<span class="mb-todo-txt'+(done?' done':'')+'"'+(mbTStyle?' style="'+mbTStyle+'"':'')+' data-raw="'+esc(item.text)+'">'+esc(item.text)+badge+'</span>';
           content += '<button class="mb-edit-btn" onclick="openEditTodo('+c+','+t+')">✏️</button>';
           content += '<button class="mb-carry-btn" onclick="carryTodo('+c+','+t+');renderMobile()" title="내일로">→</button>';
           content += '<button class="mb-del-btn" onclick="getTodos()['+c+'].splice('+t+',1);save();renderMobile()">×</button>';
