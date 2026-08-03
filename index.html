@@ -761,6 +761,9 @@ function setSyncBadge(status) {
 // ── 렌더 ───────────────────────────────────────────────────
 function render(){
   if(isMobile){renderMobile();return;}
+  var appEl=document.getElementById('app'),mobEl=document.getElementById('mobileApp');
+  if(appEl)appEl.style.display='';
+  if(mobEl)mobEl.style.display='none';
   var p=cp(),out='';
   // 헤더
   out+='<div class="hdr"><span style="font-size:26px">🎯</span><div class="hdr-title">바운더리 일정관리 <span>_you just shine</span></div>';
