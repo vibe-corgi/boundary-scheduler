@@ -1632,7 +1632,7 @@ function gDrop(e, type, toId) {
     if(goals[i].id===toId) ti=i;
   }
   if(fi===-1||ti===-1){_gDrag=null;return;}
-  if(type==='metric'&&goals[fi].parentId!==goals[ti].parentId){_gDrag=null;return;}
+  if(type==='metric'&&goals[fi].parentId!==goals[ti].parentId){goals[fi].parentId=goals[ti].parentId;}
   var moved=goals.splice(fi,1)[0];
   goals.splice(ti>fi?ti-1:ti,0,moved);
   save(); render(); _gDrag=null;
@@ -1650,11 +1650,8 @@ function gDSt(e, type, id) {
       e.preventDefault();
       _gTouch.ghost.style.top=(t.clientY-_gTouch.offY)+'px';
       _gTouch.ghost.style.left=(t.clientX-_gTouch.offX)+'px';
-      var sel=_gTouch.type==='goal'?'[data-gid]':'[data-mid="'+_gTouch.parentId+'"] ~ [data-mid],[data-mid]';
       var allEls=Array.prototype.slice.call(document.querySelectorAll(_gTouch.type==='goal'?'[data-gid]':'[data-mid]'));
-      var same=_gTouch.type==='metric'?allEls.filter(function(el){
-        var g=cp().goals||[]; for(var i=0;i<g.length;i++){if(g[i].id===el.dataset.mid)return g[i].parentId===_gTouch.parentId;} return false;
-      }):allEls;
+      var same=allEls;
       var insertBefore=same.length;
       for(var i=0;i<same.length;i++){var r=same[i].getBoundingClientRect();if(t.clientY<r.top+r.height*0.5){insertBefore=i;break;}}
       _gTouch.insertBefore=insertBefore;
@@ -1670,13 +1667,15 @@ function gDSt(e, type, id) {
       document.querySelectorAll('.goal-drag-over,.mc-drag-over').forEach(function(el){el.classList.remove('goal-drag-over','mc-drag-over');el.style.opacity='';});
       var goals=cp().goals||[], fi=-1, insertBefore=_gTouch.insertBefore||0;
       var same=Array.prototype.slice.call(document.querySelectorAll(_gTouch.type==='goal'?'[data-gid]':'[data-mid]'));
-      if(_gTouch.type==='metric') same=same.filter(function(el){var g=cp().goals||[];for(var i=0;i<g.length;i++){if(g[i].id===el.dataset.mid)return g[i].parentId===_gTouch.parentId;}return false;});
       var toEl=same[insertBefore>0?insertBefore-1:0];
       var toId=toEl?(toEl.dataset.gid||toEl.dataset.mid):null;
       for(var i=0;i<goals.length;i++) if(goals[i].id===_gTouch.id) fi=i;
       if(toId&&fi!==-1&&toId!==_gTouch.id){
         var ti=-1; for(var i=0;i<goals.length;i++) if(goals[i].id===toId) ti=i;
-        if(ti!==-1){var moved=goals.splice(fi,1)[0]; goals.splice(ti>fi?ti-1:ti,0,moved); save(); render();}
+        if(ti!==-1){
+          if(_gTouch.type==='metric'&&goals[fi].parentId!==goals[ti].parentId) goals[fi].parentId=goals[ti].parentId;
+          var moved=goals.splice(fi,1)[0]; goals.splice(ti>fi?ti-1:ti,0,moved); save(); render();
+        }
       } else if(fi!==-1) render();
       _gTouch=null;
     });
