@@ -556,7 +556,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 <!-- 끝점/KeyScene 모아보기 모달 -->
 <div class="overlay" id="mKeySceneView" style="display:none"><div class="modal" style="max-width:560px;max-height:86vh;display:flex;flex-direction:column;">
 <h3>📖 끝점 &amp; Key Scene 모아보기</h3>
-<div id="keySceneViewBody" style="overflow-y:auto;flex:1;margin-top:10px;font-size:13px;"></div>
+<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;border-bottom:2px solid #f0f0f0;padding-bottom:8px;">
+  <button id="kstb-all" onclick="setKsTab('all')" style="padding:5px 12px;border-radius:20px;border:1.5px solid var(--pk);background:var(--pk);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">전체</button>
+  <button id="kstb-month" onclick="setKsTab('month')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #e0d0f8;background:#f8f4ff;color:#7C3AED;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📅 월간</button>
+  <button id="kstb-week" onclick="setKsTab('week')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #dbeafe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📆 주간</button>
+  <button id="kstb-day" onclick="setKsTab('day')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #d1fae5;background:#f0fdf4;color:#065f46;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🌅 일간</button>
+  <button id="kstb-end" onclick="setKsTab('end')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #ffd6e7;background:#fff0f8;color:var(--pk);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🎯 끝점만</button>
+  <button id="kstb-ks" onclick="setKsTab('ks')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #dbeafe;background:#eff6ff;color:#7C3AED;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✨ Key Scene만</button>
+  <button id="kstb-retro" onclick="setKsTab('retro')" style="padding:5px 12px;border-radius:20px;border:1.5px solid #fef3c7;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📝 회고만</button>
+</div>
+<div id="keySceneViewBody" style="overflow-y:auto;flex:1;font-size:13px;"></div>
 <div class="act-row" style="margin-top:14px;"><button class="btn-cancel" onclick="hide('mKeySceneView')">닫기</button></div>
 </div></div>
 <!-- PDS 호버 툴팁 -->
@@ -956,6 +965,7 @@ function render(){
   var mKey2=S.calY+'-'+(S.calM+1);
   var metrics=goals.filter(function(g){return g.parentId;});
   out+='<div class="cal-top"><button class="cal-nav" onclick="prevCal()">◀</button><span class="cal-lbl">'+S.calY+'년 '+(S.calM+1)+'월</span><button class="cal-nav" onclick="nextCal()">▶</button></div>';
+  var krH=getKrHolidays(S.calY,S.calM+1);
   out+='<div class="cal-grid">';
   for(var i=0;i<7;i++){var dc2=i===5?'#4a9eff':i===6?'#FF2D78':'#aaa';out+='<div class="cal-hdr" style="color:'+dc2+'">'+DAYS[i]+'</div>';}
   for(var i=0;i<cells.length;i++){
@@ -963,9 +973,12 @@ function render(){
     var evsSrc=(d.cur&&p.events&&p.events[ck])?p.events[ck]:[];
     var evs=evsSrc.map(function(ev,oi){return{ev:ev,oi:oi};}).sort(function(a,b){return a.ev.p-b.ev.p;});
     var isT=d.cur&&d.day===today.getDate()&&S.calY===today.getFullYear()&&S.calM===today.getMonth();
-    var col=i%7,nc=isT?'var(--pk)':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
+    var hol=d.cur?krH[d.day]:null;
+    var col=i%7;
+    var nc=isT?'var(--pk)':(hol&&hol.type==='red')?'#e53e3e':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
     out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
     out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
+    if(hol){var hc=hol.type==='red'?'#e53e3e':'#059669';var hbg=hol.type==='red'?'#fff0f0':'#f0fdf4';out+='<div style="font-size:8px;font-weight:700;color:'+hc+';background:'+hbg+';border-radius:3px;padding:0 3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">'+esc(hol.name)+'</div>';}
     if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
@@ -1943,42 +1956,109 @@ function pdsIsoWeekKey(dObj){
   var sLabel=(sun.getUTCMonth()+1)+'/'+sun.getUTCDate();
   return mon.getUTCFullYear()+'-W'+(mon.getUTCMonth()+1)+'-'+mon.getUTCDate()+'|'+mLabel+'~'+sLabel;
 }
-function openKeySceneView(){
-  var p=cp();
-  var html='';
-  // 월간 끝점/KeyScene (최신 6개월)
-  var months=[];
+var _ksTab='all';
+function setKsTab(tab){
+  _ksTab=tab;
+  var tabs=['all','month','week','day','end','ks','retro'];
+  tabs.forEach(function(t){
+    var el=document.getElementById('kstb-'+t);
+    if(!el)return;
+    var isA=t===tab;
+    el.style.background=isA?'var(--pk)':'';
+    el.style.color=isA?'#fff':'';
+    el.style.borderColor=isA?'var(--pk)':'';
+    if(!isA){
+      var defaults={all:'',month:'#f8f4ff',week:'#eff6ff',day:'#f0fdf4',end:'#fff0f8',ks:'#eff6ff',retro:'#fffbeb'};
+      var dcols={all:'',month:'#7C3AED',week:'#1d4ed8',day:'#065f46',end:'var(--pk)',ks:'#7C3AED',retro:'#92400e'};
+      var dbords={all:'',month:'#e0d0f8',week:'#dbeafe',day:'#d1fae5',end:'#ffd6e7',ks:'#dbeafe',retro:'#fef3c7'};
+      el.style.background=defaults[t];el.style.color=dcols[t];el.style.borderColor=dbords[t];
+    }
+  });
+  renderKsView();
+}
+function renderKsView(){
+  var p=cp(),tab=_ksTab,html='';
   var now=new Date();
-  for(var i=0;i<6;i++){var d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth()+1});}
-  months.forEach(function(mo){
-    var ksKey=mo.y+'-'+mo.m;
-    var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{left:'',right:''};
-    if(!ks.left&&!ks.right)return;
-    html+='<div style="margin-bottom:12px;border:1.5px solid #e8e0f8;border-radius:10px;overflow:hidden;">';
-    html+='<div style="background:#f8f4ff;padding:6px 12px;font-size:10px;font-weight:700;color:#7C3AED;">📅 '+mo.y+'년 '+mo.m+'월</div>';
-    if(ks.left){html+='<div style="padding:10px 12px;border-top:1px solid #ede9f8;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:4px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.left)+'</div></div>';}
-    if(ks.right){html+='<div style="padding:10px 12px;border-top:1px solid #ede9f8;background:#f0f4ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:4px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.right)+'</div></div>';}
-    html+='</div>';
-  });
-  // 주간 끝점/KeyScene
-  var wkSeen={};
+  // 월간 데이터
+  var months=[];
+  for(var i=0;i<12;i++){var dd=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:dd.getFullYear(),m:dd.getMonth()+1});}
+  // 주간 데이터
   var wkEntries=[];
-  Object.keys(p.weekKeyScenes||{}).forEach(function(wk){
-    var d=p.weekKeyScenes[wk];
-    if(d.left||d.right)wkEntries.push({key:wk,d:d});
-  });
-  wkEntries.sort(function(a,b){return b.key.localeCompare(a.key);}).slice(0,8).forEach(function(e){
-    var parts=e.key.replace('iso-','').split('-w');
-    var label=parts[0]+'년 '+parts[1]+'주차';
-    html+='<div style="margin-bottom:8px;border:1px solid #dbeafe;border-radius:10px;overflow:hidden;">';
-    html+='<div style="background:#eff6ff;padding:5px 12px;font-size:10px;font-weight:700;color:#1d4ed8;">📆 '+label+'</div>';
-    if(e.d.left){html+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:3px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.left)+'</div></div>';}
-    if(e.d.right){html+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;background:#f0f9ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:3px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.right)+'</div></div>';}
-    html+='</div>';
-  });
-  if(!html)html='<div style="color:#aaa;text-align:center;padding:20px;">아직 작성된 끝점/Key Scene이 없습니다.</div>';
+  Object.keys(p.weekKeyScenes||{}).forEach(function(wk){var d=p.weekKeyScenes[wk];if(d.left||d.right||d.leftR||d.rightR)wkEntries.push({key:wk,d:d});});
+  wkEntries.sort(function(a,b){return b.key.localeCompare(a.key);});
+  // 일간 데이터
+  var dayEntries=[];
+  for(var di=0;di<60;di++){var dt=new Date(now);dt.setDate(now.getDate()-di);var dk=dt.getFullYear()+'-'+(dt.getMonth()+1)+'-'+dt.getDate();var dks=(p.dailyKeyScenes&&p.dailyKeyScenes[dk])||'';var dkr=(p.dailyKeySceneRetros&&p.dailyKeySceneRetros[dk])||'';if(dks||dkr)dayEntries.push({key:dk,ks:dks,retro:dkr,label:(dt.getMonth()+1)+'월 '+dt.getDate()+'일'});}
+
+  function showEnd(tab){return tab==='all'||tab==='month'||tab==='week'||tab==='day'||tab==='end';}
+  function showKs(tab){return tab==='all'||tab==='month'||tab==='week'||tab==='day'||tab==='ks';}
+  function showRetro(tab){return tab==='all'||tab==='month'||tab==='week'||tab==='day'||tab==='retro';}
+
+  // ── 월간 ──
+  if(tab==='all'||tab==='month'||tab==='end'||tab==='ks'||tab==='retro'){
+    var mHtml='';
+    months.forEach(function(mo){
+      var ksKey=mo.y+'-'+mo.m;
+      var ks=(p.calKeyScenes&&p.calKeyScenes[ksKey])||{};
+      var hasEnd=ks.left&&(tab==='all'||tab==='month'||tab==='end');
+      var hasKs=ks.right&&(tab==='all'||tab==='month'||tab==='ks');
+      var hasLR=ks.leftR&&(tab==='all'||tab==='month'||tab==='retro');
+      var hasRR=ks.rightR&&(tab==='all'||tab==='month'||tab==='retro');
+      if(!hasEnd&&!hasKs&&!hasLR&&!hasRR)return;
+      mHtml+='<div style="margin-bottom:10px;border:1.5px solid #e8e0f8;border-radius:10px;overflow:hidden;">';
+      mHtml+='<div style="background:#f8f4ff;padding:6px 12px;font-size:10px;font-weight:700;color:#7C3AED;">📅 '+mo.y+'년 '+mo.m+'월</div>';
+      if(hasEnd)mHtml+='<div style="padding:9px 12px;border-top:1px solid #ede9f8;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:3px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.left)+'</div></div>';
+      if(hasLR)mHtml+='<div style="padding:9px 12px;border-top:1px solid #ede9f8;background:#fff8f8;"><div style="font-size:9px;font-weight:700;color:#e53e3e;letter-spacing:.5px;margin-bottom:3px;">📝 끝점 회고</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.leftR)+'</div></div>';
+      if(hasKs)mHtml+='<div style="padding:9px 12px;border-top:1px solid #ede9f8;background:#f0f4ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:3px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.right)+'</div></div>';
+      if(hasRR)mHtml+='<div style="padding:9px 12px;border-top:1px solid #ede9f8;background:#f5f0ff;"><div style="font-size:9px;font-weight:700;color:#6d28d9;letter-spacing:.5px;margin-bottom:3px;">📝 Key Scene 회고</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(ks.rightR)+'</div></div>';
+      mHtml+='</div>';
+    });
+    if(mHtml){html+='<div style="font-size:11px;font-weight:700;color:#aaa;margin-bottom:6px;letter-spacing:.5px;">── 월간 ──</div>'+mHtml;}
+  }
+  // ── 주간 ──
+  if(tab==='all'||tab==='week'||tab==='end'||tab==='ks'||tab==='retro'){
+    var wHtml='';
+    wkEntries.slice(0,16).forEach(function(e){
+      var hasEnd=e.d.left&&(tab==='all'||tab==='week'||tab==='end');
+      var hasKs=e.d.right&&(tab==='all'||tab==='week'||tab==='ks');
+      var hasLR=e.d.leftR&&(tab==='all'||tab==='week'||tab==='retro');
+      var hasRR=e.d.rightR&&(tab==='all'||tab==='week'||tab==='retro');
+      if(!hasEnd&&!hasKs&&!hasLR&&!hasRR)return;
+      var parts=e.key.replace('iso-','').split('-w');
+      var label=parts[0]+'년 '+parts[1]+'주차';
+      wHtml+='<div style="margin-bottom:8px;border:1px solid #dbeafe;border-radius:10px;overflow:hidden;">';
+      wHtml+='<div style="background:#eff6ff;padding:5px 12px;font-size:10px;font-weight:700;color:#1d4ed8;">📆 '+label+'</div>';
+      if(hasEnd)wHtml+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;"><div style="font-size:9px;font-weight:700;color:var(--pk);letter-spacing:.5px;margin-bottom:3px;">🎯 끝점</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.left)+'</div></div>';
+      if(hasLR)wHtml+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;background:#fff8f8;"><div style="font-size:9px;font-weight:700;color:#e53e3e;letter-spacing:.5px;margin-bottom:3px;">📝 끝점 회고</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.leftR)+'</div></div>';
+      if(hasKs)wHtml+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;background:#f0f9ff;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:3px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.right)+'</div></div>';
+      if(hasRR)wHtml+='<div style="padding:8px 12px;border-top:1px solid #dbeafe;background:#f5f0ff;"><div style="font-size:9px;font-weight:700;color:#6d28d9;letter-spacing:.5px;margin-bottom:3px;">📝 Key Scene 회고</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.d.rightR)+'</div></div>';
+      wHtml+='</div>';
+    });
+    if(wHtml){html+='<div style="font-size:11px;font-weight:700;color:#aaa;margin:8px 0 6px;letter-spacing:.5px;">── 주간 ──</div>'+wHtml;}
+  }
+  // ── 일간 ──
+  if(tab==='all'||tab==='day'||tab==='ks'||tab==='retro'){
+    var dHtml='';
+    dayEntries.forEach(function(e){
+      var hasKs=e.ks&&(tab==='all'||tab==='day'||tab==='ks');
+      var hasR=e.retro&&(tab==='all'||tab==='day'||tab==='retro');
+      if(!hasKs&&!hasR)return;
+      dHtml+='<div style="margin-bottom:7px;border:1px solid #d1fae5;border-radius:10px;overflow:hidden;">';
+      dHtml+='<div style="background:#f0fdf4;padding:5px 12px;font-size:10px;font-weight:700;color:#065f46;">🌅 '+e.label+'</div>';
+      if(hasKs)dHtml+='<div style="padding:8px 12px;border-top:1px solid #d1fae5;"><div style="font-size:9px;font-weight:700;color:#7C3AED;letter-spacing:.5px;margin-bottom:3px;">✨ Key Scene</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.ks)+'</div></div>';
+      if(hasR)dHtml+='<div style="padding:8px 12px;border-top:1px solid #d1fae5;background:#fff8f8;"><div style="font-size:9px;font-weight:700;color:#e53e3e;letter-spacing:.5px;margin-bottom:3px;">📝 회고</div><div style="font-size:12px;color:#333;white-space:pre-wrap;">'+esc(e.retro)+'</div></div>';
+      dHtml+='</div>';
+    });
+    if(dHtml){html+='<div style="font-size:11px;font-weight:700;color:#aaa;margin:8px 0 6px;letter-spacing:.5px;">── 일간 ──</div>'+dHtml;}
+  }
+  if(!html)html='<div style="color:#aaa;text-align:center;padding:24px;">해당 항목이 없습니다.</div>';
   document.getElementById('keySceneViewBody').innerHTML=html;
+}
+function openKeySceneView(){
+  _ksTab='all';
   show('mKeySceneView');
+  // 탭 버튼 초기 상태 복원
+  setTimeout(function(){setKsTab('all');},0);
 }
 function openPdsAcc(mode, weekOff){
   var p=cp();
@@ -2269,6 +2349,29 @@ var dragC=-1,dragI=-1;
 function planToText(plan){if(!plan)return'';if(typeof plan==='string')return plan;return plan.map(function(it){return(it.done?'☑ ':'☐ ')+it.text;}).join('\n');}
 // ── 숫자 목표 함수 ──────────────────────────────────────────
 function getMonthDateKeys(y,m){var keys=[],dim=getDIM(y,m);for(var d=1;d<=dim;d++)keys.push(y+'-'+(m+1)+'-'+d);return keys;}
+function getKrHolidays(y,m){
+  // m: 1-indexed month
+  var h={};
+  function add(mo,d,name,type){if(mo===m)h[d]={name:name,type:type||'red'};}
+  // 양력 공휴일
+  add(1,1,'신정');add(3,1,'삼일절');add(5,5,'어린이날');add(6,6,'현충일');
+  add(8,15,'광복절');add(10,3,'개천절');add(10,9,'한글날');add(12,25,'성탄절');
+  // 24절기
+  var jk=[[1,6,'소한'],[1,20,'대한'],[2,4,'입춘'],[2,19,'우수'],[3,6,'경칩'],[3,21,'춘분'],
+    [4,5,'청명'],[4,20,'곡우'],[5,6,'입하'],[5,21,'소만'],[6,6,'망종'],[6,21,'하지'],
+    [7,7,'소서'],[7,23,'대서'],[8,7,'입추'],[8,23,'처서'],[9,8,'백로'],[9,23,'추분'],
+    [10,8,'한로'],[10,23,'상강'],[11,7,'입동'],[11,22,'소설'],[12,7,'대설'],[12,22,'동지']];
+  jk.forEach(function(j){add(j[0],j[1],j[2],'green');});
+  // 음력 공휴일 (hardcoded 2024-2027)
+  var lunar={
+    2024:{2:{9:'설날',10:'설날연휴',11:'설날연휴',12:'대체공휴일'},5:{15:'부처님오신날'},9:{16:'추석연휴',17:'추석',18:'추석연휴'}},
+    2025:{1:{28:'설날연휴',29:'설날',30:'설날연휴'},5:{5:'부처님오신날',6:'대체공휴일'},10:{5:'추석연휴',6:'추석',7:'추석연휴',8:'대체공휴일'}},
+    2026:{2:{16:'설날연휴',17:'설날',18:'설날연휴'},5:{24:'부처님오신날'},9:{24:'추석연휴',25:'추석',26:'추석연휴'}},
+    2027:{2:{6:'설날연휴',7:'설날',8:'설날연휴'},5:{13:'부처님오신날'},10:{4:'추석연휴',5:'추석',6:'추석연휴'}}
+  };
+  if(lunar[y]&&lunar[y][m]){Object.keys(lunar[y][m]).forEach(function(d){h[parseInt(d)]={name:lunar[y][m][d],type:'red'};});}
+  return h;
+}
 function getWeekDateKeys(s,e){var keys=[],cur=new Date(s);var end=new Date(e);end.setHours(23,59,59,999);while(cur<=end){keys.push(cur.getFullYear()+'-'+(cur.getMonth()+1)+'-'+cur.getDate());cur.setDate(cur.getDate()+1);}return keys;}
 function getQuarterDateKeys(startDate,endDate){if(!startDate||!endDate)return[];var keys=[],cur=new Date(startDate),end=new Date(endDate);end.setHours(23,59,59,999);while(cur<=end){keys.push(cur.getFullYear()+'-'+(cur.getMonth()+1)+'-'+cur.getDate());cur.setDate(cur.getDate()+1);}return keys;}
 function countGoalInDates(goalId,dateKeys){var p=cp(),todos=p.todosByDate||{},count=0;for(var di=0;di<dateKeys.length;di++){var dk=dateKeys[di],day=todos[dk];if(!day||!Array.isArray(day))continue;for(var c=0;c<day.length;c++){if(!Array.isArray(day[c]))continue;for(var t=0;t<day[c].length;t++){if(day[c][t]&&day[c][t].done&&day[c][t].goalId===goalId)count++;}}}return count;}
