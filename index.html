@@ -977,8 +977,10 @@ function render(){
     var col=i%7;
     var nc=isT?'var(--pk)':(hol&&hol.type==='red')?'#e53e3e':col===5?'#4a9eff':col===6?'#FF2D78':'var(--dk)';
     out+='<div class="cal-cell'+(isT?' today':'')+(!d.cur?' other':'')+'"'+(d.cur?' onclick="openEv(\''+ck+'\')" ondragover="calDragOver(event)" ondrop="calDrop(\''+ck+'\',event)"':'')+' style="cursor:'+(d.cur?'pointer':'default')+'">';
-    out+='<div class="cal-num" style="color:'+nc+'">'+d.day+'</div>';
-    if(hol){var hc=hol.type==='red'?'#e53e3e':'#059669';var hbg=hol.type==='red'?'#fff0f0':'#f0fdf4';out+='<div style="font-size:8px;font-weight:700;color:'+hc+';background:'+hbg+';border-radius:3px;padding:0 3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">'+esc(hol.name)+'</div>';}
+    out+='<div style="display:flex;align-items:baseline;gap:3px;overflow:hidden;">';
+    out+='<span class="cal-num" style="color:'+nc+';flex-shrink:0;">'+d.day+'</span>';
+    if(hol){var hc=hol.type==='red'?'#e53e3e':'#059669';out+='<span style="font-size:8px;font-weight:700;color:'+hc+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;">'+esc(hol.name)+'</span>';}
+    out+='</div>';
     if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
@@ -2362,14 +2364,44 @@ function getKrHolidays(y,m){
     [7,7,'소서'],[7,23,'대서'],[8,7,'입추'],[8,23,'처서'],[9,8,'백로'],[9,23,'추분'],
     [10,8,'한로'],[10,23,'상강'],[11,7,'입동'],[11,22,'소설'],[12,7,'대설'],[12,22,'동지']];
   jk.forEach(function(j){add(j[0],j[1],j[2],'green');});
-  // 음력 공휴일 (hardcoded 2024-2027)
+  // 음력 공휴일 + 대체공휴일 (2024-2027)
   var lunar={
-    2024:{2:{9:'설날',10:'설날연휴',11:'설날연휴',12:'대체공휴일'},5:{15:'부처님오신날'},9:{16:'추석연휴',17:'추석',18:'추석연휴'}},
-    2025:{1:{28:'설날연휴',29:'설날',30:'설날연휴'},5:{5:'부처님오신날',6:'대체공휴일'},10:{5:'추석연휴',6:'추석',7:'추석연휴',8:'대체공휴일'}},
-    2026:{2:{16:'설날연휴',17:'설날',18:'설날연휴'},5:{24:'부처님오신날'},9:{24:'추석연휴',25:'추석',26:'추석연휴'}},
-    2027:{2:{6:'설날연휴',7:'설날',8:'설날연휴'},5:{13:'부처님오신날'},10:{4:'추석연휴',5:'추석',6:'추석연휴'}}
+    2024:{
+      2:{9:'설날',10:'설날연휴',11:'설날연휴',12:'대체공휴일'},
+      5:{6:'대체공휴일',15:'부처님오신날'},
+      9:{16:'추석연휴',17:'추석',18:'추석연휴'}
+    },
+    2025:{
+      1:{28:'설날연휴',29:'설날',30:'설날연휴'},
+      3:{3:'대체공휴일'},
+      5:{5:'부처님오신날',6:'대체공휴일'},
+      10:{5:'추석연휴',6:'추석',7:'추석연휴',8:'대체공휴일'}
+    },
+    2026:{
+      2:{16:'설날연휴',17:'설날',18:'설날연휴'},
+      3:{2:'대체공휴일'},
+      5:{24:'부처님오신날',25:'대체공휴일'},
+      6:{8:'대체공휴일'},
+      8:{17:'대체공휴일'},
+      9:{24:'추석연휴',25:'추석',26:'추석연휴',28:'대체공휴일'},
+      10:{5:'대체공휴일'}
+    },
+    2027:{
+      2:{5:'설날연휴',6:'설날',7:'설날연휴',8:'대체공휴일',9:'대체공휴일'},
+      5:{13:'부처님오신날'},
+      10:{4:'추석연휴',5:'추석',6:'추석연휴'}
+    }
   };
   if(lunar[y]&&lunar[y][m]){Object.keys(lunar[y][m]).forEach(function(d){h[parseInt(d)]={name:lunar[y][m][d],type:'red'};});}
+  // 양력 공휴일 대체공휴일 자동 계산
+  var solar=[[1,1],[3,1],[5,5],[6,6],[8,15],[10,3],[10,9],[12,25]];
+  solar.forEach(function(s){
+    var mo=s[0],day=s[1];
+    var dt=new Date(y,mo-1,day);
+    var dow=dt.getDay(); // 0=일,6=토
+    if(dow===0){var sub=new Date(y,mo-1,day+1);if(!h[sub.getDate()]||h[sub.getDate()].name.indexOf('절기')<0)add(sub.getMonth()+1,sub.getDate(),'대체공휴일','red');}
+    if(dow===6){var sub2=new Date(y,mo-1,day+2);if(!h[sub2.getDate()]||h[sub2.getDate()].name.indexOf('절기')<0)add(sub2.getMonth()+1,sub2.getDate(),'대체공휴일','red');}
+  });
   return h;
 }
 function getWeekDateKeys(s,e){var keys=[],cur=new Date(s);var end=new Date(e);end.setHours(23,59,59,999);while(cur<=end){keys.push(cur.getFullYear()+'-'+(cur.getMonth()+1)+'-'+cur.getDate());cur.setDate(cur.getDate()+1);}return keys;}
