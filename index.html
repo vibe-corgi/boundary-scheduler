@@ -981,7 +981,7 @@ function render(){
     out+='<span class="cal-num" style="color:'+nc+';flex-shrink:0;">'+d.day+'</span>';
     if(hol){var hc=hol.type==='red'?'#e53e3e':'#059669';out+='<span style="font-size:8px;font-weight:700;color:'+hc+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;">'+esc(hol.name)+'</span>';}
     out+='</div>';
-    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
+    if(d.cur){for(var j=0;j<evs.length;j++){var ev=evs[j].ev,oi=evs[j].oi,tx=ev.text.length>6?ev.text.slice(0,6)+'…':ev.text;var evCs=ev.color?'background:'+ev.color+'22;color:'+ev.color+';':'';out+='<div class="cal-ev" draggable="true" title="'+esc(ev.text)+'" ondragstart="calDragStart(\''+ck+'\','+oi+',event)" ondragend="calDragEnd()" onclick="event.stopPropagation();openEvEdit(\''+ck+'\','+oi+')"'+(evCs?' style="'+evCs+'"':'')+'>'+['①','②','③'][ev.p-1]+' '+esc(tx)+'</div>';}out+='<div class="cal-plus">'+(evs.length===0?'+ 추가':'+ 더 추가')+'</div>';}
     out+='</div>';
   }
   out+='</div>';
