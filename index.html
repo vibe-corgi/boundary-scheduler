@@ -3625,6 +3625,17 @@ function mbSetupDragListeners() {
     // 고스트 이동
     _mbDrag.ghost.style.top = (touch.clientY - _mbDrag.ghostOffY) + 'px';
 
+    // 손가락이 위치한 카테고리 추적 (크로스 카테고리 이동용)
+    if (_mbDrag.type === 'todo') {
+      var catCols = document.querySelectorAll('[data-cat]');
+      catCols.forEach(function(col) {
+        var r = col.getBoundingClientRect();
+        if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) {
+          _mbDrag.toCat = parseInt(col.dataset.cat);
+        }
+      });
+    }
+
     // 드롭 위치 계산
     var insertBefore = mbCalcInsert(touch.clientY);
     _mbDrag.insertBefore = insertBefore;
@@ -3657,15 +3668,11 @@ function mbSetupDragListeners() {
     // 제거 후 배열이 앞당겨지므로 insertBefore > from 이면 1 감소
     var to = insertBefore > from ? insertBefore - 1 : insertBefore;
 
-    if (_mbDrag.type === 'todo' && _mbDrag.lastX != null) {
-      // 드롭 위치의 카테고리 감지
-      var dropPt = document.elementFromPoint(_mbDrag.lastX, _mbDrag.lastY);
-      var catEl = dropPt;
-      while (catEl && catEl.dataset.cat === undefined) catEl = catEl.parentElement;
-      var toCat = (catEl && catEl.dataset.cat !== undefined) ? parseInt(catEl.dataset.cat) : _mbDrag.cat;
+    if (_mbDrag.type === 'todo') {
+      var toCat = (_mbDrag.toCat !== undefined) ? _mbDrag.toCat : _mbDrag.cat;
 
       // cat===0 내부: 최우선/일반 섹션 감지
-      if (toCat === 0 && _mbDrag.cat === 0) {
+      if (toCat === 0 && _mbDrag.cat === 0 && _mbDrag.lastX != null) {
         var secEl = dropPt;
         while (secEl && !secEl.dataset.todo80sec) secEl = secEl.parentElement;
         if (secEl) {
@@ -3714,7 +3721,7 @@ function mbDS(e, type, cat, idx, pk) {
   var touch = e.touches[0];
   var startY = touch.clientY;
   _mbDrag = {
-    type: type, cat: cat, fromIdx: idx, insertBefore: null, pk: pk,
+    type: type, cat: cat, toCat: cat, fromIdx: idx, insertBefore: null, pk: pk,
     startY: startY, active: false, ghost: null, srcEl: itemEl,
     timer: setTimeout(function() {
       _mbDrag.active = true;
