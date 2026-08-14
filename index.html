@@ -203,7 +203,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#f5f4f0;min-height:100vh;}
 .todo-item{display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid #f5f5f5;cursor:grab;}
 .todo-item:last-child{border-bottom:none;}
 .todo-item.dragging{opacity:.4;}
-.drag-h{font-size:12px;color:#ddd;flex-shrink:0;user-select:none;}
+.drag-h{font-size:12px;color:#ddd;flex-shrink:0;user-select:none;touch-action:none;-webkit-user-select:none;cursor:grab;}
 .todo-cb{width:13px;height:13px;cursor:pointer;flex-shrink:0;accent-color:var(--pk);}
 .todo-txt{font-size:12px;color:var(--dk);flex:1;line-height:1.4;}
 .todo-txt.done{text-decoration:line-through;opacity:.35;}
